@@ -1,0 +1,19 @@
+{
+  "name": "offline-plugin",
+  "version": "0.0.1",
+  "description": "Webpack offline-plugin (WIP)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NekR/offline-plugin.git"
+  },
+  "author": "Arthur Stolyar <nekr.fabula@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NekR/offline-plugin/issues"
+  },
+  "homepage": "https://github.com/NekR/offline-plugin"
+}
