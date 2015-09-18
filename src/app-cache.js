@@ -16,14 +16,31 @@ export default class AppCache {
       const cache = plugin.caches[name];
       if (!Array.isArray(cache) || !cache.length) return;
 
-      const manifest = this.getManifestTemplate(cache, plugin);
-      const page = this.getPageTemplate(name, plugin);
-
+      const hasAdditional = name === 'main' && this.hasAdditionalCache(plugin);
       const path = this.directory + name;
+      const manifest = this.getManifestTemplate(cache, plugin);
+      const page = this.getPageTemplate(
+        name,
+        hasAdditional ? this.getAdditionalLoad(plugin) : ''
+      );
 
       compilation.assets[path + '.appcache'] = getSource(manifest);
       compilation.assets[path + '.html'] = getSource(page);
     });
+  }
+
+  hasAdditionalCache(plugin) {
+    const caches = plugin.options.caches;
+
+    if (
+      caches !== 'all' && (
+        (caches.additional && caches.additional.length) ||
+        (!caches.additional && (
+          (caches.main && caches.main.indexOf(plugin.REST_KEY) === -1) ||
+          !caches.main
+        ))
+      )
+    ) return true;
   }
 
   getManifestTemplate(cache, plugin) {
@@ -53,31 +70,47 @@ export default class AppCache {
     `.trim().replace(/^      */gm, '');
   }
 
-  getPageTemplate(name) {
+  getPageTemplate(name, content) {
     return `
       <!doctype html>
-      <html manifest="${ name }.appcache">
-        <script>
-          (function() {
-            var called = false;
+      <html manifest="${ name }.appcache">${ content || '' }</html>
+    `;
+  }
 
-            [
-              'cached',
-              'noupdate',
-              'obsolete',
-              'updateready',
-              // 'error',
-            ].forEach(function(event) {
-              applicationCache.addEventListener(event, function() {
-                if (called) return;
-                called = true;
+  getAdditionalLoad(plugin) {
+    var directory = this.getConfig(plugin).directory;
 
-                
-              }, false);
-            });
-          }());
-        </script>
-      </html>
+    return `
+      <script>
+        (function() {
+          var called = false;
+
+          [
+            'cached',
+            'noupdate',
+            'obsolete',
+            'updateready',
+            // 'error',
+          ].forEach(function(event) {
+            applicationCache.addEventListener(event, function() {
+              if (called) return;
+              called = true;
+
+              var directory = ${ JSON.stringify(directory) };
+
+              setTimeout(function() {
+                var page = directory + 'additional.html';
+                var iframe = document.createElement('iframe');
+
+                iframe.src = page;
+                iframe.style.display = 'none';
+
+                document.body.appendChild(iframe);
+              });
+            }, false);
+          });
+        }());
+      </script>
     `;
   }
 

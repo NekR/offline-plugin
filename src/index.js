@@ -4,8 +4,6 @@ import ServiceWorker from './service-worker';
 import path from 'path';
 import deepExtend from 'deep-extend';
 
-const REST_KEY = ':rest:';
-
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
@@ -70,6 +68,7 @@ export default class OfflinePlugin {
       };
     }
 
+    this.REST_KEY = ':rest:';
     this.entryPrefix = '__offline_';
     this.tools = {};
 
@@ -90,11 +89,7 @@ export default class OfflinePlugin {
           return callback(null, result);
         }
 
-        const caches = this.options.caches;
-        const data = {
-          hasAdditionalCache:
-            !!(caches !== 'all' && caches.additional && caches.additional.length)
-        };
+        const data = {};
 
         this.useTools((tool, key) => {
           data[key] = tool.getConfig(this);
@@ -148,13 +143,13 @@ export default class OfflinePlugin {
       this.caches = [
         'main', 'additional', 'optional'
       ].reduce((result, key) => {
-        const cache = Array.isArray(caches[key]) ? caches[key] : [REST_KEY];
+        const cache = Array.isArray(caches[key]) ? caches[key] : [this.REST_KEY];
         let cacheResult = [];
 
         if (!cache.length) return result;
 
         cache.some((cacheKey) => {
-          if (cacheKey === REST_KEY) {
+          if (cacheKey === this.REST_KEY) {
             if (assets.length) {
               cacheResult = cacheResult.concat(assets);
               assets = [];
