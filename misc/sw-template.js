@@ -40,7 +40,9 @@ function WebpackServiceWorker(params) {
       deletion = deletion;
     }
 
-    event.waitUntil(Promise.all([caching, deletion]));
+    event.waitUntil(Promise.all([caching, deletion]).then(function() {
+      if (self.skipWaiting) self.skipWaiting();
+    }));
   });
 
   function cacheAssets(section) {
