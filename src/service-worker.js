@@ -73,7 +73,8 @@ export default class ServiceWorker {
           additional: cache('additional'),
           optional: cache('optional'),
         },
-        version: plugin.version,
+        version: plugin.strategy === 'all' ? plugin.version : void 0,
+        hash: plugin.strategy === 'hash' ? plugin.hash : void 0,
         name: this.CACHE_NAME
       }, null, minify ? void 0 : '  ') };
     `.trim();

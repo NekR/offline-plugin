@@ -7,9 +7,11 @@ import deepExtend from 'deep-extend';
 const REST_KEY = ':rest:';
 
 const hasOwn = {}.hasOwnProperty;
+const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
   caches: 'all',
   scope: '/',
+  updateStrategy: 'all',
   get version() {
     return (new Date).toLocaleString();
   },
@@ -33,9 +35,16 @@ const defaultOptions = {
 export default class OfflinePlugin {
   constructor(options) {
     this.options = deepExtend({}, defaultOptions, options);
+    this.hash = null;
     this.assets = null;
     this.version = this.options.version + '';
     this.scope = this.options.scope.replace(/\/$/, '/');
+
+    this.strategy = this.options.updateStrategy;
+
+    if (updateStrategies.indexOf(this.strategy) === -1) {
+      throw new Error(`Update strategy must be one of [${ updateStrategies }]`);
+    }
 
     const rewrites = this.options.rewrites || defaultOptions.rewrites;
 
@@ -107,19 +116,20 @@ export default class OfflinePlugin {
         return tool.addEntry(this, compilation, compiler);
       }).then(() => {
         callback();
-      }).catch(() => {
+      }, () => {
         throw new Error('Something went wrong');
       });
     });
 
     compiler.plugin('emit', (compilation, callback) => {
+      this.hash = compilation.getStats().toJson().hash;
       this.setAssets(Object.keys(compilation.assets));
 
       this.useTools((tool) => {
         return tool.apply(this, compilation, compiler);
       }).then(() => {
         callback();
-      }).catch(() => {
+      }, () => {
         throw new Error('Something went wrong');
       });
     });

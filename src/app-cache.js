@@ -27,9 +27,23 @@ export default class AppCache {
   }
 
   getManifestTemplate(cache, plugin) {
+    let tag;
+
+    if (plugin.strategy === 'all') {
+      tag = 'ver:' + plugin.version;
+    }
+
+    if (plugin.strategy === 'changed') {
+      tag = ':static';
+    }
+
+    if (plugin.strategy === 'hash') {
+      tag = 'hash:' + plugin.hash;
+    }
+
     return `
       CACHE MANIFEST
-      #ver. ${ plugin.version }
+      #${ tag }
 
       CACHE:
       ${ cache.join('\n') }

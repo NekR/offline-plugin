@@ -1,11 +1,17 @@
 WebpackServiceWorker(%data_var_name%);
 
 function WebpackServiceWorker(params) {
+  var strategy;
   var assets = params.assets;
+  var tagMap = {
+    all: params.version,
+    changed: 'static',
+    hash: params.hash
+  };
 
-  var CACHE_NAME = params.name;
-  var CACHE_VERSION = params.version;
-  var CACHE_KEY = CACHE_NAME + ':' + CACHE_VERSION;
+  var CACHE_PREFIX = params.name;
+  var CACHE_TAG = tagMap[strategy];
+  var CACHE_NAME = CACHE_PREFIX + ':' + CACHE_TAG;
 
   var allAssets = [].concat(assets.main, assets.additional, assets.optional);
 
@@ -13,15 +19,7 @@ function WebpackServiceWorker(params) {
     console.log('[SW]:', 'Install event');
 
     event.waitUntil(
-      caches.open(CACHE_KEY).then(function(cache) {
-        return cache.addAll(assets.main);
-      }).then(function() {
-        console.groupCollapsed('[SW]:', 'Cached assets: main');
-        assets.main.forEach(function(asset) {
-          console.log('Asset:', asset);
-        });
-        console.groupEnd();
-      })
+      cacheAssets('main')
     );
   });
 
@@ -29,31 +27,74 @@ function WebpackServiceWorker(params) {
     console.log('[SW]:', 'Activate event');
 
     var caching;
+    var deletion = deleteObsolete();
 
     if (assets.additional.length) {
-      caching = caches.open(CACHE_KEY).then(function(cache) {
-        return cache.addAll(assets.additional).then(function() {
-          console.groupCollapsed('[SW]:', 'Cached assets: additional');
-          assets.additional.forEach(function(asset) {
-            console.log('Asset:', asset);
-          });
-          console.groupEnd();
-        });
-      });
+      caching = strategy === 'changed' ?
+        updateChanged() : cacheAssets('additional');
     } else {
       caching = Promise.resolve();
     }
 
-    var deletion = caches.keys().then(function(names) {
+    if (strategy === 'changed') {
+      deletion = deletion;
+    }
+
+    event.waitUntil(Promise.all([caching, deletion]));
+  });
+
+  function cacheAssets(section) {
+    return caches.open(CACHE_NAME).then(function(cache) {
+      return cache.addAll(assets[section]).then(function() {
+        console.groupCollapsed('[SW]:', 'Cached assets: ' + section);
+        assets[section].forEach(function(asset) {
+          console.log('Asset:', asset);
+        });
+        console.groupEnd();
+      });
+    })
+  }
+
+  function deleteObsolete() {
+    return caches.keys().then(function(names) {
       return Promise.all(names.map(function(name) {
-        if (name === CACHE_KEY || name.indexOf(CACHE_NAME) !== 0) return;
+        if (name === CACHE_NAME || name.indexOf(CACHE_PREFIX) !== 0) return;
         console.log('[SW]:', 'Delete cache:', name);
         return caches.delete(name);
       }));
     });
+  }
 
-    event.waitUntil(Promise.all([caching, deletion]));
-  });
+  function updateChanged() {
+    var cache;
+
+    return caches.open(CACHE_NAME).then(function(_cache) {
+      cache = _cache;
+      return _cache.keys();
+    }).then(function(keys) {
+      var diff = assets.additional.concat();
+      var deletion = keys.map(function(req) {
+        var url = new URL(req.url);
+
+        if (allAssets.indexOf(url.pathname) === -1) {
+          return cache.delete(req);
+        }
+
+        var index = diff.indexOf(url.pathname);
+
+        if (index !== -1) {
+          diff.splice(index, 1);
+        }
+      });
+
+      var caching = cache.addAll(diff);
+
+      return Promise.all([
+        Promise.all(deletion),
+        caching
+      ]);
+    });
+  }
 
   self.addEventListener('fetch', function(event) {
     var url = new URL(event.request.url);
@@ -97,7 +138,7 @@ function WebpackServiceWorker(params) {
 
         var responseClone = response.clone();
 
-        caches.open(CACHE_KEY).then(function(cache) {
+        caches.open(CACHE_NAME).then(function(cache) {
           return cache.put(event.request, responseClone);
         }).then(function() {
           if (DEBUG) {
