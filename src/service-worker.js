@@ -1,24 +1,28 @@
 import SingleEntryDependency from 'webpack/lib/dependencies/SingleEntryDependency';
-import fs from 'fs';
 import path from 'path';
+import webpack from 'webpack';
 
-const cachePolyfill = fs.readFileSync(
-  path.join(__dirname, '../misc/cache-polyfill.js')
-);
+import getSource from '../misc/get-source';
 
 export default class ServiceWorker {
   constructor(options) {
     this.output = options.output;
     this.entry = options.entry;
-    this.entryName = 'serviceworker';
-    this.scope = options.scope;
+
+    this.ENTRY_NAME = 'serviceworker';
+    this.CACHE_NAME = 'webpack-offline';
+    this.SW_DATA_VAR = '__wpo';
   }
 
   addEntry(plugin, compilation, compiler) {
     if (!this.entry) return Promise.resolve();
 
-    const name = plugin.entryPrefix + this.entryName;
-    const dep = new SingleEntryDependency(this.entry);
+    const data = JSON.stringify({
+      data_var_name: this.SW_DATA_VAR
+    });
+    const loader = path.join(__dirname, '../misc/sw-loader.js') + '?' + data;
+    const name = plugin.entryPrefix + this.ENTRY_NAME;
+    const dep = new SingleEntryDependency(loader + '!' + this.entry);
     dep.loc = name;
 
     return new Promise((resolve) => {
@@ -29,10 +33,14 @@ export default class ServiceWorker {
   }
 
   apply(plugin, compilation, compiler) {
-    let source = this.getTemplate(plugin.caches);
+    const minify = (compiler.options.plugins || []).some((plugin) => {
+      return plugin instanceof webpack.optimize.UglifyJsPlugin;
+    });
+
+    let source = this.getDataTemplate(plugin.caches, plugin, minify);
 
     if (this.entry) {
-      let name = plugin.entryPrefix + this.entryName;
+      let name = plugin.entryPrefix + this.ENTRY_NAME;
       let entry = compilation.assets[name]
 
       if (!entry) {
@@ -50,119 +58,30 @@ export default class ServiceWorker {
       source += '\n\n' + entry;
     }
 
-    compilation.assets[this.output] = {
-      source() {
-        return source;
-      },
-      size() {
-        return Buffer.byteLength(source, 'utf8');
-      }
-    };
+    compilation.assets[this.output] = getSource(source);
   }
 
-  getTemplate(data) {
-    var cache = (key) => {
-      return (data[key] || [])
-        .map((asset) => JSON.stringify(asset)).join(',\n');
+  getDataTemplate(data, plugin, minify) {
+    const cache = (key) => {
+      return (data[key] || []);
     };
 
     return `
-      polyfill();
-
-      var CACHE_NAME = 'webpack-offline';
-      var CACHE_VERSION = ${ 0 };
-
-      var mainCache = [
-        ${ cache('main') }
-      ];
-
-      var additionalCache = [
-        ${ cache('additional') }
-      ];
-
-      var optionalCache = [
-        ${ cache('optional') }
-      ];
-
-      self.addEventListener('install', function(event) {
-        event.waitUntil(
-          caches.open(CACHE_NAME).then(function(cache) {
-            return cache.addAll(mainCache);
-          })
-        );
-      });
-
-      self.addEventListener('activate', function(event) {
-        var cache;
-        var update = caches.open(CACHE_NAME).then(function(c) {
-          cache = c;
-          return cache.keys()
-        }).then(function(keys) {
-          return Promise.all(keys.map(function(request) {
-            var url = new URL(request.url);
-            if (mainCache.indexOf(url.pathname) !== -1) return;
-
-            console.log('delete:', url.href);
-            return cache.delete(request);
-          }))
-        }).then(function() {
-          return cache.addAll(additionalCache);
-        });
-
-        event.waitUntil(update);
-      });
-
-      self.addEventListener('fetch', function(event) {
-        var url = new URL(event.request.url);
-
-        if (
-          url.origin !== location.origin ||
-          optionalCache.indexOf(url.pathname) === -1
-        ) {
-          event.respondWith(
-            caches.match(event.request).then(function(response) {
-              return response || fetch(event.request);
-            })
-          );
-
-          return;
-        }
-
-        var resource = caches.match(event.request).then(function(response) {
-          if (response) {
-            return response;
-          }
-
-          return fetch(event.request.clone()).then(function(response) {
-            if (
-              !response || response.status !== 200 ||
-              response.type !== 'basic'
-            ) {
-              return response;
-            }
-
-            var responseClone = response.clone();
-
-            caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(event.request, responseClone);
-            });
-
-            return response;
-          });
-        })
-
-        event.respondWith(resource);
-      });
-
-      function polyfill() {
-        ${ cachePolyfill }
-      }
-    `.trim().replace(/^      /gm, '');;
-  }
+      var ${ this.SW_DATA_VAR } = ${ JSON.stringify({
+        assets: {
+          main: cache('main'),
+          additional: cache('additional'),
+          optional: cache('optional'),
+        },
+        version: plugin.version,
+        name: this.CACHE_NAME
+      }, null, minify ? void 0 : '  ') };
+    `.trim();
+  };
 
   getConfig(plugin) {
     return {
-      output: plugin.options.scope + this.output
+      output: plugin.scope + this.output
     };
   }
 }

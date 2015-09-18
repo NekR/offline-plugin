@@ -4,7 +4,6 @@ export default class AppCache {
   constructor(options) {
     this.NETWORK = options.NETWORK;
     this.directory = options.directory.replace(/\/$/, '/');
-    this.entryName = 'appcache';
   }
 
   addEntry(plugin, compilation, compiler) {
@@ -17,8 +16,8 @@ export default class AppCache {
       const cache = plugin.caches[name];
       if (!Array.isArray(cache) || !cache.length) return;
 
-      const manifest = this.getManifestTemplate(cache);
-      const page = this.getPageTemplate(name);
+      const manifest = this.getManifestTemplate(cache, plugin);
+      const page = this.getPageTemplate(name, plugin);
 
       const path = this.directory + name;
 
@@ -27,10 +26,10 @@ export default class AppCache {
     });
   }
 
-  getManifestTemplate(cache) {
+  getManifestTemplate(cache, plugin) {
     return `
       CACHE MANIFEST
-      #version
+      #ver. ${ plugin.version }
 
       CACHE:
       ${ cache.join('\n') }
@@ -70,7 +69,7 @@ export default class AppCache {
 
   getConfig(plugin) {
     return {
-      directory: plugin.options.scope + this.directory
+      directory: plugin.scope + this.directory
     };
   }
 }

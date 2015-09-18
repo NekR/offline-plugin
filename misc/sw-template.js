@@ -1,81 +1,114 @@
-require('./cache-polyfill');
+WebpackServiceWorker(%data_var_name%);
 
-var CACHE_NAME = 'webpack-offline';
+function WebpackServiceWorker(params) {
+  var assets = params.assets;
 
-var mainCache = [
-  %main_cache%
-];
+  var CACHE_NAME = params.name;
+  var CACHE_VERSION = params.version;
+  var CACHE_KEY = CACHE_NAME + ':' + CACHE_VERSION;
 
-var additionalCache = [
-  %additional_cache%
-];
+  var allAssets = [].concat(assets.main, assets.additional, assets.optional);
 
-var optionalCache = [
-  %optional_cache%
-];
+  self.addEventListener('install', function(event) {
+    console.log('[SW]:', 'Install event');
 
-self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(mainCache);
-    })
-  );
-});
-
-self.addEventListener('activate', function(event) {
-  var update = caches.open(CACHE_NAME).then(function(cache) {
-    return cache.keys().map(function(key) {
-      if (mainCache.indexOf(key) !== -1) return;
-
-      return cache.delete(key);
-    }).then(function() {
-      return cache;
-    });
-  }).then(function(cache) {
-    return cache.addAll(additionalCache);
-  });
-
-  event.waitUntil(update);
-});
-
-optionalCache.length && self.addEventListener('fetch', function(event) {
-  var url = new URL(event.request.url);
-
-  if (
-    url.origin !== location.origin ||
-    optionalCache.indexOf(url.pathname) === -1
-  ) {
-    event.respondWith(
-      caches.match(event.request).then(function(response) {
-        return response || fetch(event.request);
+    event.waitUntil(
+      caches.open(CACHE_KEY).then(function(cache) {
+        return cache.addAll(assets.main);
+      }).then(function() {
+        console.groupCollapsed('[SW]:', 'Cached assets: main');
+        assets.main.forEach(function(asset) {
+          console.log('Asset:', asset);
+        });
+        console.groupEnd();
       })
     );
+  });
 
-    return;
-  }
+  self.addEventListener('activate', function(event) {
+    console.log('[SW]:', 'Activate event');
 
-  var resource = caches.match(event.request).then(function(response) {
-    if (response) {
-      return response;
+    var caching;
+
+    if (assets.additional.length) {
+      caching = caches.open(CACHE_KEY).then(function(cache) {
+        return cache.addAll(assets.additional).then(function() {
+          console.groupCollapsed('[SW]:', 'Cached assets: additional');
+          assets.additional.forEach(function(asset) {
+            console.log('Asset:', asset);
+          });
+          console.groupEnd();
+        });
+      });
+    } else {
+      caching = Promise.resolve();
     }
 
-    return fetch(event.request.clone()).then(function(response) {
-      if (
-        !response || response.status !== 200 ||
-        response.type !== 'basic'
-      ) {
+    var deletion = caches.keys().then(function(names) {
+      return Promise.all(names.map(function(name) {
+        if (name === CACHE_KEY || name.indexOf(CACHE_NAME) !== 0) return;
+        console.log('[SW]:', 'Delete cache:', name);
+        return caches.delete(name);
+      }));
+    });
+
+    event.waitUntil(Promise.all([caching, deletion]));
+  });
+
+  self.addEventListener('fetch', function(event) {
+    var url = new URL(event.request.url);
+
+    if (
+      url.origin !== location.origin ||
+      allAssets.indexOf(url.pathname) === -1
+    ) {
+      if (DEBUG) {
+        console.log('Path [' + url.pathname + '] does not match any assets');
+      }
+
+      return event.respondWith(
+        fetch(event.request)
+      );
+    }
+
+    var resource = caches.match(event.request).then(function(response) {
+      if (response) {
+        if (DEBUG) {
+          console.log('Path [' + url.pathname + '] from cache');
+        }
+
         return response;
       }
 
-      var responseClone = response.clone();
+      return fetch(event.request.clone()).then(function(response) {
+        if (
+          !response || response.status !== 200 || response.type !== 'basic'
+        ) {
+          if (DEBUG) {
+            console.log('Path [' + url.pathname + '] wrong response');
+          }
 
-      caches.open(CACHE_NAME).then(function(cache) {
-        cache.put(event.request, responseClone);
+          return response;
+        }
+
+        if (DEBUG) {
+          console.log('Path [' + url.pathname + '] fetched');
+        }
+
+        var responseClone = response.clone();
+
+        caches.open(CACHE_KEY).then(function(cache) {
+          return cache.put(event.request, responseClone);
+        }).then(function() {
+          if (DEBUG) {
+            console.log('Path [' + url.pathname + '] cached');
+          }
+        });
+
+        return response;
       });
+    })
 
-      return response;
-    });
-  })
-
-  event.respondWith(resource);
-});
+    event.respondWith(resource);
+  });
+}

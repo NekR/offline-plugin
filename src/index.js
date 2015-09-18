@@ -11,7 +11,7 @@ const defaultOptions = {
   caches: 'all',
   scope: '/',
   get version() {
-    return Date.now();
+    return (new Date).toLocaleString();
   },
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
@@ -21,7 +21,7 @@ const defaultOptions = {
 
   ServiceWorker: {
     output: 'sw.js',
-    entry: null
+    entry: path.join(__dirname, '../misc/sw-entry.js')
   },
 
   AppCache: {
@@ -34,7 +34,8 @@ export default class OfflinePlugin {
   constructor(options) {
     this.options = deepExtend({}, defaultOptions, options);
     this.assets = null;
-    this.version = this.options.version;
+    this.version = this.options.version + '';
+    this.scope = this.options.scope.replace(/\/$/, '/');
 
     const rewrites = this.options.rewrites || defaultOptions.rewrites;
 
@@ -175,9 +176,11 @@ export default class OfflinePlugin {
       .map(this.rewrite)
       .filter(asset => !!asset)
       .map(key => {
-        if (key === '/') return key;
+        if (key === '/') {
+          return this.scope;
+        }
 
-        return this.options.scope + key;
+        return this.scope + key;
       });
   };
 

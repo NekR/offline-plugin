@@ -1,22 +1,30 @@
-module.exports = function(source) {
+var path = require('path');
+var fs = require('fs');
+var loaderUtils = require('loader-utils');
+
+module.exports = function() {};
+module.exports.pitch = function(remainingRequest, precedingRequest, data) {
   this.cacheable && this.cacheable();
 
-  var context = this.options.resolve.root || this.options.context;
+  var callback = this.async();
+  var templatePath = path.join(__dirname, 'sw-template.js');
   var params = JSON.parse(this.query.slice(1));
 
-  var data = {};
+  var request = loaderUtils.stringifyRequest(this, '!' + remainingRequest);
+  var source = 'module.exports = require(' + request + ')';
 
-  Object.keys(params.caches).forEach(function(key) {
-    data[key + '_cache'] = params.caches[key];
+  var polyfillRequest = loaderUtils.stringifyRequest(this, path.join(__dirname, 'cache-polyfill.js'));
+  var polyfill = 'require(' + polyfillRequest + ')';
+
+  this.addDependency(templatePath);
+
+  fs.readFile(templatePath, 'utf-8', function(err, template) {
+    if (err) return callback(err);
+
+    template = template.replace(/%([a-z_-]+?)%/gi, function(match, key) {
+      return params[key] || '';
+    });
+
+    callback(null, polyfill + '\n' + template + '\n' + source);
   });
-
-  source = source.replace(/%([a-z_-]+?)%/gi, function(match, key) {
-    return data[key] || '';
-  });
-
-  if (params.handler) {
-
-  }
-
-  return source;
 };
