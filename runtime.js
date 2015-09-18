@@ -1,5 +1,4 @@
 (function() {
-  // is service worker supported
   function install(options, callback, errback) {
     callback || (callback = function() {});
     errback || (errback = function() {});
