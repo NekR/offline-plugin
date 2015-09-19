@@ -9,7 +9,7 @@ This plugin is intended to provide basic offline(-first?) experience for **webpa
 ## Setup
 
 ```js
-// webpack.config.js
+// webpack.config.js example
 
 var OfflinePlugin = require('offline-plugin');
 
@@ -20,7 +20,20 @@ module.exports = {
     // ... other plugins
 
     new OfflinePlugin({
-      // options here
+      // All options are optional
+      caches: 'all',
+      scope: '/',
+      updateStrategy: 'all',
+      version: 'v1',
+
+      ServiceWorker: {
+        output: 'sw.js'
+      },
+
+      AppCache: {
+        NETWORK: '*',
+        directory: 'appcache/'
+      }
     })
   ]
   // ...
@@ -30,7 +43,7 @@ module.exports = {
 
 ## Options
 
-All options are optional and `offline-plugin` could be used without them. See full list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L9)
+All options are optional and `offline-plugin` could be used without specifying them. Also see full list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L9).
 
 * **caches**: `'all' | Object`. Tells to the plugin what to cache and how. Default: `'all'`.
   * `all`: means that everything (all the webpack output assets) will be cached in `main` cache.
@@ -47,3 +60,11 @@ All options are optional and `offline-plugin` could be used without them. See fu
   * `changed` strategy is more advanced than `all` or `hash`. To work properly it requires output assets to have unique names between compilations, e.g. _file's unique hash_ in its name. **With this strategy enabled, `index.html` file (or other files without dynamic name) should be placed in `main` section of the cache, otherwise they won't be revalidated**.
     * For `ServiceWorker` this means that only new files will be downloaded and missing files deleted from the cache.
     * For `AppCache` it's basically same as previous strategies since `AppCache` revalidates all the assets. 304 HTTP status rule of course still works.
+* **version**: `string`. Version of the cache. Is used only with `all` update strategy. Default: _Current date_.
+* **rewrites**: `Function | Object`. Rewrite function or rewrite map (`Object`). Useful when assets are server in a different way from the client perspective, e.g. usually `index.html` served as `/`. Default: _function which rewrite `/any/path/index.html` to `/any/path/`_.
+* **ServiceWorker**: `Object`. Settings for the `ServiceWorker` cache.
+  * `output`: `string`. Relative (from the _webpack_'s config `output.path`) output path for emitted script. Default: `'sw.js'`.
+  * `entry`: `string`. Relative or absolute path to file which will be used as `ServiceWorker` entry. Useful to implement additional function for it. Default: _empty file_.
+* **AppCache**: `Object`. Settings for the `AppCache` cache.
+  * `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section. Default: `'*'`.
+  * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` files. Default: `'appcache/'`.
