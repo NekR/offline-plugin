@@ -28,7 +28,7 @@ const defaultOptions = {
     NETWORK: '*',
     directory: 'appcache/'
   }
-}
+};
 
 export default class OfflinePlugin {
   constructor(options) {
