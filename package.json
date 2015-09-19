@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "files": [
     "lib/",
-    "runtime.js"
+    "runtime.js",
+    "empty-entry.js"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

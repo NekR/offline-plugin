@@ -49,7 +49,10 @@ export default class ServiceWorker {
       }
 
       if (!entry) {
-        throw new Error('Something went wrong with ServiceWorker entry');
+        compilation.errors.push(
+          new Error('OfflinePlugin: Something went wrong with ServiceWorker entry')
+        );
+        return;
       }
 
       entry = entry.source();

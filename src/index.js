@@ -116,7 +116,7 @@ export default class OfflinePlugin {
 
     compiler.plugin('emit', (compilation, callback) => {
       this.hash = compilation.getStats().toJson().hash;
-      this.setAssets(Object.keys(compilation.assets));
+      this.setAssets(Object.keys(compilation.assets), compilation);
 
       this.useTools((tool) => {
         return tool.apply(this, compilation, compiler);
@@ -128,7 +128,7 @@ export default class OfflinePlugin {
     });
   }
 
-  setAssets(assets) {
+  setAssets(assets, compilation) {
     const caches = this.options.caches || defaultOptions.caches;
 
     this.assets = assets;
@@ -159,7 +159,9 @@ export default class OfflinePlugin {
           const index = assets.indexOf(cacheKey);
 
           if (index === -1) {
-            console.warn(`Cache asset [${ cacheKey }] is not found in output assets`);
+            compilation.warnings.push(
+              new Error(`OfflinePlugin: Cache asset [${ cacheKey }] is not found in output assets`)
+            );
           } else {
             assets.splice(index, 1);
           }
