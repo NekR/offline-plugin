@@ -87,11 +87,17 @@ function WebpackServiceWorker(params) {
         }
       });
 
-      const caching = cache.addAll(diff);
+      const caching = diff.map((path) => {
+        return new Request(path);
+      }).map((req) => {
+        return fetch(req).then((res) => {
+          return cache.put(req, res);
+        }, () => {});
+      });
 
       return Promise.all([
         Promise.all(deletion),
-        caching
+        Promise.all(caching)
       ]);
     });
   }
