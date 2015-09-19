@@ -1,9 +1,9 @@
 module.exports = function getSource(source) {
   return {
-    source: function() {
+    source() {
       return source
     },
-    size: function() {
+    size() {
       return Buffer.byteLength(source, 'utf8');
     }
   };

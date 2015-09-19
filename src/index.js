@@ -21,7 +21,7 @@ const defaultOptions = {
 
   ServiceWorker: {
     output: 'sw.js',
-    entry: path.join(__dirname, '../misc/sw-entry.js')
+    entry: path.join(__dirname, '../empty-entry.js')
   },
 
   AppCache: {
@@ -96,13 +96,11 @@ export default class OfflinePlugin {
         });
 
         result.loaders.push(
-          path.join(__dirname, '../misc/runtime-loader.js') +
+          path.join(__dirname, 'misc/runtime-loader.js') +
             '?' + JSON.stringify(data)
         );
 
         callback(null, result);
-
-        // data.loaders.unshift(path.join(__dirname, "postloader.js"));
       });
     });
 

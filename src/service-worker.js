@@ -2,7 +2,7 @@ import SingleEntryDependency from 'webpack/lib/dependencies/SingleEntryDependenc
 import path from 'path';
 import webpack from 'webpack';
 
-import getSource from '../misc/get-source';
+import getSource from './misc/get-source';
 
 export default class ServiceWorker {
   constructor(options) {
@@ -20,7 +20,7 @@ export default class ServiceWorker {
     const data = JSON.stringify({
       data_var_name: this.SW_DATA_VAR
     });
-    const loader = path.join(__dirname, '../misc/sw-loader.js') + '?' + data;
+    const loader = '!!' + path.join(__dirname, 'misc/sw-loader.js') + '?' + data;
     const name = plugin.entryPrefix + this.ENTRY_NAME;
     const dep = new SingleEntryDependency(loader + '!' + this.entry);
     dep.loc = name;
@@ -73,6 +73,7 @@ export default class ServiceWorker {
           additional: cache('additional'),
           optional: cache('optional'),
         },
+        strategy: plugin.strategy,
         version: plugin.strategy === 'all' ? plugin.version : void 0,
         hash: plugin.strategy === 'hash' ? plugin.hash : void 0,
         name: this.CACHE_NAME

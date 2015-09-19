@@ -5,7 +5,6 @@
   "main": "lib/index.js",
   "files": [
     "lib/",
-    "misc/",
     "runtime.js"
   ],
   "scripts": {

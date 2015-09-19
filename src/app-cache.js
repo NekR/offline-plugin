@@ -1,4 +1,4 @@
-import getSource from '../misc/get-source';
+import getSource from './misc/get-source';
 
 export default class AppCache {
   constructor(options) {
