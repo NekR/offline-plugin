@@ -3,7 +3,7 @@ function WebpackServiceWorker(params) {
   const assets = params.assets;
   const tagMap = {
     all: params.version,
-    changed: 'static',
+    changed: params.hash,
     hash: params.hash
   };
 

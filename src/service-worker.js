@@ -78,7 +78,7 @@ export default class ServiceWorker {
         },
         strategy: plugin.strategy,
         version: plugin.strategy === 'all' ? plugin.version : void 0,
-        hash: plugin.strategy === 'hash' ? plugin.hash : void 0,
+        hash: plugin.strategy !== 'all' ? plugin.hash : void 0,
         name: this.CACHE_NAME
       }, null, minify ? void 0 : '  ') };
     `.trim();

@@ -51,7 +51,7 @@ export default class AppCache {
     }
 
     if (plugin.strategy === 'changed') {
-      tag = ':static';
+      tag = 'hash:' + plugin.hash;
     }
 
     if (plugin.strategy === 'hash') {
