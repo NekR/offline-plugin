@@ -139,7 +139,7 @@ function WebpackServiceWorker(params) {
         return response;
       }
 
-      // Load and cache know assets
+      // Load and cache known assets
       return fetch(event.request.clone()).then((response) => {
         if (
           !response || response.status !== 200 || response.type !== 'basic'
