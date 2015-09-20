@@ -89,6 +89,9 @@ Yes, `offline-plugin` perfectly works with official `webpack.optimize.UglifyJsPl
 Yes, it's possible with `pattern matching`, which is performed by [minimatch](https://www.npmjs.com/package/minimatch) library.  
 Example: ``main: ['index.html', 'scripts/main.*.js']``.
 
+**Do I need to include [cache-polyfill](https://github.com/coonsta/cache-polyfill) for the `ServiceWorker`?**  
+No, it's included automatically for you.
+
 
 ## License
 
