@@ -12,7 +12,7 @@ const defaultOptions = {
   scope: '/',
   updateStrategy: 'all',
   externals: [],
-  get version() {
+  version() {
     return (new Date).toLocaleString();
   },
   rewrites(asset) {
@@ -37,7 +37,6 @@ export default class OfflinePlugin {
     this.options = deepExtend({}, defaultOptions, options);
     this.hash = null;
     this.assets = null;
-    this.version = this.options.version + '';
     this.scope = this.options.scope.replace(/\/$/, '/');
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
@@ -84,6 +83,12 @@ export default class OfflinePlugin {
     if (!Object.keys(this.tools).length) {
       throw new Error('You should have at least one cache service to be specified');
     }
+  }
+
+  get version() {
+    const version = this.options.version;
+
+    return typeof version === 'function' ? version() : version + '';
   }
 
   apply(compiler) {
