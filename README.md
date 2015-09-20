@@ -63,10 +63,10 @@ All options are optional and `offline-plugin` could be used without specifying t
 * **externals**: `Array<string>`. Explicitly marks cache asset as _external_ so you won't receive any warnings about it if asset it missing from _webpack generated assets_.
 * **version**: `string | Function`. Version of the cache. Is used only with `all` update strategy. Might be a function, useful in _watch-mode_ when you need dynamic date for each generation. Default: _Current date_.
 * **rewrites**: `Function | Object`. Rewrite function or rewrite map (`Object`). Useful when assets are server in a different way from the client perspective, e.g. usually `index.html` served as `/`. Default: _function which rewrites_ `/any/path/index.html` _to_ `/any/path/`.
-* **ServiceWorker**: `Object`. Settings for the `ServiceWorker` cache.
+* **ServiceWorker**: `Object | null | false`. Settings for the `ServiceWorker` cache. Use `null` or `false` to disable `ServiceWorker` generation.
   * `output`: `string`. Relative (from the _webpack_'s config `output.path`) output path for emitted script. Default: `'sw.js'`.
   * `entry`: `string`. Relative or absolute path to file which will be used as `ServiceWorker` entry. Useful to implement additional function for it. Default: _empty file_.
-* **AppCache**: `Object`. Settings for the `AppCache` cache.
+* **AppCache**: `Object | null | false`. Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.
   * `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section. Default: `'*'`.
   * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` files. Default: `'appcache/'`.
 
