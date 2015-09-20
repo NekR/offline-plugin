@@ -69,6 +69,16 @@ All options are optional and `offline-plugin` could be used without specifying t
   * `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section. Default: `'*'`.
   * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` files. Default: `'appcache/'`.
 
+## Runtime
+
+Besides plugin configuration, you also need to initialize it at runtime phase. This is most easier part:
+
+```js
+require('offline-plugin/runtime').install();
+```
+
+Runtime `install` accepts 3 optional arguments: `options`, `successCallback`, `errorCallback`. `options` is not used at the moment (ignored), so it's better to just put `null` instead.
+
 ## FAQ
 
 
