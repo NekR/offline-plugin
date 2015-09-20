@@ -20,8 +20,9 @@
   "dependencies": {
     "deep-extend": "^0.4.0",
     "ejs": "^2.3.4",
-    "serviceworker-cache-polyfill": "^3.0.0",
-    "loader-utils": "0.2.x"
+    "loader-utils": "0.2.x",
+    "minimatch": "^2.0.10",
+    "serviceworker-cache-polyfill": "^3.0.0"
   },
   "bugs": {
     "url": "https://github.com/NekR/offline-plugin/issues"

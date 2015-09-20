@@ -3,6 +3,7 @@ import ServiceWorker from './service-worker';
 
 import path from 'path';
 import deepExtend from 'deep-extend';
+import hasMagic from './misc/has-magic';
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
@@ -151,6 +152,29 @@ export default class OfflinePlugin {
             if (assets.length) {
               cacheResult = cacheResult.concat(assets);
               assets = [];
+            }
+
+            return;
+          }
+
+          const magic = hasMagic(cacheKey);
+
+          if (magic) {
+            let matched;
+
+            for (let i = 0, len = assets.length; i < len; i++) {
+              if (!magic.match(assets[i])) continue;
+
+              matched = true;
+              cacheResult.push(assets[i]);
+              assets.splice(i, 1);
+              (i--, len--);
+            }
+
+            if (!matched) {
+              compilation.warnings.push(
+                new Error(`OfflinePlugin: Cache pattern [${ cacheKey }] did not matched any assets`)
+              );
             }
 
             return;
