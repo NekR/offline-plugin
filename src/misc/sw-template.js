@@ -5,7 +5,7 @@ function WebpackServiceWorker(params) {
     all: params.version,
     // Hash is included in output file, but not used in cache name,
     // this allows updating only changed files in `additional` section and
-    // always revalidation of `main` section when hash changed
+    // always revalidation files of `main` section when hash changed
     changed: 'static',
     hash: params.hash
   };
