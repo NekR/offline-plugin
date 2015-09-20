@@ -61,7 +61,7 @@ All options are optional and `offline-plugin` could be used without specifying t
     * For `ServiceWorker` this means that only new files will be downloaded and missing files deleted from the cache.
     * For `AppCache` it's basically same as previous strategies since `AppCache` revalidates all the assets. 304 HTTP status rule of course still works.
 * **version**: `string`. Version of the cache. Is used only with `all` update strategy. Default: _Current date_.
-* **rewrites**: `Function | Object`. Rewrite function or rewrite map (`Object`). Useful when assets are server in a different way from the client perspective, e.g. usually `index.html` served as `/`. Default: _function which rewrite `/any/path/index.html` to `/any/path/`_.
+* **rewrites**: `Function | Object`. Rewrite function or rewrite map (`Object`). Useful when assets are server in a different way from the client perspective, e.g. usually `index.html` served as `/`. Default: _function which rewrites_ `/any/path/index.html` _to_ `/any/path/`.
 * **ServiceWorker**: `Object`. Settings for the `ServiceWorker` cache.
   * `output`: `string`. Relative (from the _webpack_'s config `output.path`) output path for emitted script. Default: `'sw.js'`.
   * `entry`: `string`. Relative or absolute path to file which will be used as `ServiceWorker` entry. Useful to implement additional function for it. Default: _empty file_.
