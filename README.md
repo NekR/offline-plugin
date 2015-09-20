@@ -31,7 +31,6 @@ module.exports = {
       },
 
       AppCache: {
-        NETWORK: '*',
         directory: 'appcache/'
       }
     })
