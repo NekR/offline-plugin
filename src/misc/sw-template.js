@@ -3,7 +3,10 @@ function WebpackServiceWorker(params) {
   const assets = params.assets;
   const tagMap = {
     all: params.version,
-    changed: params.hash,
+    // Hash is included in output file, but not used in cache name,
+    // this allows updating only changed files in `additional` section and
+    // always revalidation of `main` section when hash changed
+    changed: 'static',
     hash: params.hash
   };
 
@@ -25,20 +28,25 @@ function WebpackServiceWorker(params) {
     console.log('[SW]:', 'Activate event');
 
     let caching;
+    // Delete all assets which start with CACHE_PREFIX and
+    // is not current cache (CACHE_NAME)
     let deletion = deleteObsolete();
 
     if (assets.additional.length) {
       caching = strategy === 'changed' ?
-        updateChanged() : cacheAssets('additional');
+        // Update current (static) cache, remove all files
+        // (old hash/version in file names) and add new files
+        updateChanged() :
+        // or load additional section to current
+        // (dynamic via hash/version) cache
+        cacheAssets('additional');
     } else {
       caching = Promise.resolve();
     }
 
-    if (strategy === 'changed') {
-      deletion = deletion;
-    }
-
     event.waitUntil(Promise.all([caching, deletion]).then(() => {
+      // Skip waiting other clients only when all mandatory cache is loaded
+      // (allows new clients to use this worker immediately)
       if (self.skipWaiting) self.skipWaiting();
     }));
   });
@@ -105,6 +113,8 @@ function WebpackServiceWorker(params) {
   self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
+    // Match only same origin and known caches
+    // otherwise just perform fetch()
     if (
       url.origin !== location.origin ||
       allAssets.indexOf(url.pathname) === -1
@@ -113,6 +123,8 @@ function WebpackServiceWorker(params) {
         console.log('Path [' + url.pathname + '] does not match any assets');
       }
 
+      // Will other 'fetch' events receive control now since I skipped
+      // this handling?
       return event.respondWith(
         fetch(event.request)
       );
@@ -127,6 +139,7 @@ function WebpackServiceWorker(params) {
         return response;
       }
 
+      // Load and cache know assets
       return fetch(event.request.clone()).then((response) => {
         if (
           !response || response.status !== 200 || response.type !== 'basic'
