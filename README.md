@@ -1,6 +1,6 @@
 # `offline-plugin` for webpack
 
-This plugin is intended to provide basic offline(-first?) experience for **webpack** projects. It uses **ServiceWorker** and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config`` and your project will became offline ready by caching all (or some) output assets.
+This plugin is intended to provide offline experience for **webpack** projects. It uses **ServiceWorker** and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config`` and your project will became offline ready by caching all (or some) output assets.
 
 ## Install
 
