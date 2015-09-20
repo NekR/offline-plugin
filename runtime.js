@@ -26,7 +26,7 @@
     <% } %>
 
     <% if (AppCache) { %>
-      if (window.ApplicationCache) {
+      if (window.applicationCache) {
         var directory = <%- JSON.stringify(AppCache.directory) %>;
 
         var doLoad = function() {
