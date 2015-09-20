@@ -11,6 +11,7 @@ const defaultOptions = {
   caches: 'all',
   scope: '/',
   updateStrategy: 'all',
+  externals: [],
   get version() {
     return (new Date).toLocaleString();
   },
@@ -38,11 +39,15 @@ export default class OfflinePlugin {
     this.assets = null;
     this.version = this.options.version + '';
     this.scope = this.options.scope.replace(/\/$/, '/');
-
+    this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
 
     if (updateStrategies.indexOf(this.strategy) === -1) {
       throw new Error(`Update strategy must be one of [${ updateStrategies }]`);
+    }
+
+    if (!Array.isArray(this.externals)) {
+      this.externals = [];
     }
 
     const rewrites = this.options.rewrites || defaultOptions.rewrites;
@@ -182,7 +187,11 @@ export default class OfflinePlugin {
 
           const index = assets.indexOf(cacheKey);
 
-          if (index === -1) {
+          externalsCheck: if (index === -1) {
+            if (this.externals.length && this.externals.indexOf(cacheKey) !== -1) {
+              break externalsCheck;
+            }
+
             compilation.warnings.push(
               new Error(`OfflinePlugin: Cache asset [${ cacheKey }] is not found in output assets`)
             );
