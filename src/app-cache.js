@@ -87,10 +87,8 @@ export default class AppCache {
 
           [
             'cached',
-            'noupdate',
             'obsolete',
             'updateready',
-            // 'error',
           ].forEach(function(event) {
             applicationCache.addEventListener(event, function() {
               if (called) return;
