@@ -19,37 +19,41 @@ function WebpackServiceWorker(params) {
   self.addEventListener('install', (event) => {
     console.log('[SW]:', 'Install event');
 
-    event.waitUntil(
-      cacheAssets('main')
-    );
+    const installing = cacheAssets('main').then(cacheAdditional);
+    event.waitUntil(installing);
   });
 
   self.addEventListener('activate', (event) => {
     console.log('[SW]:', 'Activate event');
 
-    let caching;
     // Delete all assets which start with CACHE_PREFIX and
     // is not current cache (CACHE_NAME)
     let deletion = deleteObsolete();
 
-    if (assets.additional.length) {
-      caching = strategy === 'changed' ?
-        // Update current (static) cache, remove all files
-        // (old hash/version in file names) and add new files
-        updateChanged() :
-        // or load additional section to current
-        // (dynamic via hash/version) cache
-        cacheAssets('additional');
-    } else {
-      caching = Promise.resolve();
+    if (strategy === 'changed') {
+      deletion = deletion.then(deleteChanged);
     }
 
-    event.waitUntil(Promise.all([caching, deletion]).then(() => {
-      // Skip waiting other clients only when all mandatory cache is loaded
-      // (allows new clients to use this worker immediately)
-      if (self.skipWaiting) self.skipWaiting();
+    event.waitUntil(deletion.then(() => {
+      if (self.clients && self.clients.claim) {
+        return self.clients.claim();
+      }
     }));
   });
+
+  function cacheAdditional() {
+    if (!assets.additional.length) return;
+
+    if (DEBUG) {
+      console.log('[SW]:', 'Caching additional');
+    }
+
+    if (strategy === 'changed') {
+      cacheChanged();
+    } else {
+      cacheAssets('additional');
+    }
+  }
 
   function cacheAssets(section) {
     return caches.open(CACHE_NAME).then((cache) => {
@@ -63,6 +67,36 @@ function WebpackServiceWorker(params) {
     });
   }
 
+  function cacheChanged() {
+    let cache;
+
+    return caches.open(CACHE_NAME).then((_cache) => {
+      cache = _cache;
+      return _cache.keys();
+    }).then(keys => {
+      const paths = keys.map(req => {
+        return new URL(req.url).pathname;
+      });
+
+      const changed = assets.additional.filter((path) => {
+        return paths.indexOf(path) === -1;
+      });
+
+      if (!changed.length) return;
+
+      console.group('[SW]:', 'Caching changed assets');
+      changed.map((path) => {
+        console.log('Asset:', path);
+        return new Request(path);
+      }).map((req) => {
+        return fetch(req).then((res) => {
+          return cache.put(req, res);
+        });
+      });
+      console.groupEnd();
+    })
+  }
+
   function deleteObsolete() {
     return caches.keys().then((names) => {
       return Promise.all(names.map((name) => {
@@ -73,40 +107,31 @@ function WebpackServiceWorker(params) {
     });
   }
 
-  function updateChanged() {
+  function deleteCahnged() {
     let cache;
 
     return caches.open(CACHE_NAME).then((_cache) => {
       cache = _cache;
       return _cache.keys();
     }).then((keys) => {
-      const diff = assets.additional.concat();
-      const deletion = keys.map((req) => {
+      let deletion = keys.filter((req) => {
         const url = new URL(req.url);
 
         if (allAssets.indexOf(url.pathname) === -1) {
-          return cache.delete(req);
-        }
-
-        const index = diff.indexOf(url.pathname);
-
-        if (index !== -1) {
-          diff.splice(index, 1);
+          req._pathname = url.pathname;
         }
       });
 
-      const caching = diff.map((path) => {
-        return new Request(path);
-      }).map((req) => {
-        return fetch(req).then((res) => {
-          return cache.put(req, res);
-        }, () => {});
-      });
+      if (!deletion.length) return;
 
-      return Promise.all([
-        Promise.all(deletion),
-        Promise.all(caching)
-      ]);
+      console.group('[SW]:', 'Deleting changed assets');
+      deletion = deletion.map((req) => {
+        console.log('Asset:', req._pathname);
+        return cache.delete(req);
+      });
+      console.groupEnd();
+
+      return Promise.all(deletion);
     });
   }
 
@@ -116,24 +141,34 @@ function WebpackServiceWorker(params) {
     // Match only same origin and known caches
     // otherwise just perform fetch()
     if (
+      event.request.method !== 'GET' ||
       url.origin !== location.origin ||
       allAssets.indexOf(url.pathname) === -1
     ) {
       if (DEBUG) {
-        console.log('Path [' + url.pathname + '] does not match any assets');
+        console.log('[SW]:', 'Path [' + url.pathname + '] does not match any assets');
       }
 
-      // Will other 'fetch' events receive control now since I skipped
-      // this handling?
-      return event.respondWith(
-        fetch(event.request)
-      );
+      return;
     }
 
-    const resource = caches.match(event.request).then((response) => {
+    // if asset is from main entry read it directly from the cache
+    if (assets.main.indexOf(url.pathname) !== -1) {
+      event.respondWith(
+        caches.match(event.request, {
+          cacheName: CACHE_NAME
+        })
+      );
+
+      return;
+    }
+
+    const resource = caches.match(event.request, {
+      cacheName: CACHE_NAME
+    }).then((response) => {
       if (response) {
         if (DEBUG) {
-          console.log('Path [' + url.pathname + '] from cache');
+          console.log('[SW]:', 'Path [' + url.pathname + '] from cache');
         }
 
         return response;
@@ -145,14 +180,14 @@ function WebpackServiceWorker(params) {
           !response || response.status !== 200 || response.type !== 'basic'
         ) {
           if (DEBUG) {
-            console.log('Path [' + url.pathname + '] wrong response');
+            console.log('[SW]:', 'Path [' + url.pathname + '] wrong response');
           }
 
           return response;
         }
 
         if (DEBUG) {
-          console.log('Path [' + url.pathname + '] fetched');
+          console.log('[SW]:', 'Path [' + url.pathname + '] fetched');
         }
 
         const responseClone = response.clone();
@@ -160,14 +195,12 @@ function WebpackServiceWorker(params) {
         caches.open(CACHE_NAME).then((cache) => {
           return cache.put(event.request, responseClone);
         }).then(() => {
-          if (DEBUG) {
-            console.log('Path [' + url.pathname + '] cached');
-          }
+          console.log('[SW]:', 'Cache asset: ' + url.pathname);
         });
 
         return response;
       });
-    })
+    });
 
     event.respondWith(resource);
   });
