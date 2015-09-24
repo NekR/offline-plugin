@@ -5,6 +5,7 @@ export default class AppCache {
     this.NETWORK = options.NETWORK;
     this.directory = options.directory.replace(/\/$/, '/');
     this.name = 'manifest';
+    this.caches = options.caches;
   }
 
   addEntry(plugin, compilation, compiler) {
@@ -13,13 +14,22 @@ export default class AppCache {
   }
 
   apply(plugin, compilation, compiler) {
-    let cache = plugin.caches.main;
-
-    if (!cache) {
-      cache = plugin.caches.additional || [];
-    } else if (plugin.caches.additional) {
-      cache = cache.concat(plugin.caches.additional);
+    if (!Array.isArray(this.caches)) {
+      throw new Error('AppCache caches must be an array');
     }
+
+    const cache = this.caches.reduce((result, name) => {
+      const cache = plugin.caches[name];
+      if (!cache || !cache.length) return result;
+
+      if (result) {
+        result = result.concat(cache);
+      } else {
+        result = cache;
+      }
+
+      return result;
+    }, null) || [];
 
     const path = this.directory + this.name;
     const manifest = this.getManifestTemplate(cache, plugin);

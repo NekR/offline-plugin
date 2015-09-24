@@ -28,7 +28,8 @@ const defaultOptions = {
 
   AppCache: {
     NETWORK: '*',
-    directory: 'appcache/'
+    directory: 'appcache/',
+    caches: ['main', 'additional']
   }
 };
 
