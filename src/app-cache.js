@@ -4,6 +4,7 @@ export default class AppCache {
   constructor(options) {
     this.NETWORK = options.NETWORK;
     this.directory = options.directory.replace(/\/$/, '/');
+    this.name = 'manifest';
   }
 
   addEntry(plugin, compilation, compiler) {
@@ -12,35 +13,20 @@ export default class AppCache {
   }
 
   apply(plugin, compilation, compiler) {
-    ['main', 'additional'].forEach((name) => {
-      const cache = plugin.caches[name];
-      if (!Array.isArray(cache) || !cache.length) return;
+    let cache = plugin.caches.main;
 
-      const hasAdditional = name === 'main' && this.hasAdditionalCache(plugin);
-      const path = this.directory + name;
-      const manifest = this.getManifestTemplate(cache, plugin);
-      const page = this.getPageTemplate(
-        name,
-        hasAdditional ? this.getAdditionalLoad(plugin) : ''
-      );
+    if (!cache) {
+      cache = plugin.caches.additional || [];
+    } else if (plugin.caches.additional) {
+      cache = cache.concat(plugin.caches.additional);
+    }
 
-      compilation.assets[path + '.appcache'] = getSource(manifest);
-      compilation.assets[path + '.html'] = getSource(page);
-    });
-  }
+    const path = this.directory + this.name;
+    const manifest = this.getManifestTemplate(cache, plugin);
+    const page = this.getPageTemplate(this.name);
 
-  hasAdditionalCache(plugin) {
-    const caches = plugin.options.caches;
-
-    if (
-      caches !== 'all' && (
-        (caches.additional && caches.additional.length) ||
-        (!caches.additional && (
-          (caches.main && caches.main.indexOf(plugin.REST_KEY) === -1) ||
-          !caches.main
-        ))
-      )
-    ) return true;
+    compilation.assets[path + '.appcache'] = getSource(manifest);
+    compilation.assets[path + '.html'] = getSource(page);
   }
 
   getManifestTemplate(cache, plugin) {
@@ -74,47 +60,13 @@ export default class AppCache {
     return `
       <!doctype html>
       <html manifest="${ name }.appcache">${ content || '' }</html>
-    `;
-  }
-
-  getAdditionalLoad(plugin) {
-    var directory = this.getConfig(plugin).directory;
-
-    return `
-      <script>
-        (function() {
-          var called = false;
-
-          [
-            'cached',
-            'obsolete',
-            'updateready',
-          ].forEach(function(event) {
-            applicationCache.addEventListener(event, function() {
-              if (called) return;
-              called = true;
-
-              var directory = ${ JSON.stringify(directory) };
-
-              setTimeout(function() {
-                var page = directory + 'additional.html';
-                var iframe = document.createElement('iframe');
-
-                iframe.src = page;
-                iframe.style.display = 'none';
-
-                document.body.appendChild(iframe);
-              });
-            }, false);
-          });
-        }());
-      </script>
-    `;
+    `.trim().replace(/^      */gm, '');
   }
 
   getConfig(plugin) {
     return {
-      directory: plugin.scope + this.directory
+      directory: plugin.scope + this.directory,
+      name: this.name
     };
   }
 }

@@ -28,12 +28,12 @@
     <% if (AppCache) { %>
       if (window.applicationCache) {
         var directory = <%- JSON.stringify(AppCache.directory) %>;
+        var name = <%- JSON.stringify(AppCache.name) %>;
 
         var doLoad = function() {
-          var page = directory + 'main.html';
+          var page = directory + name + '.html';
           var iframe = document.createElement('iframe');
 
-          // iframe.onload = onLoad;
           iframe.src = page;
           iframe.style.display = 'none';
 
