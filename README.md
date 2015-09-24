@@ -96,7 +96,7 @@ No, it's included automatically for you.
 [MIT](LICENSE.md)
 
 
-# CHANGELOG
+## CHANGELOG
 
 ### 1.2
 
