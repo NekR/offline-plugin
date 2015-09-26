@@ -7,7 +7,7 @@
       if (
         'serviceWorker' in navigator &&
         (window.fetch || 'imageRendering' in document.documentElement.style) &&
-        (window.location.protocol === 'https' || window.location.hostname === 'localhost')
+        (window.location.protocol === 'https:' || window.location.hostname === 'localhost')
       ) {
         navigator.serviceWorker
           .register(<%- JSON.stringify(ServiceWorker.output) %>)
