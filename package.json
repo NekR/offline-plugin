@@ -9,7 +9,9 @@
     "empty-entry.js"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/babel src/ -d lib/",
+    "watch": "npm run build -- --watch"
   },
   "repository": {
     "type": "git",
@@ -37,5 +39,8 @@
     "serviceworker",
     "appcache",
     "application cache"
-  ]
+  ],
+  "devDependencies": {
+    "babel": "^5.8.23"
+  }
 }
