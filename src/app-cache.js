@@ -3,6 +3,7 @@ import getSource from './misc/get-source';
 export default class AppCache {
   constructor(options) {
     this.NETWORK = options.NETWORK;
+    this.FALLBACK = options.FALLBACK;
     this.directory = options.directory.replace(/\/$/, '/');
     this.name = 'manifest';
     this.caches = options.caches;
@@ -54,6 +55,20 @@ export default class AppCache {
       tag = 'hash:' + plugin.hash;
     }
 
+    let FALLBACK = '';
+    let NETWORK = '';
+
+    if (this.NETWORK) {
+      NETWORK = 'NETWORK:\n' + (Array.isArray(this.NETWORK) ?
+        this.NETWORK.join('\n') : this.NETWORK + '');
+    }
+
+    if (this.FALLBACK) {
+      FALLBACK = 'FALLBACK:\n' + Object.keys(this.FALLBACK).map((path) => {
+        return path + ' ' + this.FALLBACK[path];
+      }).join('\n');
+    }
+
     return `
       CACHE MANIFEST
       #${ tag }
@@ -61,8 +76,9 @@ export default class AppCache {
       CACHE:
       ${ cache.join('\n') }
 
-      NETWORK:
-      ${ this.NETWORK + '' }
+      ${ NETWORK }
+
+      ${ FALLBACK }
     `.trim().replace(/^      */gm, '');
   }
 

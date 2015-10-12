@@ -3,7 +3,7 @@
     callback || (callback = function() {});
     errback || (errback = function() {});
 
-    <% if (ServiceWorker) { %>
+    <% if (typeof ServiceWorker !== 'undefined') { %>
       if (
         'serviceWorker' in navigator &&
         (window.fetch || 'imageRendering' in document.documentElement.style) &&
@@ -25,7 +25,7 @@
       }
     <% } %>
 
-    <% if (AppCache) { %>
+    <% if (typeof AppCache !== 'undefined') { %>
       if (window.applicationCache) {
         var directory = <%- JSON.stringify(AppCache.directory) %>;
         var name = <%- JSON.stringify(AppCache.name) %>;
