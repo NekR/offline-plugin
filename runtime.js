@@ -19,6 +19,8 @@
             errback({
               service: 'ServiceWorker'
             });
+
+            return Promise.reject(err);
           });
 
         return;
