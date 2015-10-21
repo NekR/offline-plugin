@@ -40,25 +40,34 @@ export default class ServiceWorker {
     let source = this.getDataTemplate(plugin.caches, plugin, minify);
 
     if (this.entry) {
-      let name = plugin.entryPrefix + this.ENTRY_NAME;
-      let entry = compilation.assets[name]
-
-      if (!entry) {
-        name = name + '.js';
-        entry = compilation.assets[name]
-      }
+      const name = plugin.entryPrefix + this.ENTRY_NAME;
+      const entry = compilation.namedChunks[name];
 
       if (!entry) {
         compilation.errors.push(
-          new Error('OfflinePlugin: Something went wrong with ServiceWorker entry')
+          new Error('OfflinePlugin: ServiceWorker entry is not found in output chunks')
         );
+
         return;
       }
 
-      entry = entry.source();
-      delete compilation.assets[name];
+      if (entry.files.length > 1) {
+        compilation.warnings.push(
+          new Error('OfflinePlugin: ServiceWorker entry has more than one output file, only first will be used')
+        );
+      }
 
-      source += '\n\n' + entry;
+      let entryAsset = entry.files[0];
+
+      entryAsset = compilation.assets[entryAsset];
+      entryAsset = entryAsset.source();
+
+      entry.files.forEach((file) => {
+        delete compilation.assets[file];
+      });
+
+      entry.files = [this.output];
+      source += '\n\n' + entryAsset;
     }
 
     compilation.assets[this.output] = getSource(source);
