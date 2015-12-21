@@ -2,7 +2,7 @@
 
 ### 1.3.1
 
-Improved `ServiceWorker` entry generation: use `compilation.namedChunks` instead of `compilation.assets` to access service-entry and replace it. See https://github.com/NekR/offline-plugin/issues/10 for more details.
+Improved `ServiceWorker` entry generation: use `compilation.namedChunks` instead of `compilation.assets` to access service-entry and replace it. See #10 for more details.
 
 ### 1.3
 
