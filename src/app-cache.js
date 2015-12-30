@@ -1,12 +1,17 @@
 import getSource from './misc/get-source';
+import pathToBase from './misc/path-to-base';
 
 export default class AppCache {
   constructor(options) {
     this.NETWORK = options.NETWORK;
     this.FALLBACK = options.FALLBACK;
-    this.directory = options.directory.replace(/\/$/, '/');
     this.name = 'manifest';
     this.caches = options.caches;
+
+    this.directory = options.directory
+      .replace(/^\//, '')
+      .replace(/\/$/, '') + '/';
+    this.basePath = pathToBase(this.directory, true);
   }
 
   addEntry(plugin, compilation, compiler) {
@@ -19,7 +24,7 @@ export default class AppCache {
       throw new Error('AppCache caches must be an array');
     }
 
-    const cache = this.caches.reduce((result, name) => {
+    const cache = (this.caches.reduce((result, name) => {
       const cache = plugin.caches[name];
       if (!cache || !cache.length) return result;
 
@@ -30,7 +35,9 @@ export default class AppCache {
       }
 
       return result;
-    }, null) || [];
+    }, null) || []).map(
+      plugin.relativePaths ? (path => this.basePath + path) : (a => a)
+    );
 
     const path = this.directory + this.name;
     const manifest = this.getManifestTemplate(cache, plugin);

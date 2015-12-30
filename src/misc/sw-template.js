@@ -1,4 +1,6 @@
 function WebpackServiceWorker(params) {
+  const scopeURL = new URL(registration.scope);
+
   const strategy = params.strategy;
   const assets = params.assets;
   const tagMap = {
@@ -14,6 +16,10 @@ function WebpackServiceWorker(params) {
   const CACHE_TAG = tagMap[strategy];
   const CACHE_NAME = CACHE_PREFIX + ':' + CACHE_TAG;
 
+  if (params.relativePaths) {
+    mapAssets();
+  }
+
   const allAssets = [].concat(assets.main, assets.additional, assets.optional);
 
   self.addEventListener('install', (event) => {
@@ -22,6 +28,7 @@ function WebpackServiceWorker(params) {
     const installing = cacheAssets('main').then(cacheAdditional);
     event.waitUntil(installing);
   });
+
 
   self.addEventListener('activate', (event) => {
     console.log('[SW]:', 'Activate event');
@@ -204,4 +211,13 @@ function WebpackServiceWorker(params) {
 
     event.respondWith(resource);
   });
+
+  function mapAssets() {
+    Object.keys(assets).forEach((key) => {
+      assets[key] = assets[key].map((path) => {
+        const pathURL = new URL(scopeURL.origin + scopeURL.pathname + path);
+        return pathURL.pathname;
+      });
+    });
+  }
 }

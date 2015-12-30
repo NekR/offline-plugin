@@ -3,11 +3,13 @@ import path from 'path';
 import webpack from 'webpack';
 
 import getSource from './misc/get-source';
+import pathToBase from './misc/path-to-base';
 
 export default class ServiceWorker {
   constructor(options) {
-    this.output = options.output;
     this.entry = options.entry;
+    this.output = options.output.replace(/^\//, '');
+    this.basePath = pathToBase(this.output, true);
 
     this.ENTRY_NAME = 'serviceworker';
     this.CACHE_NAME = 'webpack-offline';
@@ -75,7 +77,9 @@ export default class ServiceWorker {
 
   getDataTemplate(data, plugin, minify) {
     const cache = (key) => {
-      return (data[key] || []);
+      return (data[key] || []).map(
+        plugin.relativePaths ? (path => this.basePath + path) : (a => a)
+      );
     };
 
     return `
@@ -88,7 +92,8 @@ export default class ServiceWorker {
         strategy: plugin.strategy,
         version: plugin.strategy === 'all' ? plugin.version : void 0,
         hash: plugin.strategy !== 'all' ? plugin.hash : void 0,
-        name: this.CACHE_NAME
+        name: this.CACHE_NAME,
+        relativePaths: plugin.relativePaths
       }, null, minify ? void 0 : '  ') };
     `.trim();
   };

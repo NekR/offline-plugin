@@ -12,6 +12,7 @@ const defaultOptions = {
   scope: '/',
   updateStrategy: 'all',
   externals: [],
+  relativePaths: false,
   version() {
     return (new Date).toLocaleString();
   },
@@ -39,9 +40,12 @@ export default class OfflinePlugin {
     this.options = deepExtend({}, defaultOptions, options);
     this.hash = null;
     this.assets = null;
-    this.scope = this.options.scope.replace(/\/$/, '/');
+    this.scope = this.options.scope;
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
+
+    this.relativePaths = !this.scope || this.options.relativePaths;
+    this.scope = this.relativePaths ? '' : this.scope.replace(/\/$/, '') + '/';
 
     if (updateStrategies.indexOf(this.strategy) === -1) {
       throw new Error(`Update strategy must be one of [${ updateStrategies }]`);
@@ -221,11 +225,11 @@ export default class OfflinePlugin {
       .map(this.rewrite)
       .filter(asset => !!asset)
       .map(key => {
-        if (key === '/') {
-          return this.scope;
+        if (this.relativePaths) {
+          return key.replace(/^\//, '');
         }
 
-        return this.scope + key;
+        return this.scope + key.replace(/^\//, '');
       });
   };
 
