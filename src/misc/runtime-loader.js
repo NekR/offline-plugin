@@ -1,12 +1,21 @@
 const ejs = require('ejs');
+const path = require('path');
+const fs = require('fs');
 
-module.exports = function(source) {
+module.exports = function() {};
+module.exports.pitch = function(remainingRequest, precedingRequest, data) {
   this.cacheable && this.cacheable();
 
-  const context = this.options.resolve.root || this.options.context;
+  const callback = this.async();
   const params = JSON.parse(this.query.slice(1));
+  const templatePath = path.join(__dirname, '../../tpls/runtime-template.js');
 
-  source = 'module.exports = ' + ejs.render(source, params);
+  this.addDependency(templatePath);
 
-  return source;
+  fs.readFile(templatePath, 'utf-8', function(err, template) {
+    if (err) return callback(err);
+
+    template = ejs.render(template, params);
+    callback(null, template);
+  });
 };
