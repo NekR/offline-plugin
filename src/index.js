@@ -4,6 +4,7 @@ import ServiceWorker from './service-worker';
 import path from 'path';
 import deepExtend from 'deep-extend';
 import hasMagic from './misc/has-magic';
+import minimatch from 'minimatch';
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
@@ -12,6 +13,7 @@ const defaultOptions = {
   scope: '/',
   updateStrategy: 'all',
   externals: [],
+  excludes: [],
   relativePaths: false,
   version() {
     return (new Date).toLocaleString();
@@ -147,6 +149,19 @@ export default class OfflinePlugin {
 
   setAssets(assets, compilation) {
     const caches = this.options.caches || defaultOptions.caches;
+    const excludes = this.options.excludes;
+
+    if (Array.isArray(excludes) && excludes.length) {
+      assets = assets.filter((asset) => {
+        for (let glob of excludes) {
+          if (minimatch(asset, glob)) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    }
 
     this.assets = assets;
 
