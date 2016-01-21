@@ -5,7 +5,7 @@ import path from 'path';
 import deepExtend from 'deep-extend';
 import hasMagic from './misc/has-magic';
 import minimatch from 'minimatch';
-import Promise from 'es6-promise';
+import { Promise } from 'es6-promise';
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];

@@ -23,6 +23,7 @@
   "dependencies": {
     "deep-extend": "^0.4.0",
     "ejs": "^2.3.4",
+    "es6-promise": "^3.0.2",
     "loader-utils": "0.2.x",
     "minimatch": "^2.0.10",
     "serviceworker-cache-polyfill": "^3.0.0"
@@ -42,7 +43,6 @@
     "application cache"
   ],
   "devDependencies": {
-    "babel": "^5.8.23",
-    "es6-promise": "^3.0.2"
+    "babel": "^5.8.23"
   }
 }
