@@ -170,21 +170,23 @@ export default class OfflinePlugin {
         main: this.validatePaths(assets)
       };
     } else {
-      this.caches = [
+      let restSection;
+
+      const handledCaches = [
         'main', 'additional', 'optional'
       ].reduce((result, key) => {
-        const cache = Array.isArray(caches[key]) ? caches[key] : [this.REST_KEY];
+        const cache = Array.isArray(caches[key]) ? caches[key] : [];
         let cacheResult = [];
 
         if (!cache.length) return result;
 
         cache.some((cacheKey) => {
           if (cacheKey === this.REST_KEY) {
-            if (assets.length) {
-              cacheResult = cacheResult.concat(assets);
-              assets = [];
+            if (restSection) {
+              throw new Error('The :rest: keyword can be used only once');
             }
 
+            restSection = key;
             return;
           }
 
@@ -232,6 +234,13 @@ export default class OfflinePlugin {
 
         return result;
       }, {});
+
+      if (restSection && assets.length) {
+        handledCaches[restSection] =
+          handledCaches[restSection].concat(this.validatePaths(assets));
+      }
+
+      this.caches = handledCaches;
     }
   }
 
