@@ -1,5 +1,14 @@
 # CHANGELOG
 
+### 2.0.0
+
+* Added `relativePaths` option. When `true`, all generated paths are relative to `ServiceWorker` file or `AppCache` folder. Useful in cases when app isn't in the root of domain, e.g. Github Pages. Setting `scope` to `''` (empty string) is the same now as `relativePaths: true`.
+* Added `excludes` option to exclude assets from caches. Exclusion is global and is performed before any assets added to cache sections.
+* Not specified sections in caches now equals to empty selection. Previously, `:rest:` keyword was added automatically, now isn't.
+* ':rest:' keyword is now handled after all caches sections were handled. Previously it was handled immediately when found.
+* Plugin now throws an error when keyword `:rest:` is used more than once.
+* `ServiceWorker` generation now used Child Compilation instead weird hacks with entry injections.
+
 ### 1.3.1
 
 Improved `ServiceWorker` entry generation: use `compilation.namedChunks` instead of `compilation.assets` to access service-entry and replace it. See #10 for more details.
