@@ -2,6 +2,7 @@ import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import path from 'path';
 import webpack from 'webpack';
 import deepExtend from 'deep-extend';
+import Promise from 'es6-promise';
 
 import getSource from './misc/get-source';
 import pathToBase from './misc/path-to-base';

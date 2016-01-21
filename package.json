@@ -42,6 +42,7 @@
     "application cache"
   ],
   "devDependencies": {
-    "babel": "^5.8.23"
+    "babel": "^5.8.23",
+    "es6-promise": "^3.0.2"
   }
 }

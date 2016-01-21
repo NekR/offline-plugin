@@ -1,3 +1,5 @@
+import Promise from 'es6-promise';
+
 import getSource from './misc/get-source';
 import pathToBase from './misc/path-to-base';
 
