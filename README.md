@@ -1,12 +1,14 @@
 # `offline-plugin` for webpack
 
-This plugin is intended to provide offline experience for **webpack** projects. It uses **ServiceWorker** and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config`` and your project will became offline ready by caching all (or some) output assets.
+This plugin is intended to provide offline experience for **webpack** projects. It uses **ServiceWorker** and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config``, and the accompanying runtime in your client script, and your project will became offline ready by caching all (or some) output assets.
 
 ## Install
 
 `npm install offline-plugin [--save-dev]`
 
 ## Setup
+
+First, instantiate the plugin with [options](#options) in your `webpack.config`:
 
 ```js
 // webpack.config.js example
@@ -38,6 +40,12 @@ module.exports = {
   // ...
 }
 
+```
+
+Then, install the [runtime](#runtime) in your client script:
+
+```js
+require('offline-plugin/runtime').install();
 ```
 
 ## Options
