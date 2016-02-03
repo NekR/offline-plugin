@@ -114,7 +114,7 @@ function WebpackServiceWorker(params) {
     });
   }
 
-  function deleteCahnged() {
+  function deleteChanged() {
     let cache;
 
     return caches.open(CACHE_NAME).then((_cache) => {
