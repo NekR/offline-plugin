@@ -4,6 +4,11 @@
 
 * Allow pattern matching in `externals`
 
+### 3.0.0
+
+* All assets are now requested cache-bust query parameter (`__uncache=${ Date.now() }`)
+* Matching assets in cache now uses `ignoreSearch` search option of `CacheQueryOptions`, with [sw-cache-options](https://github.com/NekR/sw-cache-options) polyfill for Chrome.
+
 ### 2.0.0
 
 * Added `relativePaths` option. When `true`, all generated paths are relative to `ServiceWorker` file or `AppCache` folder. Useful in cases when app isn't in the root of domain, e.g. Github Pages. Setting `scope` to `''` (empty string) is the same now as `relativePaths: true`.
