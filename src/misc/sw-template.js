@@ -25,7 +25,9 @@ function WebpackServiceWorker(params) {
   self.addEventListener('install', (event) => {
     console.log('[SW]:', 'Install event');
 
-    const installing = cacheAssets('main').then(cacheAdditional);
+    const installing = cacheAssets('main', {
+      bustCache: strategy !== 'changed'
+    }).then(cacheAdditional);
     event.waitUntil(installing);
   });
 
@@ -58,17 +60,34 @@ function WebpackServiceWorker(params) {
     if (strategy === 'changed') {
       cacheChanged();
     } else {
-      cacheAssets('additional');
+      cacheAssets('additional', {
+        bustCache: true
+      });
     }
   }
 
-  function cacheAssets(section) {
+  function cacheAssets(section, options) {
+    const bustCache = options && options.bustCache;
+    let batch;
+
+    if (bustCache) {
+      const time = Date.now();
+
+      batch = assets[section].map((asset) => {
+        return applyCacheBust(asset, time);
+      });
+    } else {
+      batch = assets[section];
+    }
+
     return caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(assets[section]).then(() => {
+      return cache.addAll().then(() => {
         console.groupCollapsed('[SW]:', 'Cached assets: ' + section);
+
         assets[section].forEach((asset) => {
           console.log('Asset:', asset);
         });
+
         console.groupEnd();
       });
     });
@@ -169,7 +188,9 @@ function WebpackServiceWorker(params) {
       event.respondWith(
         caches.match(event.request, {
           cacheName: CACHE_NAME
-        })
+        }, {
+          ignoreSearch: true
+        });
       );
 
       return;
@@ -177,6 +198,9 @@ function WebpackServiceWorker(params) {
 
     const resource = caches.match(event.request, {
       cacheName: CACHE_NAME
+    }, {
+      // Externals should be matched without ignoreSearch
+      ignoreSearch: true
     }).then((response) => {
       if (response) {
         if (DEBUG) {
@@ -224,5 +248,10 @@ function WebpackServiceWorker(params) {
         return pathURL.pathname;
       });
     });
+  }
+
+  function applyCacheBust(asset, key) {
+    const hasQuery = asset.indexOf('?') !== -1;
+    return asset + (hasQuery ? '&' : '?') + '__uncache=' + key;
   }
 }
