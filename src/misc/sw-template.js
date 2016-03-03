@@ -190,7 +190,7 @@ function WebpackServiceWorker(params) {
           cacheName: CACHE_NAME
         }, {
           ignoreSearch: true
-        });
+        })
       );
 
       return;
