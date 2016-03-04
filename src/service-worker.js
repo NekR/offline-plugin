@@ -122,7 +122,7 @@ export default class ServiceWorker {
 
   getConfig(plugin) {
     return {
-      output: plugin.scope + this.output
+      output: plugin.publicPath + this.output
     };
   }
 }

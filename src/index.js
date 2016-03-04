@@ -11,11 +11,11 @@ const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
   caches: 'all',
-  scope: '/',
+  publicPath: '',
   updateStrategy: 'all',
   externals: [],
   excludes: [],
-  relativePaths: false,
+  relativePaths: true,
   version() {
     return (new Date).toLocaleString();
   },
@@ -43,12 +43,21 @@ export default class OfflinePlugin {
     this.options = deepExtend({}, defaultOptions, options);
     this.hash = null;
     this.assets = null;
-    this.scope = this.options.scope;
+    this.publicPath = this.options.publicPath;
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
+    this.relativePaths = this.options.relativePaths;
 
-    this.relativePaths = !this.scope || this.options.relativePaths;
-    this.scope = this.relativePaths ? '' : this.scope.replace(/\/$/, '') + '/';
+    if (this.relativePaths && this.publicPath) {
+      compilation.warnings.push(
+        new Error(
+          'OfflinePlugin: publicPath is used in conjunction with relativePaths\n' +
+          'OfflinePlugin: publicPath was set by OfflinePlugin to empty string'
+        )
+      );
+
+      this.publicPath = '';
+    }
 
     if (updateStrategies.indexOf(this.strategy) === -1) {
       throw new Error(`Update strategy must be one of [${ updateStrategies }]`);
@@ -256,7 +265,7 @@ export default class OfflinePlugin {
           return key.replace(/^\//, '');
         }
 
-        return this.scope + key.replace(/^\//, '');
+        return this.publicPath + key.replace(/^\//, '');
       });
   };
 

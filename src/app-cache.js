@@ -100,7 +100,7 @@ export default class AppCache {
 
   getConfig(plugin) {
     return {
-      directory: plugin.scope + this.directory,
+      directory: plugin.publicPath + this.directory,
       name: this.name
     };
   }
