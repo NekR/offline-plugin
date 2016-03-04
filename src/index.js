@@ -12,6 +12,7 @@ const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
   caches: 'all',
   publicPath: '',
+  scope: '', // deprecated
   updateStrategy: 'all',
   externals: [],
   excludes: [],
@@ -47,6 +48,24 @@ export default class OfflinePlugin {
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
     this.relativePaths = this.options.relativePaths;
+
+    if (this.options.scope) {
+      compilation.warnings.push(
+        new Error(
+          'OfflinePlugin: `scope` option is deprecated, use `publicPath` instead'
+        )
+      );
+
+      if (this.publicPath) {
+        compilation.warnings.push(
+          new Error(
+            'OfflinePlugin: `publicPath` is used with deprecated `scope` option, `scope` is ignored'
+          )
+        );
+      } else {
+        this.publicPath = this.options.scope;
+      }
+    }
 
     if (this.relativePaths && this.publicPath) {
       compilation.warnings.push(
