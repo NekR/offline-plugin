@@ -8,6 +8,9 @@
 
 * All assets are now requested cache-bust query parameter (`__uncache=${ Date.now() }`)
 * Matching assets in cache now uses `ignoreSearch` search option of `CacheQueryOptions`, with [sw-cache-options](https://github.com/NekR/sw-cache-options) polyfill for Chrome.
+* Rename `scope` option to `publicPath` (`scope` is deprecated now and will produce warnings upon use)
+* Make `publicPath` `''` (empty string) by default
+* Make `relativePaths` `true` by default
 
 ### 2.0.0
 
