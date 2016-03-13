@@ -11,6 +11,7 @@
 * Rename `scope` option to `publicPath` (`scope` is deprecated now and will produce warnings upon use)
 * Make `publicPath` `''` (empty string) by default
 * Make `relativePaths` `true` by default
+* Cache sections `'additional'` and `'optional'` are now allowed only when `updateStrategy`option is set to `'changed'`
 
 ### 2.0.0
 

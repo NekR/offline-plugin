@@ -185,6 +185,21 @@ export default class OfflinePlugin {
     const caches = this.options.caches || defaultOptions.caches;
     const excludes = this.options.excludes;
 
+    this.assets = assets;
+
+    if (
+      this.strategy !== 'changed' && caches !== 'all' &&
+      (caches.additional.length || caches.optional.length)
+    ) {
+      compilation.errors.push(
+        new Error('OfflinePlugin: Cache sections `additional` and `optional` could be used ' +
+          'only when `updateStrategy` option is set to `changed`')
+      );
+
+      this.caches = {};
+      return;
+    }
+
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
         for (let glob of excludes) {
@@ -196,8 +211,6 @@ export default class OfflinePlugin {
         return true;
       });
     }
-
-    this.assets = assets;
 
     if (caches === 'all') {
       this.caches = {
