@@ -48,16 +48,17 @@ export default class OfflinePlugin {
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
     this.relativePaths = this.options.relativePaths;
+    this.warnings = [];
 
     if (this.options.scope) {
-      compilation.warnings.push(
+      this.warnings.push(
         new Error(
           'OfflinePlugin: `scope` option is deprecated, use `publicPath` instead'
         )
       );
 
       if (this.publicPath) {
-        compilation.warnings.push(
+        this.warnings.push(
           new Error(
             'OfflinePlugin: `publicPath` is used with deprecated `scope` option, `scope` is ignored'
           )
@@ -68,10 +69,10 @@ export default class OfflinePlugin {
     }
 
     if (this.relativePaths && this.publicPath) {
-      compilation.warnings.push(
+      this.warnings.push(
         new Error(
-          'OfflinePlugin: publicPath is used in conjunction with relativePaths\n' +
-          'OfflinePlugin: publicPath was set by OfflinePlugin to empty string'
+          'OfflinePlugin: publicPath is used in conjunction with relativePaths,\n' +
+          'publicPath was set by the OfflinePlugin to empty string'
         )
       );
 
@@ -153,6 +154,10 @@ export default class OfflinePlugin {
     });
 
     compiler.plugin('make', (compilation, callback) => {
+      if (this.warnings.length) {
+        [].push.apply(compilation.warnings, this.warnings);
+      }
+
       this.useTools((tool) => {
         return tool.addEntry(this, compilation, compiler);
       }).then(() => {
