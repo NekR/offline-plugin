@@ -17,9 +17,7 @@ const defaultOptions = {
   externals: [],
   excludes: [],
   relativePaths: true,
-  version() {
-    return (new Date).toLocaleString();
-  },
+  version: null,
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
       return dir || '/';
@@ -125,8 +123,17 @@ export default class OfflinePlugin {
 
   get version() {
     const version = this.options.version;
+    const hash = this.hash;
 
-    return typeof version === 'function' ? version() : version + '';
+    if (version == null) {
+      if (this.strategy === 'all' || !this.hash) {
+        return (new Date).toLocaleString();
+      } else {
+        return this.hash;
+      }
+    }
+
+    return typeof version === 'function' ? version(this) : version + '';
   }
 
   apply(compiler) {

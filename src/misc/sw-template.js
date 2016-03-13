@@ -5,9 +5,9 @@ function WebpackServiceWorker(params) {
   const assets = params.assets;
   const tagMap = {
     all: params.version,
-    // Hash is included in output file, but not used in cache name,
+    // Version is included in output file, but not used in cache name,
     // this allows updating only changed files in `additional` section and
-    // always revalidation files of `main` section when hash changed
+    // always revalidation files of `main` section when version changed
     changed: 'static',
     hash: params.hash
   };
