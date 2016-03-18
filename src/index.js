@@ -18,11 +18,16 @@ const defaultOptions = {
   excludes: [],
   relativePaths: true,
   version: null,
+
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
       return dir || '/';
     });
   },
+
+  alwaysRevalidate: void 0,
+  preferOnline: void 0,
+  ignoreSearch: ['*'],
 
   ServiceWorker: {
     output: 'sw.js',
@@ -190,7 +195,6 @@ export default class OfflinePlugin {
 
   setAssets(assets, compilation) {
     const caches = this.options.caches || defaultOptions.caches;
-    const excludes = this.options.excludes;
 
     this.assets = assets;
 
@@ -207,6 +211,11 @@ export default class OfflinePlugin {
       return;
     }
 
+    const excludes = this.options.excludes;
+    let alwaysRevalidate = this.options.alwaysRevalidate;
+    let preferOnline = this.options.preferOnline;
+    let ignoreSearch = this.options.ignoreSearch;
+
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
         for (let glob of excludes) {
@@ -217,6 +226,56 @@ export default class OfflinePlugin {
 
         return true;
       });
+    }
+
+    if (Array.isArray(alwaysRevalidate) && alwaysRevalidate.length) {
+      alwaysRevalidate = assets.filter((asset) => {
+        for (let glob of alwaysRevalidate) {
+          if (minimatch(asset, glob)) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+
+      if (alwaysRevalidate.length) {
+        this.alwaysRevalidate = alwaysRevalidate;
+      }
+    }
+
+    if (Array.isArray(ignoreSearch) && ignoreSearch.length) {
+      ignoreSearch = assets.filter((asset) => {
+        for (let glob of ignoreSearch) {
+          if (minimatch(asset, glob)) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+
+
+      if (ignoreSearch.length) {
+        this.ignoreSearch = ignoreSearch;
+      }
+    }
+
+    if (Array.isArray(preferOnline) && preferOnline.length) {
+      preferOnline = assets.filter((asset) => {
+        for (let glob of preferOnline) {
+          if (minimatch(asset, glob)) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+
+
+      if (preferOnline.length) {
+        this.preferOnline = preferOnline;
+      }
     }
 
     if (caches === 'all') {
