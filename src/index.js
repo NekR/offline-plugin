@@ -200,7 +200,7 @@ export default class OfflinePlugin {
 
     if (
       this.strategy !== 'changed' && caches !== 'all' &&
-      (caches.additional.length || caches.optional.length)
+      ((caches.additional && caches.additional.length) || (caches.optional && caches.optional.length))
     ) {
       compilation.errors.push(
         new Error('OfflinePlugin: Cache sections `additional` and `optional` could be used ' +

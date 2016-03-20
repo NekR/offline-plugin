@@ -18,9 +18,7 @@ function WebpackServiceWorker(params) {
   const CACHE_NAME = CACHE_PREFIX + ':' + CACHE_TAG;
   const CACHE_TMP = CACHE_PREFIX + ':' + TMP_CACHE_TAG;
 
-  if (params.relativePaths) {
-    mapAssets();
-  }
+  mapAssets();
 
   const allAssets = [].concat(assets.main, assets.additional, assets.optional);
 
@@ -137,7 +135,7 @@ function WebpackServiceWorker(params) {
   function deleteObsolete() {
     return caches.keys().then((keys) => {
       const all = keys.map((key) => {
-        if (key.indexOf(CACHE_PREFIX) !== 0) return;
+        if (key.indexOf(CACHE_PREFIX) !== 0 || key.indexOf(CACHE_NAME) === 0) return;
 
         if (strategy === 'changed' && (
           key.indexOf(CACHE_PREFIX + ':' + STACIC_CACHE_TAG) === 0 ||
@@ -216,7 +214,7 @@ function WebpackServiceWorker(params) {
       allAssets.indexOf(urlString) === -1
     ) {
       if (DEBUG) {
-        console.log('[SW]:', 'Path [' + urlString + '] does not match any assets');
+        // console.log('[SW]:', 'Path [' + urlString + '] does not match any assets');
       }
 
       // Fix for https://twitter.com/wanderview/status/696819243262873600
@@ -228,14 +226,12 @@ function WebpackServiceWorker(params) {
     }
 
     const resource = caches.match(urlString, {
-      cacheName: CACHE_NAME
-    }, {
-      // Externals should be matched without ignoreSearch
+      cacheName: CACHE_NAME,
       ignoreSearch: true
     }).then((response) => {
       if (response) {
         if (DEBUG) {
-          console.log('[SW]:', 'Path [' + url.pathname + '] from cache');
+          console.log('[SW]:', 'Path [' + urlString + '] from cache');
         }
 
         return response;
@@ -272,6 +268,17 @@ function WebpackServiceWorker(params) {
     event.respondWith(resource);
   });
 
+  self.addEventListener('message', (e) => {
+    const data = e.data;
+    if (!data) return;
+
+    switch (data.action) {
+      case 'skipWaiting': {
+        if (self.skipWaiting) self.skipWaiting();
+      } break;
+    }
+  });
+
   function mapAssets() {
     Object.keys(assets).forEach((key) => {
       assets[key] = assets[key].map((path) => {
@@ -285,6 +292,6 @@ function WebpackServiceWorker(params) {
 
   function applyCacheBust(asset, key) {
     const hasQuery = asset.indexOf('?') !== -1;
-    return asset + (hasQuery ? '&' : '?') + '__uncache=' + key;
+    return asset + (hasQuery ? '&' : '?') + '__uncache=' + encodeURIComponent(key);
   }
 }
