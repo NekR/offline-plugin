@@ -1,4 +1,4 @@
-let unknownUpdate = true;
+var unknownUpdate = true;
 
 function hasSW() {
   return 'serviceWorker' in navigator &&
