@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 2.1.0
+
+* Allow pattern matching in `externals`
+
 ### 2.0.0
 
 * Added `relativePaths` option. When `true`, all generated paths are relative to `ServiceWorker` file or `AppCache` folder. Useful in cases when app isn't in the root of domain, e.g. Github Pages. Setting `scope` to `''` (empty string) is the same now as `relativePaths: true`.
