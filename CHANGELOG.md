@@ -20,6 +20,7 @@
 * Runtime events are not implemented for ServiceWorker: `onUpdating`, `onUpdateReady`, `onUpdated`, `onError`.  
   Example: `runtime.install({ onError: () => ... })`
 * Added `applyUpdate()` method of runtime
+* Absolute URLs can now be specified in `caches` as any other assets (they are required to be marked as `externals`)
 
 ### 2.0.0
 
