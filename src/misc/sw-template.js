@@ -213,10 +213,6 @@ function WebpackServiceWorker(params) {
       event.request.method !== 'GET' ||
       allAssets.indexOf(urlString) === -1
     ) {
-      if (DEBUG) {
-        // console.log('[SW]:', 'Path [' + urlString + '] does not match any assets');
-      }
-
       // Fix for https://twitter.com/wanderview/status/696819243262873600
       if (url.origin !== location.origin && navigator.userAgent.indexOf('Firefox/44') !== -1) {
         event.respondWith(fetch(event.request));
@@ -240,10 +236,14 @@ function WebpackServiceWorker(params) {
       // Load and cache known assets
       return fetch(urlString).then((response) => {
         if (
-          !response || response.status !== 200 || response.type !== 'basic'
+          !response || response.status !== 200 ||
+          !(response.type === 'basic' || response.type === 'cors')
         ) {
           if (DEBUG) {
-            console.log('[SW]:', 'Path [' + urlString + '] wrong response');
+            console.log(
+              '[SW]:',
+              `Path [${ urlString }] wrong response: [${ response.status }] ${ response.type }`
+            );
           }
 
           return response;
