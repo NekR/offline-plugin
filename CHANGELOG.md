@@ -1,9 +1,5 @@
 # CHANGELOG
 
-### 2.1.0
-
-* Allow pattern matching in `externals`
-
 ### 3.0.0
 
 * All assets are now requested cache-bust query parameter (`__uncache=${ Date.now() }`)
@@ -21,6 +17,10 @@
   Example: `runtime.install({ onError: () => ... })`
 * Added `applyUpdate()` method of runtime
 * Absolute URLs can now be specified in `caches` as any other assets (they are required to be marked as `externals`)
+
+### 2.1.0
+
+* Allow pattern matching in `externals`
 
 ### 2.0.0
 
