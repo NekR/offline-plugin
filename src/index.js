@@ -364,6 +364,11 @@ export default class OfflinePlugin {
       .map(this.rewrite)
       .filter(asset => !!asset)
       .map(key => {
+        // if absolute url, use it as is
+        if (/^(?:\w+:)\/\//.test(key)) {
+          return key;
+        }
+
         if (this.relativePaths) {
           return key.replace(/^\//, '');
         }
