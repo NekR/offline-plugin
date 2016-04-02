@@ -227,7 +227,7 @@ function WebpackServiceWorker(params) {
     }).then((response) => {
       if (response) {
         if (DEBUG) {
-          console.log('[SW]:', 'Path [' + urlString + '] from cache');
+          console.log('[SW]:', `URL [${ urlString }] from cache`);
         }
 
         return response;
@@ -242,7 +242,7 @@ function WebpackServiceWorker(params) {
           if (DEBUG) {
             console.log(
               '[SW]:',
-              `Path [${ urlString }] wrong response: [${ response.status }] ${ response.type }`
+              `URL [${ urlString }] wrong response: [${ response.status }] ${ response.type }`
             );
           }
 
@@ -250,7 +250,7 @@ function WebpackServiceWorker(params) {
         }
 
         if (DEBUG) {
-          console.log('[SW]:', 'Path [' + urlString + '] fetched');
+          console.log('[SW]:', `URL [${ urlString }] fetched`);
         }
 
         const responseClone = response.clone();
