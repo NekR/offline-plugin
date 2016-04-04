@@ -300,11 +300,11 @@ function WebpackServiceWorker(params) {
 
 function addAllNormalized(cache, requests) {
   return Promise.all(requests.map(fetch)).then((responses) => {
-    const addAll = responses.map((response, i) => {
-      if (response.type !== 'basic' && response.type !== 'cors') {
-        return Promise.reject(new Error('Response not supported'));
-      }
+    if (responses.some(response => !response.ok)) {
+      return Promise.reject(new Error('Response not supported'));
+    }
 
+    const addAll = responses.map((response, i) => {
       return cache.put(requests[i], response)
     });
 
