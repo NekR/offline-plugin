@@ -87,15 +87,15 @@ function WebpackServiceWorker(params) {
     }
 
     return caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(batch).then(() => {
-        console.groupCollapsed('[SW]:', 'Cached assets: ' + section);
+      return addAllNormalized(cache, batch);
+    }).then(() => {
+      console.groupCollapsed('[SW]:', 'Cached assets: ' + section);
 
-        batch.forEach((asset) => {
-          console.log('Asset:', asset);
-        });
-
-        console.groupEnd();
+      batch.forEach((asset) => {
+        console.log('Asset:', asset);
       });
+
+      console.groupEnd();
     });
   }
 
@@ -120,7 +120,9 @@ function WebpackServiceWorker(params) {
       if (!changed.length) return;
 
       (useTmp ? caches.open(CACHE_TMP) : Promise.resolve(cache))
-      .then((cache) => cache.addAll(changed)).then(() => {
+      .then((cache) => {
+        return addAllNormalized(cache, changed)
+      }).then(() => {
         console.groupCollapsed('[SW]:', 'Cached changed assets: ' + section);
 
         changed.forEach((asset) => {
@@ -294,4 +296,18 @@ function WebpackServiceWorker(params) {
     const hasQuery = asset.indexOf('?') !== -1;
     return asset + (hasQuery ? '&' : '?') + '__uncache=' + encodeURIComponent(key);
   }
+}
+
+function addAllNormalized(cache, requests) {
+  return Promise.all(requests.map(fetch)).then((responses) => {
+    const addAll = responses.map((response, i) => {
+      if (response.type !== 'basic' && response.type !== 'cors') {
+        return Promise.reject(new Error('Response not supported'));
+      }
+
+      return cache.put(requests[i], response)
+    });
+
+    return Promise.all(addAll);
+  });
 }
