@@ -10,6 +10,7 @@ runAll([
   }),
 
 ]).catch(function(data) {
+  console.log('catch', data);
   if (!_execSync) {
     process.stderr.write(data.stderr);
   }
@@ -28,7 +29,6 @@ function exec(cmd, options) {
         return;
       }
 
-      options.encoding = 'buffer';
       _exec(cmd, options, function(error, stdout, stderr) {
 
         var data = {

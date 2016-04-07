@@ -12,7 +12,14 @@ module.exports = {
   },
 
   plugins: [
-    new OfflinePlugin()
+    new OfflinePlugin({
+      caches: {
+        main: ['external.js', ':rest:']
+      },
+
+      externals: ['external.js'],
+      excludes: ['main.js']
+    })
   ],
 
   resolve: {
