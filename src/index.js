@@ -222,10 +222,12 @@ export default class OfflinePlugin {
 
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
-        for (let glob of excludes) {
+        if (excludes.some((glob) => {
           if (minimatch(asset, glob)) {
-            return false;
+            return true;
           }
+        })) {
+          return false;
         }
 
         return true;
@@ -234,10 +236,12 @@ export default class OfflinePlugin {
 
     if (Array.isArray(alwaysRevalidate) && alwaysRevalidate.length) {
       alwaysRevalidate = assets.filter((asset) => {
-        for (let glob of alwaysRevalidate) {
+        if (alwaysRevalidate.some((glob) => {
           if (minimatch(asset, glob)) {
             return true;
           }
+        })) {
+          return true;
         }
 
         return false;
@@ -250,10 +254,12 @@ export default class OfflinePlugin {
 
     if (Array.isArray(ignoreSearch) && ignoreSearch.length) {
       ignoreSearch = assets.filter((asset) => {
-        for (let glob of ignoreSearch) {
+        if (ignoreSearch.some((glob) => {
           if (minimatch(asset, glob)) {
             return true;
           }
+        })) {
+          return true;
         }
 
         return false;
@@ -267,10 +273,12 @@ export default class OfflinePlugin {
 
     if (Array.isArray(preferOnline) && preferOnline.length) {
       preferOnline = assets.filter((asset) => {
-        for (let glob of preferOnline) {
+        if (preferOnline.some((glob) => {
           if (minimatch(asset, glob)) {
             return true;
           }
+        })) {
+          return true;
         }
 
         return false;
@@ -333,10 +341,12 @@ export default class OfflinePlugin {
           const index = assets.indexOf(cacheKey);
 
           externalsCheck: if (index === -1) {
-            for (let glob of this.externals) {
+            if (this.externals.some((glob) => {
               if (minimatch(cacheKey, glob)) {
-                break externalsCheck;
+                return true;
               }
+            })) {
+              break externalsCheck;
             }
 
             compilation.warnings.push(
