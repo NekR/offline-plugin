@@ -180,15 +180,19 @@ export default class OfflinePlugin {
     });
 
     compiler.plugin('emit', (compilation, callback) => {
-      this.hash = compilation.getStats().toJson().hash;
-      this.setAssets(Object.keys(compilation.assets), compilation);
+      try {
+        this.hash = compilation.getStats().toJson().hash;
+        this.setAssets(Object.keys(compilation.assets), compilation);
+      } catch (e) {
+        callback(e);
+      }
 
       this.useTools((tool) => {
         return tool.apply(this, compilation, compiler);
       }).then(() => {
         callback();
       }, () => {
-        throw new Error('Something went wrong');
+        callback(new Error('Something went wrong'));
       });
     });
   }
