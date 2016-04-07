@@ -13,7 +13,7 @@ module.exports.pitch = function(remainingRequest, precedingRequest, data) {
   const request = loaderUtils.stringifyRequest(this, remainingRequest);
   const source = 'module.exports = require(' + request + ')';
 
-  const polyfillRequest = loaderUtils.stringifyRequest(this, '!!' + path.join(__dirname, 'cache-polyfill.js'));
+  const polyfillRequest = loaderUtils.stringifyRequest(this, '!!' + path.join(__dirname, 'sw-polyfill.js'));
   const polyfill = 'require(' + polyfillRequest + ')';
 
   this.addDependency(templatePath);

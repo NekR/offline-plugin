@@ -11,19 +11,23 @@ const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
   caches: 'all',
-  scope: '/',
+  publicPath: '',
+  scope: '', // deprecated
   updateStrategy: 'all',
   externals: [],
   excludes: [],
-  relativePaths: false,
-  version() {
-    return (new Date).toLocaleString();
-  },
+  relativePaths: true,
+  version: null,
+
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
       return dir || '/';
     });
   },
+
+  alwaysRevalidate: void 0,
+  preferOnline: void 0,
+  ignoreSearch: ['*'],
 
   ServiceWorker: {
     output: 'sw.js',
@@ -43,12 +47,40 @@ export default class OfflinePlugin {
     this.options = deepExtend({}, defaultOptions, options);
     this.hash = null;
     this.assets = null;
-    this.scope = this.options.scope;
+    this.publicPath = this.options.publicPath;
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
+    this.relativePaths = this.options.relativePaths;
+    this.warnings = [];
 
-    this.relativePaths = !this.scope || this.options.relativePaths;
-    this.scope = this.relativePaths ? '' : this.scope.replace(/\/$/, '') + '/';
+    if (this.options.scope) {
+      this.warnings.push(
+        new Error(
+          'OfflinePlugin: `scope` option is deprecated, use `publicPath` instead'
+        )
+      );
+
+      if (this.publicPath) {
+        this.warnings.push(
+          new Error(
+            'OfflinePlugin: `publicPath` is used with deprecated `scope` option, `scope` is ignored'
+          )
+        );
+      } else {
+        this.publicPath = this.options.scope;
+      }
+    }
+
+    if (this.relativePaths && this.publicPath) {
+      this.warnings.push(
+        new Error(
+          'OfflinePlugin: publicPath is used in conjunction with relativePaths,\n' +
+          'publicPath was set by the OfflinePlugin to empty string'
+        )
+      );
+
+      this.publicPath = '';
+    }
 
     if (updateStrategies.indexOf(this.strategy) === -1) {
       throw new Error(`Update strategy must be one of [${ updateStrategies }]`);
@@ -96,8 +128,17 @@ export default class OfflinePlugin {
 
   get version() {
     const version = this.options.version;
+    const hash = this.hash;
 
-    return typeof version === 'function' ? version() : version + '';
+    if (version == null) {
+      if (this.strategy === 'all' || !this.hash) {
+        return (new Date).toLocaleString();
+      } else {
+        return this.hash;
+      }
+    }
+
+    return typeof version === 'function' ? version(this) : version + '';
   }
 
   apply(compiler) {
@@ -125,6 +166,10 @@ export default class OfflinePlugin {
     });
 
     compiler.plugin('make', (compilation, callback) => {
+      if (this.warnings.length) {
+        [].push.apply(compilation.warnings, this.warnings);
+      }
+
       this.useTools((tool) => {
         return tool.addEntry(this, compilation, compiler);
       }).then(() => {
@@ -150,7 +195,26 @@ export default class OfflinePlugin {
 
   setAssets(assets, compilation) {
     const caches = this.options.caches || defaultOptions.caches;
+
+    this.assets = assets;
+
+    if (
+      this.strategy !== 'changed' && caches !== 'all' &&
+      ((caches.additional && caches.additional.length) || (caches.optional && caches.optional.length))
+    ) {
+      compilation.errors.push(
+        new Error('OfflinePlugin: Cache sections `additional` and `optional` could be used ' +
+          'only when `updateStrategy` option is set to `changed`')
+      );
+
+      this.caches = {};
+      return;
+    }
+
     const excludes = this.options.excludes;
+    let alwaysRevalidate = this.options.alwaysRevalidate;
+    let preferOnline = this.options.preferOnline;
+    let ignoreSearch = this.options.ignoreSearch;
 
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
@@ -164,7 +228,55 @@ export default class OfflinePlugin {
       });
     }
 
-    this.assets = assets;
+    if (Array.isArray(alwaysRevalidate) && alwaysRevalidate.length) {
+      alwaysRevalidate = assets.filter((asset) => {
+        for (let glob of alwaysRevalidate) {
+          if (minimatch(asset, glob)) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+
+      if (alwaysRevalidate.length) {
+        this.alwaysRevalidate = alwaysRevalidate;
+      }
+    }
+
+    if (Array.isArray(ignoreSearch) && ignoreSearch.length) {
+      ignoreSearch = assets.filter((asset) => {
+        for (let glob of ignoreSearch) {
+          if (minimatch(asset, glob)) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+
+
+      if (ignoreSearch.length) {
+        this.ignoreSearch = ignoreSearch;
+      }
+    }
+
+    if (Array.isArray(preferOnline) && preferOnline.length) {
+      preferOnline = assets.filter((asset) => {
+        for (let glob of preferOnline) {
+          if (minimatch(asset, glob)) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+
+
+      if (preferOnline.length) {
+        this.preferOnline = preferOnline;
+      }
+    }
 
     if (caches === 'all') {
       this.caches = {
@@ -252,11 +364,16 @@ export default class OfflinePlugin {
       .map(this.rewrite)
       .filter(asset => !!asset)
       .map(key => {
+        // if absolute url, use it as is
+        if (/^(?:\w+:)\/\//.test(key)) {
+          return key;
+        }
+
         if (this.relativePaths) {
           return key.replace(/^\//, '');
         }
 
-        return this.scope + key.replace(/^\//, '');
+        return this.publicPath + key.replace(/^\//, '');
       });
   };
 

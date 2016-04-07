@@ -109,20 +109,23 @@ export default class ServiceWorker {
         assets: {
           main: cache('main'),
           additional: cache('additional'),
-          optional: cache('optional'),
+          optional: cache('optional')
         },
         strategy: plugin.strategy,
-        version: plugin.strategy === 'all' ? plugin.version : void 0,
-        hash: plugin.strategy !== 'all' ? plugin.hash : void 0,
+        version: plugin.strategy !== 'hash' ? plugin.version : void 0,
+        hash: plugin.strategy === 'hash' ? plugin.hash : void 0,
         name: this.CACHE_NAME,
-        relativePaths: plugin.relativePaths
+        relativePaths: plugin.relativePaths,
+        alwaysRevalidate: plugin.alwaysRevalidate,
+        preferOnline: plugin.preferOnline,
+        ignoreSearch: plugin.ignoreSearch,
       }, null, minify ? void 0 : '  ') };
     `.trim();
   };
 
   getConfig(plugin) {
     return {
-      output: plugin.scope + this.output
+      output: plugin.publicPath + this.output
     };
   }
 }
