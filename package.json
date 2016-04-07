@@ -44,10 +44,10 @@
   ],
   "devDependencies": {
     "babel": "^5.8.23",
-    "webpack": "^1.12.14",
+    "webpack": "^1.0.0",
     "es6-promise": "^3.0.2"
   },
   "peerDependencies": {
-    "webpack": ">=1.12.14"
+    "webpack": ">=1.0.0"
   }
 }
