@@ -17,6 +17,7 @@
   Example: `runtime.install({ onError: () => ... })`
 * Added `applyUpdate()` method of runtime
 * Absolute URLs can now be specified in `caches` as any other assets (they are required to be marked as `externals`)
+* Added basic test and Travis CI
 
 ### 2.1.0
 
