@@ -8,8 +8,8 @@
 * Make `publicPath` `''` (empty string) by default
 * Make `relativePaths` `true` by default
 * Cache sections `'additional'` and `'optional'` are now allowed only when `updateStrategy`option is set to `'changed'`
-* `updateStrategy: `changed`` now uses `version` option instead of compilation hash.
-* Version now is not set by default and returns compilation hash for `updateStrategy: 'changed`` and `version` for `updateStrategy: 'all'` (when not set)
+* `updateStrategy: 'changed'` now uses `version` option instead of compilation hash.
+* Version now is not set by default and returns compilation hash for `updateStrategy: 'changed'` and `version` for `updateStrategy: 'all'` (when not set)
 * Added `alwaysRevalidate` option
 * Improve `updateStrategy` option implementation. `changed` mode might be still unstable--**do not use it yet**
 * `install()` method signature now is `install(options)` (callbacks are removed)
