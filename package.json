@@ -43,6 +43,10 @@
     "application cache"
   ],
   "devDependencies": {
-    "babel": "^5.8.23"
+    "babel": "^5.8.23",
+    "webpack": "^1.12.14"
+  },
+  "peerDependencies": {
+    "webpack": ">=1.12.14"
   }
 }
