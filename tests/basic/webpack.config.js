@@ -7,8 +7,7 @@ module.exports = {
   },
 
   output: {
-    path: path.join(__dirname, 'output'),
-    filename: '[name].js',
+    path: path.join(__dirname, 'output')
   },
 
   plugins: [
