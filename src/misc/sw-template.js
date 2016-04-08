@@ -299,7 +299,7 @@ function WebpackServiceWorker(params) {
 }
 
 function addAllNormalized(cache, requests) {
-  return Promise.all(requests.map(fetch)).then((responses) => {
+  return Promise.all(requests.map((request) => fetch(request))).then((responses) => {
     if (responses.some(response => !response.ok)) {
       return Promise.reject(new Error('Response not supported'));
     }
