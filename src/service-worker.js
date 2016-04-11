@@ -3,9 +3,7 @@ import path from 'path';
 import webpack from 'webpack';
 import deepExtend from 'deep-extend';
 import { Promise } from 'es6-promise';
-
-import getSource from './misc/get-source';
-import pathToBase from './misc/path-to-base';
+import { getSource, pathToBase } from './misc/utils';
 
 export default class ServiceWorker {
   constructor(options) {

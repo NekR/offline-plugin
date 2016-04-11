@@ -3,9 +3,9 @@ import ServiceWorker from './service-worker';
 
 import path from 'path';
 import deepExtend from 'deep-extend';
-import hasMagic from './misc/has-magic';
 import minimatch from 'minimatch';
 import { Promise } from 'es6-promise';
+import { hasMagic, interpolateString } from './misc/utils';
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
@@ -131,14 +131,18 @@ export default class OfflinePlugin {
     const hash = this.hash;
 
     if (version == null) {
-      if (this.strategy === 'all' || !this.hash) {
+      if (this.strategy === 'all' || !hash) {
         return (new Date).toLocaleString();
       } else {
-        return this.hash;
+        return hash;
       }
     }
 
-    return typeof version === 'function' ? version(this) : version + '';
+    if (typeof version === 'function') {
+      return version(this);
+    }
+
+    return interpolateString(version, { hash, version });
   }
 
   apply(compiler) {
