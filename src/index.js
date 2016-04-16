@@ -31,7 +31,7 @@ const defaultOptions = {
 
   alwaysRevalidate: void 0,
   preferOnline: void 0,
-  ignoreSearch: ['*'],
+  ignoreSearch: ['**'],
 
   ServiceWorker: {
     output: 'sw.js',
@@ -261,68 +261,12 @@ export default class OfflinePlugin {
       });
     }
 
-    if (Array.isArray(alwaysRevalidate) && alwaysRevalidate.length) {
-      alwaysRevalidate = assets.filter((asset) => {
-        if (alwaysRevalidate.some((glob) => {
-          if (minimatch(asset, glob)) {
-            return true;
-          }
-        })) {
-          return true;
-        }
-
-        return false;
-      });
-
-      if (alwaysRevalidate.length) {
-        this.alwaysRevalidate = alwaysRevalidate;
-      }
-    }
-
-    if (Array.isArray(ignoreSearch) && ignoreSearch.length) {
-      ignoreSearch = assets.filter((asset) => {
-        if (ignoreSearch.some((glob) => {
-          if (minimatch(asset, glob)) {
-            return true;
-          }
-        })) {
-          return true;
-        }
-
-        return false;
-      });
-
-
-      if (ignoreSearch.length) {
-        this.ignoreSearch = ignoreSearch;
-      }
-    }
-
-    if (Array.isArray(preferOnline) && preferOnline.length) {
-      preferOnline = assets.filter((asset) => {
-        if (preferOnline.some((glob) => {
-          if (minimatch(asset, glob)) {
-            return true;
-          }
-        })) {
-          return true;
-        }
-
-        return false;
-      });
-
-
-      if (preferOnline.length) {
-        this.preferOnline = preferOnline;
-      }
-    }
-
     if (caches === 'all') {
       this.caches = {
         main: this.validatePaths(assets)
       };
 
-      this.assets = this.caches.main.concat();
+      assets = this.caches.main.concat();
     } else {
       let restSection;
 
@@ -403,8 +347,67 @@ export default class OfflinePlugin {
       }
 
       this.caches = handledCaches;
-      this.assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
+
+      assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
     }
+
+    if (Array.isArray(alwaysRevalidate) && alwaysRevalidate.length) {
+      alwaysRevalidate = assets.filter((asset) => {
+        if (alwaysRevalidate.some((glob) => {
+          if (minimatch(asset, glob)) {
+            return true;
+          }
+        })) {
+          return true;
+        }
+
+        return false;
+      });
+
+      if (alwaysRevalidate.length) {
+        this.alwaysRevalidate = alwaysRevalidate;
+      }
+    }
+
+    if (Array.isArray(ignoreSearch) && ignoreSearch.length) {
+      ignoreSearch = assets.filter((asset) => {
+        if (ignoreSearch.some((glob) => {
+          if (minimatch(asset, glob)) {
+            return true;
+          }
+        })) {
+          return true;
+        }
+
+        return false;
+      });
+
+
+      if (ignoreSearch.length) {
+        this.ignoreSearch = ignoreSearch;
+      }
+    }
+
+    if (Array.isArray(preferOnline) && preferOnline.length) {
+      preferOnline = assets.filter((asset) => {
+        if (preferOnline.some((glob) => {
+          if (minimatch(asset, glob)) {
+            return true;
+          }
+        })) {
+          return true;
+        }
+
+        return false;
+      });
+
+
+      if (preferOnline.length) {
+        this.preferOnline = preferOnline;
+      }
+    }
+
+    this.assets = assets;
   }
 
   setHashesMap(compilation) {
