@@ -426,7 +426,7 @@ export default class OfflinePlugin {
     Object.keys(hashesMap).forEach((hash) => {
       let asset = this.validatePaths([hashesMap[hash]])[0];
 
-      if (asset) {
+      if (typeof asset === 'string') {
         this.hashesMap[hash] = asset;
       }
     });

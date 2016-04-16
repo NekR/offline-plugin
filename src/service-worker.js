@@ -97,10 +97,16 @@ export default class ServiceWorker {
 
   getDataTemplate(data, plugin, minify) {
     const cache = (key) => {
-      return (data[key] || []).map(
-        plugin.relativePaths ? (path => this.basePath + path) : (a => a)
-      );
+      return (data[key] || []).map(this.pathRewrite(plugin));
     };
+
+    const hashesMap = Object.keys(plugin.hashesMap)
+      .reduce((result, hash) => {
+        const asset = plugin.hashesMap[hash];
+
+        result[hash] = this.pathRewrite(plugin)(asset);
+        return result;
+      }, {});
 
     return `
       var ${ this.SW_DATA_VAR } = ${ JSON.stringify({
@@ -109,6 +115,9 @@ export default class ServiceWorker {
           additional: cache('additional'),
           optional: cache('optional')
         },
+
+        hashesMap: hashesMap,
+
         strategy: plugin.strategy,
         version: plugin.strategy !== 'hash' ? plugin.version : void 0,
         hash: plugin.strategy === 'hash' ? plugin.hash : void 0,
@@ -119,7 +128,15 @@ export default class ServiceWorker {
         ignoreSearch: plugin.ignoreSearch,
       }, null, minify ? void 0 : '  ') };
     `.trim();
-  };
+  }
+
+  pathRewrite(plugin) {
+    if (plugin.relativePaths) {
+      return (path => this.basePath + path);
+    }
+
+    return (path => path)
+  }
 
   getConfig(plugin) {
     return {
