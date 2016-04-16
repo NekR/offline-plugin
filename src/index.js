@@ -6,18 +6,22 @@ import deepExtend from 'deep-extend';
 import minimatch from 'minimatch';
 import { Promise } from 'es6-promise';
 import { hasMagic, interpolateString } from './misc/utils';
+import loaderUtils from 'loader-utils';
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
+  scope: '', // deprecated
+
   caches: 'all',
   publicPath: '',
-  scope: '', // deprecated
   updateStrategy: 'all',
   externals: [],
-  excludes: [],
+  excludes: ['.*', '*.map'],
   relativePaths: true,
   version: null,
+  // for entry, default all
+  for: null,
 
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
@@ -47,6 +51,7 @@ export default class OfflinePlugin {
     this.options = deepExtend({}, defaultOptions, options);
     this.hash = null;
     this.assets = null;
+    this.hashesMap = null;
     this.publicPath = this.options.publicPath;
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
@@ -184,12 +189,34 @@ export default class OfflinePlugin {
     });
 
     compiler.plugin('emit', (compilation, callback) => {
+      const stats = compilation.getStats().toJson();
+      // console.log(compilation.getStats());4511
+
+      // compilation.getStats().records.chunks;
+      // compilation.getStats().chunks;
+      // compilation.getStats().entries;
+      // compilation.getStats().preparedChunks;
+
+      // By some reason errors raised here are not fatal,
+      // so we need manually try..catch and exit with error
       try {
-        this.hash = compilation.getStats().toJson().hash;
-        this.setAssets(Object.keys(compilation.assets), compilation);
+        // compilation.plugin('chunk-asset') fires when asset is added to chunk
+        // and to compilation.assets
+
+        this.hash = compilation.hash;
+        this.setAssets(compilation);
+        this.setHashesMap(compilation);
       } catch (e) {
         callback(e);
+        return;
+
       }
+
+      // console.log(compilation.assets, compilation.chunks);
+      // console.log(compilation.chunks.map((chunk) => chunk.files[0]));
+      // var json = compilation.getStats().toJson();
+      // delete json.modules;
+      // console.log(JSON.stringify(json, null, '  '));
 
       this.useTools((tool) => {
         return tool.apply(this, compilation, compiler);
@@ -201,22 +228,18 @@ export default class OfflinePlugin {
     });
   }
 
-  setAssets(assets, compilation) {
+  setAssets(compilation) {
     const caches = this.options.caches || defaultOptions.caches;
-
-    this.assets = assets;
+    let assets = Object.keys(compilation.assets);
 
     if (
       this.strategy !== 'changed' && caches !== 'all' &&
       ((caches.additional && caches.additional.length) || (caches.optional && caches.optional.length))
     ) {
-      compilation.errors.push(
-        new Error('OfflinePlugin: Cache sections `additional` and `optional` could be used ' +
-          'only when `updateStrategy` option is set to `changed`')
+      throw new Error(
+        'OfflinePlugin: Cache sections `additional` and `optional` could be used ' +
+        'only when `updateStrategy` option is set to `changed`'
       );
-
-      this.caches = {};
-      return;
     }
 
     const excludes = this.options.excludes;
@@ -298,6 +321,8 @@ export default class OfflinePlugin {
       this.caches = {
         main: this.validatePaths(assets)
       };
+
+      this.assets = this.caches.main.concat();
     } else {
       let restSection;
 
@@ -305,9 +330,13 @@ export default class OfflinePlugin {
         'main', 'additional', 'optional'
       ].reduce((result, key) => {
         const cache = Array.isArray(caches[key]) ? caches[key] : [];
-        let cacheResult = [];
 
-        if (!cache.length) return result;
+        if (!cache.length) {
+          result[key] = cache;
+          return result;
+        }
+
+        let cacheResult = [];
 
         cache.some((cacheKey) => {
           if (cacheKey === this.REST_KEY) {
@@ -374,7 +403,49 @@ export default class OfflinePlugin {
       }
 
       this.caches = handledCaches;
+      this.assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
     }
+  }
+
+  setHashesMap(compilation) {
+    const hashesMap = this.findAssetsHashes(compilation, {});
+    const hashedAssets = Object.keys(hashesMap).map(key => hashesMap[key]);
+
+    Object.keys(compilation.assets).forEach((key) => {
+      if (hashedAssets.indexOf(key) !== -1) return;
+
+      const asset = compilation.assets[key];
+      // external asset
+      if (!asset) return;
+
+      const hash = loaderUtils.getHashDigest(asset.source());
+      hashesMap[hash] = key;
+    });
+
+    this.hashesMap = {}
+    Object.keys(hashesMap).forEach((hash) => {
+      let asset = this.validatePaths([hashesMap[hash]])[0];
+
+      if (asset) {
+        this.hashesMap[hash] = asset;
+      }
+    });
+  }
+
+  findAssetsHashes(compilation, map) {
+    compilation.chunks.forEach((chunk) => {
+      if (chunk.hash && chunk.files.length) {
+        map[chunk.hash] = chunk.files[0];
+      }
+    });
+
+    if (compilation.children.length) {
+      compilation.children.forEach((childCompilation) => {
+        this.findAssetsHashes(childCompilation, map);
+      });
+    }
+
+    return map;
   }
 
   validatePaths(assets) {

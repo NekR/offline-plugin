@@ -1,3 +1,7 @@
+if (typeof DEBUG === 'undefined') {
+  var DEBUG = false;
+}
+
 function WebpackServiceWorker(params) {
   const strategy = params.strategy;
   const assets = params.assets;
@@ -309,5 +313,32 @@ function addAllNormalized(cache, requests) {
     });
 
     return Promise.all(addAll);
+  });
+}
+
+function getClientsURLs() {
+  if (!self.clients) {
+    return Promise.resolve([]);
+  }
+
+  return self.clients.matchAll({
+    includeUncontrolled: true
+  }).then((clients) => {
+    if (!clients.length) return [];
+
+    const result = [];
+
+    clients.forEach((client) => {
+      const url = new URL(client.url);
+      url.search = '';
+      url.hash = '';
+      const urlString = url.toString();
+
+      if (!result.length || result.indexOf(urlString) === -1) {
+        result.push(urlString);
+      }
+    });
+
+    return result;
   });
 }
