@@ -5,22 +5,24 @@ if (typeof DEBUG === 'undefined') {
 function WebpackServiceWorker(params) {
   const strategy = params.strategy;
   const assets = params.assets;
+  const hashesMap = params.hashesMaps;
   const alwaysRevalidate = params.alwaysRevalidate;
   const ignoreSearch = params.ignoreSearch;
 
-  const STACIC_CACHE_TAG = 'static';
+  const STATIC_CACHE_TAG = 'static';
   const TMP_CACHE_TAG = 'tmp';
+  const HASHES_TAG = 'hashes';
 
   const tagMap = {
     all: params.version,
-    changed: STACIC_CACHE_TAG,
-    hash: params.hash
+    changed: STATIC_CACHE_TAG
   };
 
   const CACHE_PREFIX = params.name;
   const CACHE_TAG = tagMap[strategy];
   const CACHE_NAME = CACHE_PREFIX + ':' + CACHE_TAG;
-  const CACHE_TMP = CACHE_PREFIX + ':' + TMP_CACHE_TAG;
+  const CACHE_TMP = CACHE_PREFIX + ':' + TMP_CACHE_TAG
+  const CACHE_HASHES = CACHE_PREFIX + ':' + HASHES_TAG;
 
   mapAssets();
 
@@ -71,7 +73,7 @@ function WebpackServiceWorker(params) {
   }
 
   function cacheAssets(section, options) {
-    const bustValue = strategy === 'hash' ? params.hash : params.version;
+    const bustValue = params.version;
     let batch;
 
     if (strategy !== 'changed') {
@@ -103,13 +105,20 @@ function WebpackServiceWorker(params) {
     });
   }
 
-  function cacheChanged(section, useTmp) {
+  function cacheChanged(section, useTmpCache) {
     let cache;
+
+    const lastHashesMap = caches.match('/hashesMap', {
+      cacheName: CACHE_HASHES
+    }).catch(() => void 0);
 
     return caches.open(CACHE_NAME).then((_cache) => {
       cache = _cache;
-      return _cache.keys();
-    }).then(keys => {
+      return Promise.all([_cache.keys(), lastHashesMap]);
+    }).then(args => {
+      const keys = args[0];
+      const lastMap = args[1];
+
       const paths = keys.map(req => {
         const url = new URL(req.url);
         url.search = '';
@@ -117,24 +126,52 @@ function WebpackServiceWorker(params) {
         return url.toString();
       });
 
-      const changed = assets[section].filter((url) => {
+      const sectionAssets = assets[section];
+      const changed = sectionAssets.filter((url) => {
         return paths.indexOf(url) === -1;
       });
 
-      if (!changed.length) return;
+      if (lastMap) {
+        Object.keys(hashesMap).forEach((hash) => {
+          const asset = hashesMap[hash];
 
-      (useTmp ? caches.open(CACHE_TMP) : Promise.resolve(cache))
-      .then((cache) => {
-        return addAllNormalized(cache, changed)
-      }).then(() => {
-        console.groupCollapsed('[SW]:', 'Cached changed assets: ' + section);
+          if (lastMap.hasOwnProperty(hash)) {
+            if (lastMap[hash] !== asset) {
+              // moved
+              const changedIndex = changed.indexOf(asset);
 
-        changed.forEach((asset) => {
-          console.log('Asset:', asset);
+              if (changedIndex !== -1) {
+                // moved and is in changed section,
+                // remove from there to prevent re-downloading of it
+
+                changed.splice(changedIndex, 1);
+              }
+            }
+
+            return;
+          }
+
+          if (sectionAssets.indexOf(asset) !== -1 && changed.indexOf(asset) === -1) {
+            changed.push(asset);
+          }
         });
+      }
 
-        console.groupEnd();
-      });
+      if (!changed.length) {
+        const targetCache = (useTmpCache ? caches.open(CACHE_TMP) : Promise.resolve(cache));
+
+        targetCache.then((_targetCache) => {
+          return addAllNormalized(_targetCache, changed)
+        }).then(() => {
+          console.groupCollapsed('[SW]:', 'Cached changed assets: ' + section);
+
+          changed.forEach((asset) => {
+            console.log('Asset:', asset);
+          });
+
+          console.groupEnd();
+        });
+      }
     })
   }
 
@@ -144,8 +181,9 @@ function WebpackServiceWorker(params) {
         if (key.indexOf(CACHE_PREFIX) !== 0 || key.indexOf(CACHE_NAME) === 0) return;
 
         if (strategy === 'changed' && (
-          key.indexOf(CACHE_PREFIX + ':' + STACIC_CACHE_TAG) === 0 ||
-          key.indexOf(CACHE_PREFIX + ':' + TMP_CACHE_TAG) === 0
+          key.indexOf(CACHE_PREFIX + ':' + STATIC_CACHE_TAG) === 0 ||
+          key.indexOf(CACHE_TMP) === 0 ||
+          key.indexOf(CACHE_HASHES) === 0
         )) return;
 
         console.log('[SW]:', 'Delete cache:', key);
@@ -159,10 +197,18 @@ function WebpackServiceWorker(params) {
   function updateChanged() {
     let cache;
 
+    const lastHashesMap = caches.match('/hashesMap', {
+      cacheName: CACHE_HASHES
+    }).catch(() => void 0);
+
     return caches.open(CACHE_NAME).then((_cache) => {
       cache = _cache;
-      return _cache.keys();
-    }).then((keys) => {
+      return Promise.all([_cache.keys(), lastHashesMap]);
+    }).then((args) => {
+      const keys = args[0];
+      const lastMap = args[1];
+
+      const moved = [];
       let deletion = keys.filter((req) => {
         const url = new URL(req.url);
         url.search = '';
@@ -170,19 +216,72 @@ function WebpackServiceWorker(params) {
 
         if (allAssets.indexOf(urlString) === -1) {
           req._urlString = urlString;
+          return true;
         }
       });
 
-      if (!deletion.length) return;
+      if (lastMap) {
+        Object.keys(lastMap).forEach((lastHash) => {
+          const lastAsset = lastMap[lastHash];
 
-      console.group('[SW]:', 'Deleting changed assets');
-      deletion = deletion.map((req) => {
-        console.log('Asset:', req._urlString);
-        return cache.delete(req);
-      });
-      console.groupEnd();
+          if (hashesMap.hasOwnProperty(lastHash)) {
+            const newAsset = hashesMap[lastHash];
 
-      return Promise.all(deletion);
+            if (lastAsset !== newAsset) {
+              // moved
+              moved.push([lastAsset, newAsset]);
+              // deletion is performed after movement is done
+              deletion.push(lastAsset);
+            }
+          } else {
+            // deleted
+            if (deletion.indexOf(lastAsset) === -1) {
+              deletion.push(lastAsset);
+            }
+          }
+        });
+      }
+
+      let operation = Promise.resolve();
+
+      if (moved.length) {
+        operation = operation.then(() => {
+          return moved.map((pair) => {
+            return cache.match(pair[0]).then((response) => {
+              if (response) {
+                return cache.put(pair[1], response);
+              }
+
+              return addAllNormalized(cache, [pair[1]]);
+            });
+          });
+        }).then((moved) => {
+          return Promise.all(moved);
+        }).then(() => {
+          console.groupCollapsed('[SW]:', 'Cached moved assets: ' + section);
+
+          moved.forEach((pair) => {
+            console.log('Pair:', pair);
+          });
+
+          console.groupEnd();
+        });
+      }
+
+      if (deletion.length) {
+        operation = operation.then(() => {
+          console.group('[SW]:', 'Deleting changed assets');
+          return deletion.map((req) => {
+            console.log('Asset:', req._urlString);
+            return cache.delete(req);
+          });
+          console.groupEnd();
+        }).then((deletion) => {
+          return Promise.all(deletion);
+        });
+      }
+
+      return operation;
     }).then(() => {
       return caches.open(CACHE_TMP);
     }).then((tmpCache) => {
