@@ -5,7 +5,7 @@ if (typeof DEBUG === 'undefined') {
 function WebpackServiceWorker(params) {
   const strategy = params.strategy;
   const assets = params.assets;
-  let hashesMap = params.hashesMaps;
+  let hashesMap = params.hashesMap;
   const alwaysRevalidate = params.alwaysRevalidate;
   const ignoreSearch = params.ignoreSearch;
 
@@ -50,6 +50,7 @@ function WebpackServiceWorker(params) {
 
     // Delete all assets which start with CACHE_PREFIX and
     // is not current cache (CACHE_NAME)
+    activation = activation.then(storeCacheData);
     activation = activation.then(deleteObsolete);
     activation = activation.then(() => {
       if (self.clients && self.clients.claim) {
@@ -84,18 +85,17 @@ function WebpackServiceWorker(params) {
   }
 
   function cacheAssets(section) {
+    const batch = assets[section];
+
     return caches.open(CACHE_NAME).then((cache) => {
-      return addAllNormalized(assets[section], batch, {
+      return addAllNormalized(cache, batch, {
         bust: params.version
       });
     }).then(() => {
-      console.groupCollapsed('[SW]:', 'Cached assets: ' + section);
-
-      batch.forEach((asset) => {
-        console.log('Asset:', asset);
-      });
-
-      console.groupEnd();
+      logGroup('Cached assets: ' + section, batch);
+    }).catch(e => {
+      console.error(e)
+      throw e;
     });
   }
 
@@ -107,7 +107,14 @@ function WebpackServiceWorker(params) {
 
       const lastCache = args[0];
       const lastKeys = args[1];
-      const lastMap = args[2];
+      const lastData = args[2];
+
+      const lastMap = lastData.hashmap;
+      const lastVersion = lastData.version;
+
+      if (!lastData.hashmap || lastVersion === params.version) {
+        return cacheAssets(section);
+      }
 
       const lastHashedAssets = Object.keys(lastMap).map(hash => {
         return lastMap[hash];
@@ -151,7 +158,10 @@ function WebpackServiceWorker(params) {
         }
       });
 
-      const movedResponses = Prommise.all(moved.map((pair) => {
+      logGroup('Changed assets: ' + section, changed);
+      logGroup('Moved assets: ' + section, moved);
+
+      const movedResponses = Promise.all(moved.map((pair) => {
         return lastCache.match(pair[0]).then((response) => {
           return [pair[1], response];
         })
@@ -159,25 +169,17 @@ function WebpackServiceWorker(params) {
 
       return caches.open(CACHE_NAME).then((cache) => {
         const move = movedResponses.then((responses) => {
-          return responses.map((pair) => {
+          return Promise.all(responses.map((pair) => {
             return cache.put(pair[0], pair[1]);
-          });
+          }));
         });
 
         return Promise.all([
-          Promise.all(move),
+          move,
           addAllNormalized(cache, changed, {
             bust: params.version
           })
         ]);
-      }).then(() => {
-        console.groupCollapsed('[SW]:', 'Cached changed assets: ' + section);
-
-        changed.forEach((asset) => {
-          console.log('Asset:', asset);
-        });
-
-        console.groupEnd();
       });
     });
   }
@@ -200,7 +202,7 @@ function WebpackServiceWorker(params) {
       let index = keys.length;
       let key;
 
-      while (--index) {
+      while (index--) {
         key = keys[index];
 
         if (key.indexOf(CACHE_PREFIX) === 0) {
@@ -210,15 +212,28 @@ function WebpackServiceWorker(params) {
 
       if (!key) return;
 
-      return caches.open(key).then(cache => {
-        return cache.match(STORED_DATA_KEY);
+      let cache;
+
+      return caches.open(key).then(_cache => {
+        cache = _cache;
+        return _cache.match(new URL(STORED_DATA_KEY, location).toString());
       }).then(response => {
         if (!response) return;
 
         return Promise.all([cache, cache.keys(), response.json()]);
       });
-    })
-    .catch(() => {})
+    });
+  }
+
+  function storeCacheData() {
+    return caches.open(CACHE_NAME).then(cache => {
+      const data = new Response(JSON.stringify({
+        version: params.version,
+        hashmap: hashesMap
+      }));
+
+      return cache.put(new URL(STORED_DATA_KEY, location).toString(), data);
+    });
   }
 
   self.addEventListener('fetch', (event) => {
@@ -312,11 +327,6 @@ function WebpackServiceWorker(params) {
       return result;
     }, {});
   }
-
-  function applyCacheBust(asset, key) {
-    const hasQuery = asset.indexOf('?') !== -1;
-    return asset + (hasQuery ? '&' : '?') + '__uncache=' + encodeURIComponent(key);
-  }
 }
 
 function addAllNormalized(cache, requests, options) {
@@ -339,6 +349,11 @@ function addAllNormalized(cache, requests, options) {
 
     return Promise.all(addAll);
   });
+}
+
+function applyCacheBust(asset, key) {
+  const hasQuery = asset.indexOf('?') !== -1;
+  return asset + (hasQuery ? '&' : '?') + '__uncache=' + encodeURIComponent(key);
 }
 
 function getClientsURLs() {
@@ -366,4 +381,14 @@ function getClientsURLs() {
 
     return result;
   });
+}
+
+function logGroup(title, assets) {
+  console.groupCollapsed('[SW]:', title);
+
+  assets.forEach((asset) => {
+    console.log('Asset:', asset);
+  });
+
+  console.groupEnd();
 }
