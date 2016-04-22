@@ -73,7 +73,7 @@ function WebpackServiceWorker(params) {
     let operation;
 
     if (strategy === 'changed') {
-      operation = cacheChanged('additional')
+      operation = cacheChanged('additional');
     } else {
       operation = cacheAssets('additional');
     }
