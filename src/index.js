@@ -105,7 +105,9 @@ export default class OfflinePlugin {
 
     compiler.plugin('normal-module-factory', (nmf) => {
       nmf.plugin('after-resolve', (result, callback) => {
-        if (result.resource !== runtimePath) {
+        const resource = path.resolve(compiler.context, result.resource);
+
+        if (resource !== runtimePath) {
           return callback(null, result);
         }
 
