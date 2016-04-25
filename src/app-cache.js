@@ -48,19 +48,7 @@ export default class AppCache {
   }
 
   getManifestTemplate(cache, plugin) {
-    let tag;
-
-    if (plugin.strategy === 'all') {
-      tag = 'ver:' + plugin.version;
-    }
-
-    if (plugin.strategy === 'changed') {
-      tag = 'tag:' + plugin.version;
-    }
-
-    if (plugin.strategy === 'hash') {
-      tag = 'hash:' + plugin.hash;
-    }
+    let tag = 'ver:' + plugin.version;
 
     let FALLBACK = '';
     let NETWORK = '';

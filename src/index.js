@@ -89,6 +89,15 @@ export default class OfflinePlugin {
 
     if (updateStrategies.indexOf(this.strategy) === -1) {
       throw new Error(`Update strategy must be one of [${ updateStrategies }]`);
+    } else if (this.strategy === 'hash') {
+      this.warnings.push(
+        new Error(
+          'OfflinePlugin: `hash` update strategy is deprecated, use `all` strategy and { version: "[hash]" } instead'
+        )
+      );
+
+      this.strategy = 'all';
+      this.options.version = '[hash]';
     }
 
     if (!Array.isArray(this.externals)) {
@@ -137,7 +146,12 @@ export default class OfflinePlugin {
 
     if (version == null) {
       if (this.strategy === 'all' || !hash) {
-        return (new Date).toLocaleString();
+        Object.defineProperty(this, 'version', {
+          value: (new Date).toLocaleString(),
+          writable: false,
+          enumerable: true,
+          configurable: true,
+        });
       } else {
         return hash;
       }
