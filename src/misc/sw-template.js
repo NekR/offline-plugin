@@ -19,7 +19,6 @@ function WebpackServiceWorker(params) {
   const CACHE_NAME = CACHE_PREFIX + ':' + CACHE_TAG;
 
   const STORED_DATA_KEY = '__offline_webpack__data';
-  // new URL(, location).toString();
 
   mapAssets();
 
@@ -44,11 +43,7 @@ function WebpackServiceWorker(params) {
 
     let activation = cacheAdditional();
 
-    /*if (strategy === 'changed') {
-      activation = activation.then(updateChanged);
-    }*/
-
-    // Delete all assets which start with CACHE_PREFIX and
+    // Delete all assets which name starts with CACHE_PREFIX and
     // is not current cache (CACHE_NAME)
     activation = activation.then(storeCacheData);
     activation = activation.then(deleteObsolete);
@@ -78,7 +73,7 @@ function WebpackServiceWorker(params) {
       operation = cacheAssets('additional');
     }
 
-    // ignore fail of `additional` cache section
+    // Ignore fail of `additional` cache section
     return operation.catch((e) => {
       console.error('[SW]:', 'Cache section `additional` failed to load');
     });
@@ -140,6 +135,7 @@ function WebpackServiceWorker(params) {
       Object.keys(hashesMap).forEach(hash => {
         const asset = hashesMap[hash];
 
+        // Return if not in sectionAssets or in changed or moved array
         if (
           sectionAssets.indexOf(asset) === -1 ||
           changed.indexOf(asset) !== -1 ||
@@ -193,7 +189,7 @@ function WebpackServiceWorker(params) {
         return caches.delete(key);
       });
 
-      return Promise.all(all).then(() => keys);
+      return Promise.all(all);
     });
   }
 
@@ -241,14 +237,10 @@ function WebpackServiceWorker(params) {
     url.search = '';
     const urlString = url.toString();
 
-    // Match only same origin and known caches
-    // otherwise just perform fetch()
-    if (
-      event.request.method !== 'GET' ||
-      allAssets.indexOf(urlString) === -1
-    ) {
+    // Match only GET and known caches, otherwise just ignore request
+    if (event.request.method !== 'GET' || allAssets.indexOf(urlString) === -1) {
       // Fix for https://twitter.com/wanderview/status/696819243262873600
-      if (url.origin !== location.origin && navigator.userAgent.indexOf('Firefox/44') !== -1) {
+      if (url.origin !== location.origin && navigator.userAgent.indexOf('Firefox/44.') !== -1) {
         event.respondWith(fetch(event.request));
       }
 
@@ -344,7 +336,7 @@ function addAllNormalized(cache, requests, options) {
     }
 
     const addAll = responses.map((response, i) => {
-      return cache.put(requests[i], response)
+      return cache.put(requests[i], response);
     });
 
     return Promise.all(addAll);
