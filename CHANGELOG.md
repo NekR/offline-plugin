@@ -18,6 +18,7 @@
 * Added `applyUpdate()` method of runtime
 * Absolute URLs can now be specified in `caches` as any other assets (they are required to be marked as `externals`)
 * Added basic test and Travis CI
+* `changed` is now default `udpateStrategy` and `hash` strategy is gone. `offline-plugin` now uses webpack's build hashes to apply `change` update strategy even when generate file names are the same. [Issue 6](https://github.com/NekR/offline-plugin/issues/6). More details about change in docs.
 
 ### 2.1.0
 
