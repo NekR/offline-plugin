@@ -17,7 +17,7 @@ const defaultOptions = {
   publicPath: '',
   updateStrategy: 'all',
   externals: [],
-  excludes: ['.*', '*.map'],
+  excludes: ['**/.*', '**/*.map'],
   relativePaths: true,
   version: null,
   // for entry, default all
@@ -206,33 +206,20 @@ export default class OfflinePlugin {
 
     compiler.plugin('emit', (compilation, callback) => {
       const stats = compilation.getStats().toJson();
-      // console.log(compilation.getStats());4511
-
-      // compilation.getStats().records.chunks;
-      // compilation.getStats().chunks;
-      // compilation.getStats().entries;
-      // compilation.getStats().preparedChunks;
 
       // By some reason errors raised here are not fatal,
       // so we need manually try..catch and exit with error
       try {
-        // compilation.plugin('chunk-asset') fires when asset is added to chunk
-        // and to compilation.assets
-
         this.hash = compilation.hash;
         this.setAssets(compilation);
         this.setHashesMap(compilation);
+
+        // Not used yet
+        // this.setNetworkOptions();
       } catch (e) {
         callback(e);
         return;
-
       }
-
-      // console.log(compilation.assets, compilation.chunks);
-      // console.log(compilation.chunks.map((chunk) => chunk.files[0]));
-      // var json = compilation.getStats().toJson();
-      // delete json.modules;
-      // console.log(JSON.stringify(json, null, '  '));
 
       this.useTools((tool) => {
         return tool.apply(this, compilation, compiler);
@@ -259,9 +246,6 @@ export default class OfflinePlugin {
     }
 
     const excludes = this.options.excludes;
-    let alwaysRevalidate = this.options.alwaysRevalidate;
-    let preferOnline = this.options.preferOnline;
-    let ignoreSearch = this.options.ignoreSearch;
 
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
@@ -367,6 +351,62 @@ export default class OfflinePlugin {
       assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
     }
 
+    this.assets = assets;
+  }
+
+  setHashesMap(compilation) {
+    const hashesMap = this.findAssetsHashes(compilation, {});
+    const hashedAssets = Object.keys(hashesMap).reduce((result, hash) => {
+      result[hashesMap[hash]] = hash;
+      return result;
+    }, {});
+
+    this.hashesMap = {}
+
+    Object.keys(compilation.assets).forEach((key) => {
+      const validatedPath = this.validatePaths([key])[0];
+
+      if (
+        typeof validatedPath !== 'string' ||
+        this.assets.indexOf(validatedPath) === -1
+      ) return;
+
+      let hash;
+
+      if (hashedAssets[key]) {
+        hash = hashedAssets[key];
+      } else {
+        hash = loaderUtils.getHashDigest(compilation.assets[key].source());
+      }
+
+      this.hashesMap[hash] = validatedPath;
+    });
+  }
+
+  findAssetsHashes(compilation, map) {
+    compilation.chunks.forEach((chunk) => {
+      if (chunk.hash && chunk.files.length) {
+        map[chunk.hash] = chunk.files[0];
+      }
+    });
+
+    if (compilation.children.length) {
+      compilation.children.forEach((childCompilation) => {
+        this.findAssetsHashes(childCompilation, map);
+      });
+    }
+
+    return map;
+  }
+
+  setNetworkOptions() {
+    let alwaysRevalidate = this.options.alwaysRevalidate;
+    let preferOnline = this.options.preferOnline;
+    let ignoreSearch = this.options.ignoreSearch;
+
+    const assets = this.assets;
+
+    // Disable temporarily
     if (Array.isArray(alwaysRevalidate) && alwaysRevalidate.length) {
       alwaysRevalidate = assets.filter((asset) => {
         if (alwaysRevalidate.some((glob) => {
@@ -422,49 +462,6 @@ export default class OfflinePlugin {
         this.preferOnline = preferOnline;
       }
     }
-
-    this.assets = assets;
-  }
-
-  setHashesMap(compilation) {
-    const hashesMap = this.findAssetsHashes(compilation, {});
-    const hashedAssets = Object.keys(hashesMap).map(key => hashesMap[key]);
-
-    Object.keys(compilation.assets).forEach((key) => {
-      if (hashedAssets.indexOf(key) !== -1) return;
-
-      const asset = compilation.assets[key];
-      // external asset
-      if (!asset) return;
-
-      const hash = loaderUtils.getHashDigest(asset.source());
-      hashesMap[hash] = key;
-    });
-
-    this.hashesMap = {}
-    Object.keys(hashesMap).forEach((hash) => {
-      let asset = this.validatePaths([hashesMap[hash]])[0];
-
-      if (typeof asset === 'string') {
-        this.hashesMap[hash] = asset;
-      }
-    });
-  }
-
-  findAssetsHashes(compilation, map) {
-    compilation.chunks.forEach((chunk) => {
-      if (chunk.hash && chunk.files.length) {
-        map[chunk.hash] = chunk.files[0];
-      }
-    });
-
-    if (compilation.children.length) {
-      compilation.children.forEach((childCompilation) => {
-        this.findAssetsHashes(childCompilation, map);
-      });
-    }
-
-    return map;
   }
 
   validatePaths(assets) {

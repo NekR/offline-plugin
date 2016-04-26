@@ -6,8 +6,11 @@ function WebpackServiceWorker(params) {
   const strategy = params.strategy;
   const assets = params.assets;
   let hashesMap = params.hashesMap;
-  const alwaysRevalidate = params.alwaysRevalidate;
-  const ignoreSearch = params.ignoreSearch;
+
+  // Not used yet
+  // const alwaysRevalidate = params.alwaysRevalidate;
+  // const ignoreSearch = params.ignoreSearch;
+  // const preferOnline = params.preferOnline;
 
   const tagMap = {
     all: params.version,
