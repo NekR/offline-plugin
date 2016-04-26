@@ -219,10 +219,8 @@ export default class OfflinePlugin {
           const index = assets.indexOf(cacheKey);
 
           externalsCheck: if (index === -1) {
-            for (let glob of this.externals) {
-              if (minimatch(cacheKey, glob)) {
-                break externalsCheck;
-              }
+            if (this.externals.length && this.externals.indexOf(cacheKey) !== -1) {
+              break externalsCheck;
             }
 
             compilation.warnings.push(
