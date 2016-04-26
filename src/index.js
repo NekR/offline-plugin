@@ -318,16 +318,15 @@ export default class OfflinePlugin {
           const index = assets.indexOf(cacheKey);
 
           externalsCheck: if (index === -1) {
-            if (this.externals.some((glob) => {
-              if (minimatch(cacheKey, glob)) {
-                return true;
-              }
-            })) {
+            if (this.externals.length && this.externals.indexOf(cacheKey) !== -1) {
               break externalsCheck;
             }
 
             compilation.warnings.push(
-              new Error(`OfflinePlugin: Cache asset [${ cacheKey }] is not found in output assets`)
+              new Error(
+                `OfflinePlugin: Cache asset [${ cacheKey }] is not found in output assets,` +
+                `if it's an external asset, put it to |externals| option to remove this warning`
+              )
             );
           } else {
             assets.splice(index, 1);
