@@ -10,6 +10,7 @@ export default class ServiceWorker {
     this.entry = options.entry;
     this.output = options.output.replace(/^\//, '');
     this.basePath = pathToBase(this.output, true);
+    this.events = !!options.events;
 
     this.ENTRY_NAME = 'serviceworker';
     this.CACHE_NAME = 'webpack-offline';
@@ -139,7 +140,8 @@ export default class ServiceWorker {
 
   getConfig(plugin) {
     return {
-      output: plugin.publicPath + this.output
+      output: plugin.publicPath + this.output,
+      events: this.events
     };
   }
 }

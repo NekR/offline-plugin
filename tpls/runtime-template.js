@@ -1,4 +1,5 @@
 var unknownUpdate = true;
+var appCacheIframe;
 
 function hasSW() {
   return 'serviceWorker' in navigator &&
@@ -11,54 +12,55 @@ function install(options) {
 
   <% if (typeof ServiceWorker !== 'undefined') { %>
     if (hasSW()) {
+      var registration = navigator.serviceWorker
+        .register(<%- JSON.stringify(ServiceWorker.output) %>);
 
-      var handleUpdating = function(registration) {
-        var sw = registration.installing || registration.waiting;
-        var ignoreInstalling;
-        var ignoreWaiting;
+      <% if (ServiceWorker.events) { %>
+        var handleUpdating = function(registration) {
+          var sw = registration.installing || registration.waiting;
+          var ignoreInstalling;
+          var ignoreWaiting;
 
-        if (!sw) return;
-        onStateChange();
+          if (!sw) return;
+          onStateChange();
 
-        ignoreInstalling = true;
-        if (registration.waiting) {
-          ignoreWaiting = true;
-        }
-
-        sw.onstatechange = onStateChange;
-
-        function onStateChange() {
-          switch (sw.state) {
-            case 'redundant': {
-              if (options.onUninstalled) {
-                options.onUninstalled();
-              }
-            } break;
-
-            case 'installing': {
-              if (!ignoreInstalling && options.onUpdating) {
-                options.onUpdating();
-              }
-            } break;
-
-            case 'installed': {
-              if (!ignoreWaiting && options.onUpdateReady) {
-                options.onUpdateReady();
-              }
-            } break;
-
-            case 'activated': {
-              if (options.onUpdated) {
-                options.onUpdated(unknownUpdate);
-              }
-            } break;
+          ignoreInstalling = true;
+          if (registration.waiting) {
+            ignoreWaiting = true;
           }
-        }
-      };
 
-      navigator.serviceWorker
-        .register(<%- JSON.stringify(ServiceWorker.output) %>)
-        .then(function(reg) {
+          sw.onstatechange = onStateChange;
+
+          function onStateChange() {
+            switch (sw.state) {
+              case 'redundant': {
+                if (options.onUpdateFailed) {
+                  options.onUpdateFailed();
+                }
+              } break;
+
+              case 'installing': {
+                if (!ignoreInstalling && options.onUpdating) {
+                  options.onUpdating();
+                }
+              } break;
+
+              case 'installed': {
+                if (!ignoreWaiting && options.onUpdateReady) {
+                  options.onUpdateReady();
+                }
+              } break;
+
+              case 'activated': {
+                if (options.onUpdated) {
+                  options.onUpdated(unknownUpdate);
+                }
+              } break;
+            }
+          }
+        };
+
+        registration.then(function(reg) {
           // WTF no reg?
           if (!reg) return;
           // Not installed
@@ -81,6 +83,7 @@ function install(options) {
 
           return Promise.reject(err);
         });
+      <% } %>
 
       return;
     }
@@ -95,9 +98,23 @@ function install(options) {
         var page = directory + name + '.html';
         var iframe = document.createElement('iframe');
 
+        <% if (AppCache.events) { %>
+          window.addEventListener('message', function(e) {
+            if (e.source !== iframe.contentWindow) return;
+
+            var match = (e.data + '').match(/__offline-plugin_AppCacheEvent:(\w+)/);
+            var event = match[1];
+
+            if (typeof options[event] === 'function') {
+              options[event]();
+            }
+          });
+        <% } %>
+
         iframe.src = page;
         iframe.style.display = 'none';
 
+        appCacheIframe = iframe;
         document.body.appendChild(iframe);
       };
 
@@ -113,21 +130,36 @@ function install(options) {
 }
 
 function applyUpdate(callback, errback) {
-  errback || (errback = function() {});
+  <% if (typeof ServiceWorker !== 'undefined' && ServiceWorker.events) { %>
+    if (hasSW()) {
+      navigator.serviceWorker.getRegistration().then(function(registration) {
+        if (!registration || !registration.waiting) {
+          errback && errback();
+          return;
+        }
 
-  navigator.serviceWorker.getRegistration().then(function(registration) {
-    if (!registration || !registration.waiting) {
-      errback();
+        unknownUpdate = false;
+        registration.waiting.postMessage({
+          action: 'skipWaiting'
+        });
+
+        callback && callback();
+      });
+
       return;
     }
+  <% } %>
 
-    unknownUpdate = false;
-    registration.waiting.postMessage({
-      action: 'skipWaiting'
-    });
-
-    callback && callback();
-  });
+  <% if (typeof AppCache !== 'undefined' && AppCache.events) { %>
+    if (appCacheIframe) {
+      try {
+        appCacheIframe.contentWindow.applicationCache.swapCache();
+        callback && setTimeout(callback);
+      } catch (e) {
+        errback && setTimeout(errback);
+      }
+    }
+  <% } %>
 }
 
 exports.install = install;

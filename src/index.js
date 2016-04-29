@@ -35,14 +35,16 @@ const defaultOptions = {
 
   ServiceWorker: {
     output: 'sw.js',
-    entry: path.join(__dirname, '../empty-entry.js')
+    entry: path.join(__dirname, '../empty-entry.js'),
+    events: false
   },
 
   AppCache: {
     NETWORK: '*',
     FALLBACK: null,
     directory: 'appcache/',
-    caches: ['main', 'additional']
+    caches: ['main', 'additional'],
+    events: false
   }
 };
 

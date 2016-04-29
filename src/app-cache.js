@@ -1,5 +1,7 @@
 import { Promise } from 'es6-promise';
 import { getSource, pathToBase } from './misc/utils';
+import fs from 'fs';
+import path from 'path';
 
 export default class AppCache {
   constructor(options) {
@@ -7,6 +9,7 @@ export default class AppCache {
     this.FALLBACK = options.FALLBACK;
     this.name = 'manifest';
     this.caches = options.caches;
+    this.events = !!options.events;
 
     this.directory = options.directory
       .replace(/^\//, '')
@@ -41,7 +44,8 @@ export default class AppCache {
 
     const path = this.directory + this.name;
     const manifest = this.getManifestTemplate(cache, plugin);
-    const page = this.getPageTemplate(this.name);
+    const content = this.getPageContent();
+    const page = this.getPageTemplate(this.name, content);
 
     compilation.assets[path + '.appcache'] = getSource(manifest);
     compilation.assets[path + '.html'] = getSource(page);
@@ -84,10 +88,19 @@ export default class AppCache {
     `.trim().replace(/^      */gm, '');
   }
 
+  getPageContent() {
+    if (this.events) {
+      return fs.readFileSync(path.join(__dirname, '../tpls/appcache-frame.tpl'), 'utf-8');
+    } else {
+      return '';
+    }
+  }
+
   getConfig(plugin) {
     return {
       directory: plugin.publicPath + this.directory,
-      name: this.name
+      name: this.name,
+      events: this.events
     };
   }
 }
