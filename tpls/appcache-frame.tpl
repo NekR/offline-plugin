@@ -15,7 +15,6 @@
     applicationCache.addEventListener('downloading', onDownloadingEvent);
     applicationCache.addEventListener('progress', onDownloadingEvent);
 
-
     switch (applicationCache.status) {
       case applicationCache.DOWNLOADING: {
         setTimeout(onDownloadingEvent, 1);

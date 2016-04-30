@@ -1,4 +1,3 @@
-var unknownUpdate = true;
 var appCacheIframe;
 
 function hasSW() {
@@ -21,54 +20,92 @@ function install(options) {
           var ignoreInstalling;
           var ignoreWaiting;
 
-          if (!sw) return;
-          onStateChange();
+          // No SW or already handled
+          if (!sw || sw.onstatechange) return;
+
+          var stateChangeHandler;
+
+          // Already has SW
+          if (registration.active) {
+            onUpdateStateChange();
+            stateChangeHandler = onUpdateStateChange;
+          } else {
+            onInstallStateChange();
+            stateChangeHandler = onInstallStateChange;
+          }
 
           ignoreInstalling = true;
           if (registration.waiting) {
             ignoreWaiting = true;
           }
 
-          sw.onstatechange = onStateChange;
+          sw.onstatechange = stateChangeHandler;
 
-          function onStateChange() {
+          function onUpdateStateChange() {
             switch (sw.state) {
               case 'redundant': {
-                if (options.onUpdateFailed) {
-                  options.onUpdateFailed();
-                }
+                sendEvent('onUpdateFailed');
+                sw.onstatechange = null;
               } break;
 
               case 'installing': {
-                if (!ignoreInstalling && options.onUpdating) {
-                  options.onUpdating();
+                if (!ignoreInstalling) {
+                  sendEvent('onUpdating');
                 }
               } break;
 
               case 'installed': {
-                if (!ignoreWaiting && options.onUpdateReady) {
-                  options.onUpdateReady();
+                if (!ignoreWaiting) {
+                  sendEvent('onUpdateReady');
                 }
               } break;
 
               case 'activated': {
-                if (options.onUpdated) {
-                  options.onUpdated(unknownUpdate);
-                }
+                sendEvent('onUpdated');
+                sw.onstatechange = null;
               } break;
             }
+          }
+
+          function onInstallStateChange() {
+            switch (sw.state) {
+              case 'redundant': {
+                // Failed to install, ignore
+                sw.onstatechange = null;
+              } break;
+
+              case 'installing': {
+                // Installing, ignore
+              } break;
+
+              case 'installed': {
+                // Installed, wait activation
+              } break;
+
+              case 'activated': {
+                sendEvent('onInstalled');
+                sw.onstatechange = null;
+              } break;
+            }
+          }
+        };
+
+        var sendEvent = function(event) {
+          if (typeof options[event] === 'function') {
+            options[event]({
+              source: 'ServiceWorker'
+            });
           }
         };
 
         registration.then(function(reg) {
           // WTF no reg?
           if (!reg) return;
-          // Not installed
-          if (!reg.active) return;
+
           // Installed but Shift-Reloaded (page is not controller by SW),
-          // still, update might be ready at this point (more than one tab opened).
+          // update might be ready at this point (more than one tab opened).
           // Anyway, if page is hard-reloaded, then it probably already have latest version
-          // but it's controlled by SW yet. Applying update will claim this page
+          // but it's not controlled by SW yet. Applying update will claim this page
           // to be controlled by SW. Maybe set flag to not reload it?
           // if (!navigator.serviceWorker.controller) return;
 
@@ -77,10 +114,7 @@ function install(options) {
             handleUpdating(reg);
           };
         }).catch(function(err) {
-          if (options.onError) {
-            options.onError(err);
-          }
-
+          sendEvent('onError');
           return Promise.reject(err);
         });
       <% } %>
@@ -106,7 +140,9 @@ function install(options) {
             var event = match[1];
 
             if (typeof options[event] === 'function') {
-              options[event]();
+              options[event]({
+                source: 'AppCache'
+              });
             }
           });
         <% } %>
@@ -138,7 +174,6 @@ function applyUpdate(callback, errback) {
           return;
         }
 
-        unknownUpdate = false;
         registration.waiting.postMessage({
           action: 'skipWaiting'
         });
