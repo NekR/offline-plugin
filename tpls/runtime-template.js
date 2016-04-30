@@ -2,6 +2,8 @@ var appCacheIframe;
 
 function hasSW() {
   return 'serviceWorker' in navigator &&
+    // This is how I block Chrome 40 and detect Chrome 41, because first has
+    // bugs with history.pustState and/or hashchange
     (window.fetch || 'imageRendering' in document.documentElement.style) &&
     (window.location.protocol === 'https:' || window.location.hostname === 'localhost')
 }
