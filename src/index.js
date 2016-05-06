@@ -238,12 +238,16 @@ export default class OfflinePlugin {
     let assets = Object.keys(compilation.assets);
 
     if (
-      this.strategy !== 'changed' && caches !== 'all' &&
+      this.options.safeToUseOptionalCaches !== true &&
       ((caches.additional && caches.additional.length) || (caches.optional && caches.optional.length))
     ) {
-      throw new Error(
-        'OfflinePlugin: Cache sections `additional` and `optional` could be used ' +
-        'only when `updateStrategy` option is set to `changed`'
+      compilation.warnings.push(
+        new Error(
+          'OfflinePlugin: Cache sections `additional` and `optional` could be used ' +
+          'only when each asset passed to it has unique name (e.g. hash or version in it) and ' +
+          'is permanently available for given URL. If you think that it\' your case, ' +
+          'set `safeToUseOptionalCaches` option to `true`, to remove this warning.'
+        )
       );
     }
 
