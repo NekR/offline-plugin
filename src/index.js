@@ -163,7 +163,7 @@ export default class OfflinePlugin {
       return version(this);
     }
 
-    return interpolateString(version, { hash, version });
+    return interpolateString(version, { hash });
   }
 
   apply(compiler) {

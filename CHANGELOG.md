@@ -3,22 +3,21 @@
 ### 3.0.0
 
 * All assets are now requested cache-bust query parameter (`__uncache=${ Date.now() }`)
-* Matching assets in cache now uses `ignoreSearch` search option of `CacheQueryOptions`, with [sw-cache-options](https://github.com/NekR/sw-cache-options) polyfill for Chrome.
+* Assets matching in caches now ignores search (query) path of URLs
 * Rename `scope` option to `publicPath` (`scope` is deprecated now and will produce warnings upon use)
-* Make `publicPath` `''` (empty string) by default
-* Make `relativePaths` `true` by default
+* Make `publicPath: ''` (empty string) by default
+* Make `relativePaths: true` by default
 * Cache sections `'additional'` and `'optional'` are now allowed only when `updateStrategy`option is set to `'changed'`
-* `updateStrategy: 'changed'` now uses `version` option instead of compilation hash.
-* Version now is not set by default and returns compilation hash for `updateStrategy: 'changed'` and `version` for `updateStrategy: 'all'` (when not set)
-* Added `alwaysRevalidate` option
-* Improve `updateStrategy` option implementation. `changed` mode might be still unstable--**do not use it yet**
+* `changed` is now default `updateStrategy` and `hash` strategy is gone. `offline-plugin` now uses webpack's build hashes to apply `change` update strategy even when generate file names are the same. [Issue 6](https://github.com/NekR/offline-plugin/issues/6). More details about change in docs.
+* Any of `updateStrategy` is now using `version` option for its version tag
+* `version` now is not set by default and returns (when not set, e.g. default) compilation hash for `updateStrategy: 'changed'` and `version` for `updateStrategy: 'all'`
+* `version` now has interpolation value, use `[hash]` to insert compilation hash to your version string
 * `install()` method signature now is `install(options)` (callbacks are removed)
-* Runtime events are not implemented for ServiceWorker: `onUpdating`, `onUpdateReady`, `onUpdated`, `onError`.  
-  Example: `runtime.install({ onError: () => ... })`
-* Added `applyUpdate()` method of runtime
+* Runtime events are not implemented for ServiceWorker (and some for AppCache): `onUpdating`, `onUpdateReady`, `onUpdated`, `onInstalled`.  
+  Example: `runtime.install({ onInstalled: () => ... })`
+* Added `applyUpdate()` method to runtime
 * Absolute URLs can now be specified in `caches` as any other assets (they are required to be marked as `externals`)
 * Added basic test and Travis CI
-* `changed` is now default `udpateStrategy` and `hash` strategy is gone. `offline-plugin` now uses webpack's build hashes to apply `change` update strategy even when generate file names are the same. [Issue 6](https://github.com/NekR/offline-plugin/issues/6). More details about change in docs.
 
 ### 2.2.0
 
