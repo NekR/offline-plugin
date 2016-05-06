@@ -122,7 +122,7 @@
   }());
 
   function onUpdating() {
-    sendEvent('onUpdating');
+    // sendEvent('onUpdating');
   }
 
   function onUpdateReady() {
