@@ -38,7 +38,7 @@ require('offline-plugin/runtime').install();
 
 All options are optional and `offline-plugin` could be used without specifying them. Also see full list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L9).
 
-### caches: `'all' | Object`
+#### `caches: 'all' | Object`
 
 Tells to the plugin what to cache and how. Default: `'all'`.
 
@@ -49,11 +49,11 @@ Tells to the plugin what to cache and how. Default: `'all'`.
     * `optional` cache. This sections **is only supported** by `ServiceWorker`. As you may guess from its name, assets are cached only when they are fetched from the server. `ServiceWorker` won't download them ahead of time.
 
     
-### scope: `string`
+#### `scope: string`
 
 Scope of the project, for example `'/m/'` or `'/admin/'`. Default: `'/'`.
 
-### updateStrategy: `'all' | 'hash' | 'changed'`
+#### `updateStrategy: 'all' | 'hash' | 'changed'`
 Cache update strategy. Default: `'all'`.
 
   * `all` strategy uses `version` passed to options as a cache tag. When version changes, old version cache is removed and new files are downloaded. Of course if files has same name were not changed (304 status returned), then probably browser won't download them again and will just update cache.
@@ -63,30 +63,30 @@ Cache update strategy. Default: `'all'`.
     * For `AppCache` it's basically same as previous strategies since `AppCache` revalidates all the assets. 304 HTTP status rule of course still works.
 
     
-### externals: `Array<string>`.
+#### `externals: Array<string>`.
 Explicitly marks cache asset as _external_ so you won't receive any warnings about it if asset it missing from _webpack generated assets_.
 
-### excludes: `Array<string | globs_pattern>`
+#### `excludes: Array<string | globs_pattern>`
 Excludes selected assets from generation. Exclusion is applied before any assets is added to `caches` sections, hence global.
 
-### relativePaths: `boolean`
+#### `relativePaths: boolean`
 When set to `true`, all assets cache paths are generated relatively to `ServiceWorker` file or `AppCache` folder receptively. Setting `scope` to `''` (empty string) sets this option to `true` and vice-versa. Default: `false`
 
-### version: `string | Function`
+#### `version: string | Function`
 Version of the cache. Is used only with `all` update strategy. Might be a function, useful in _watch-mode_ when you need dynamic date for each generation. Default: _Current date_.
 
-### rewrites: `Function | Object`
+#### `rewrites: Function | Object`
 
 Rewrite function or rewrite map (`Object`). Useful when assets are server in a different way from the client perspective, e.g. usually `index.html` served as `/`. Default: _function which rewrites_ `/any/path/index.html` _to_ `/any/path/`.
 
-### ServiceWorker: `Object | null | false`
+#### `ServiceWorker: Object | null | false`
 
 Settings for the `ServiceWorker` cache. Use `null` or `false` to disable `ServiceWorker` generation.
 
 * `output`: `string`. Relative (from the _webpack_'s config `output.path`) output path for emitted script. Default: `'sw.js'`.
 * `entry`: `string`. Relative or absolute path to file which will be used as `ServiceWorker` entry. Useful to implement additional function for it. Default: _empty file_.
 
-### AppCache: `Object | null | false`
+#### `AppCache: Object | null | false`
 
 Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.
 
