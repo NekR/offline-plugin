@@ -126,6 +126,8 @@ Event called exactly once when `ServiceWorker` or `AppCache` is installed. Can b
 
 #### `onUpdating`
 
+_Not supported for `AppCache`_
+
 Event called when update is found and browsers started updating process. At this moment, some assets are downloading.
 
 #### `onUpdateReady`
