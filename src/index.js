@@ -43,7 +43,7 @@ const defaultOptions = {
     NETWORK: '*',
     FALLBACK: null,
     directory: 'appcache/',
-    caches: ['main', 'additional'],
+    caches: ['main'],
     events: false
   }
 };
