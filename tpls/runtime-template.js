@@ -190,7 +190,7 @@ function applyUpdate(callback, errback) {
   <% if (typeof AppCache !== 'undefined' && AppCache.events) { %>
     if (appCacheIframe) {
       try {
-        appCacheIframe.contentWindow.applicationCache.swapCache();
+        appCacheIframe.contentWindow.__applyUpdate();
         callback && setTimeout(callback);
       } catch (e) {
         errback && setTimeout(errback);

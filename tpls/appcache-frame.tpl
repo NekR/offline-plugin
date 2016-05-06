@@ -144,4 +144,9 @@
   function sendEvent(event) {
     window.parent.postMessage('__offline-plugin_AppCacheEvent:' + event, '*');
   }
+
+  window.__applyUpdate() {
+    applicationCache.swapCache();
+    sendEvent('onUpdated');
+  };
 </script>
