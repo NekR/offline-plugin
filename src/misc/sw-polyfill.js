@@ -1,1 +1,0 @@
-require('sw-cache-options');
