@@ -164,20 +164,12 @@ function WebpackServiceWorker(params) {
       return;
     }
 
-    // if asset is from main entry read it directly from the cache
-    if (assets.main.indexOf(url.pathname) !== -1) {
-      event.respondWith(
-        caches.match(event.request, {
-          cacheName: CACHE_NAME
-        })
-      );
-
-      return;
-    }
-
     const resource = caches.match(event.request, {
       cacheName: CACHE_NAME
-    }).then((response) => {
+    })
+    // Return void if error
+    .catch(() => {})
+    .then((response) => {
       if (response) {
         if (DEBUG) {
           console.log('[SW]:', 'Path [' + url.pathname + '] from cache');
