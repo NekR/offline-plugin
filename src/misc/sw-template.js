@@ -252,7 +252,10 @@ function WebpackServiceWorker(params) {
 
     const resource = caches.match(urlString, {
       cacheName: CACHE_NAME
-    }).then((response) => {
+    })
+    // Return void if error happened (cache not found)
+    .catch(() => {})
+    .then((response) => {
       if (response) {
         if (DEBUG) {
           console.log('[SW]:', `URL [${ urlString }] from cache`);
