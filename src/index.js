@@ -147,16 +147,7 @@ export default class OfflinePlugin {
     const hash = this.hash;
 
     if (version == null) {
-      if (this.strategy === 'all' || !hash) {
-        Object.defineProperty(this, 'version', {
-          value: (new Date).toLocaleString(),
-          writable: false,
-          enumerable: true,
-          configurable: true,
-        });
-      } else {
-        return hash;
-      }
+      return (new Date).toLocaleString();
     }
 
     if (typeof version === 'function') {
