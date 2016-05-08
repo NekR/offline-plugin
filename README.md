@@ -43,7 +43,9 @@ require('offline-plugin/runtime').install();
 Tells to the plugin what to cache and how.
 
 * `'all'`: means that everything (all the webpack output assets) will be cached on install.
-* `Object`: Object with 3 possible `Array<string>` sections (properties): `main`, `additional`, `optional`. All sections are optional and by default are empty (no assets added). [More details about `caches`](docs/caches.md)
+* `Object`: Object with 3 possible `Array<string>` sections (properties): `main`, `additional`, `optional`. All sections are optional and by default are empty (no assets added).
+
+[More details about `caches`](docs/caches.md)
 
 > Default: `'all'`.
 
@@ -66,7 +68,8 @@ Explicitly marks cache asset as an _external_ asset. If cache asset is not one o
 > **Example value:** `['fonts/roboto.woff']`
 
 #### `excludes: Array<string | globs_pattern>`
-Excludes macthed assets from being added to caches. Exclusion is perfoment before _rewrite_ happens. [Learn more about assets _rewrite_](docs/rewrite.md)
+Excludes macthed assets from being added to caches. Exclusion is perfoment before _rewrite_ happens.  
+[Learn more about assets _rewrite_](docs/rewrite.md)
 
 > Default: `['**/.*', '**/*.map']`  
 > _Excludes all files which start with `.` or end with `.map`_
