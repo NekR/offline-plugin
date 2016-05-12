@@ -60,7 +60,7 @@ Incorrect value: `https://example.com/project`
 #### `updateStrategy: 'changed' | 'all'`
 Cache update strategy. [More details about `updateStrategy`](docs/update-strategies.md)  
 > Default: `'changed'`.
-    
+
 #### `externals: Array<string>`.
 Explicitly marks cache asset as an _external_ asset. If cache asset is not one of _webpack's generated assets_ and is not marked explicitly as _external_, you will recive warning about it into console.
 
@@ -108,6 +108,26 @@ Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` g
 
 * `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section.  
 _Default:_ `'*'`.
+* `FALLBACK`: `object`. Reflects `AppCache`'s `FALLBACK` section.  
+_Default:_ `null`.
+
+ Example:
+ ```js
+ FALLBACK: {
+   '/some/path': '/some/alternative/path',
+   '/another/path': '/another/alternative/path',
+ }
+ ```
+* `CACHE`: `array`. Reflects additional entries to `AppCache`'s `CACHE` section besides assets built by webpack.
+_Default:_ `null`.
+
+ Example:
+ ```js
+ CACHE: [
+   '/url/to/page/to/cache',
+   '/another-url',
+ ]
+ ```
 * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` emmited files.  
 _Default:_ `'appcache/'`.
 
