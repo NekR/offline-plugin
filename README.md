@@ -101,6 +101,8 @@ Settings for the `ServiceWorker` cache. Use `null` or `false` to disable `Servic
 _Default:_ `'sw.js'`.
 * `entry`: `string`. Relative or absolute path to file which will be used as `ServiceWorker` entry. Useful to implement additional function or handle other SW events.  
 _Default:_ _empty file_
+* `events`: `boolean`. Enables runtime events for ServiceWorker. For supported events see `Runtime`'s `install()` options.
+_Default:_ `false`.
 
 #### `AppCache: Object | null | false`
 
@@ -110,6 +112,8 @@ Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` g
 _Default:_ `'*'`.
 * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` emmited files.  
 _Default:_ `'appcache/'`.
+* `events`: `boolean`. Enables runtime events for AppCache. For supported events see `Runtime`'s `install()` options.
+_Default:_ `false`.
 
 ## Runtime
 
