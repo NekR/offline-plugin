@@ -1,6 +1,6 @@
 # `offline-plugin` for webpack
 
-This plugin is intended to provide offline experience for **webpack** projects. It uses **ServiceWorker** and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config``, and the accompanying runtime in your client script, and your project will became offline ready by caching all (or some) output assets.
+This plugin is intended to provide offline experience for **webpack** projects. It uses **ServiceWorker** and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config``, and the accompanying runtime in your client script, and your project will become offline ready by caching all (or some) output assets.
 
 ## Install
 
@@ -68,14 +68,14 @@ Explicitly marks cache asset as an _external_ asset. If cache asset is not one o
 > **Example value:** `['fonts/roboto.woff']`
 
 #### `excludes: Array<string | globs_pattern>`
-Excludes macthed assets from being added to caches. Exclusion is perfoment before _rewrite_ happens.  
+Excludes matches assets from being added to caches. Exclusion is performed before _rewrite_ happens.  
 [Learn more about assets _rewrite_](docs/rewrite.md)
 
 > Default: `['**/.*', '**/*.map']`  
 > _Excludes all files which start with `.` or end with `.map`_
 
 #### `relativePaths: boolean`
-When set to `true`, all cache asset paths are generated relatively to `ServiceWorker` file or `AppCache` folder recpetively.  
+When set to `true`, all cache asset paths are generated relatively to `ServiceWorker` file or `AppCache` folder respectively.  
 `publichPath` option is ignored when this is set to `true`.
 > **Default:** `true`
 
