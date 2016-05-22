@@ -112,10 +112,10 @@ Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` g
 _Default:_ `'*'`.
 * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` emmited files.  
 _Default:_ `'appcache/'`.
-* `events`: `boolean`. Enables runtime events for AppCache. For supported events see `Runtime`'s `install()` options.
+* `events`: `boolean`. Enables runtime events for AppCache. For supported events see `Runtime`'s `install()` options.  
 _Default:_ `false`.
-* `FALLBACK`: `Object`. Reflects `AppCache`'s `FALLBACK` section. Useful for single page applications making use of HTML5 routing or for displaying custom _Offline page_.
-_Example 1:_ `{ '/blog': '/' }` will map all requests starting with `/blog` to the domain roboto when request fails.
+* `FALLBACK`: `Object`. Reflects `AppCache`'s `FALLBACK` section. Useful for single page applications making use of HTML5 routing or for displaying custom _Offline page_.  
+_Example 1:_ `{ '/blog': '/' }` will map all requests starting with `/blog` to the domain roboto when request fails.  
 _Example 2:_ `{ '/': '/offline-page.html' }` will return contents of `/offline-page.html` for any failed request.
 
 ## Runtime
