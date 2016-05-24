@@ -62,7 +62,7 @@ Cache update strategy. [More details about `updateStrategy`](docs/update-strateg
 > Default: `'changed'`.
     
 #### `externals: Array<string>`.
-Explicitly marks cache asset as an _external_ asset. If cache asset is not one of _webpack's generated assets_ and is not marked explicitly as _external_, you will recive warning about it into console.
+Explicitly marks the assets as _external_ assets that you can cache. If cache asset is not one of _webpack's generated assets_ and is not marked explicitly as _external_, you will recive warning about it into console. To cache external assets, add them to the `caches` object, by default `caches: 'all'` doesn't cache `externals`.
 
 > Default: `null`  
 > **Example value:** `['fonts/roboto.woff']`
