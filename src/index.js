@@ -36,6 +36,7 @@ const defaultOptions = {
   ServiceWorker: {
     output: 'sw.js',
     entry: path.join(__dirname, '../empty-entry.js'),
+    scope: null,
     events: false
   },
 

@@ -14,7 +14,12 @@ function install(options) {
   <% if (typeof ServiceWorker !== 'undefined') { %>
     if (hasSW()) {
       var registration = navigator.serviceWorker
-        .register(<%- JSON.stringify(ServiceWorker.output) %>);
+        .register(
+          <%- JSON.stringify(ServiceWorker.output) %>
+          <% if (ServiceWorker.scope) { %>
+            , { scope: <%- JSON.stringify(ServiceWorker.scope) %> }
+          <% } %>
+        );
 
       <% if (ServiceWorker.events) { %>
         var handleUpdating = function(registration) {

@@ -10,6 +10,7 @@ export default class ServiceWorker {
     this.entry = options.entry;
     this.output = options.output.replace(/^\//, '');
     this.basePath = pathToBase(this.output, true);
+    this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
 
     this.ENTRY_NAME = 'serviceworker';
@@ -141,6 +142,7 @@ export default class ServiceWorker {
   getConfig(plugin) {
     return {
       output: plugin.publicPath + this.output,
+      scope: this.scope,
       events: this.events
     };
   }
