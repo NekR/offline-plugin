@@ -19,7 +19,6 @@ export function hasMagic(pattern, options) {
   return false
 }
 
-
 export function getSource(source) {
   return {
     source() {
@@ -48,4 +47,8 @@ export function interpolateString(string, data) {
 
     return ''
   });
+}
+
+export function isAbsoluteURL(url) {
+  return /^(?:\w+:)\/\//.test(url);
 }

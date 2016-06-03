@@ -1,5 +1,5 @@
 import { Promise } from 'es6-promise';
-import { getSource, pathToBase } from './misc/utils';
+import { getSource, pathToBase, isAbsoluteURL } from './misc/utils';
 import fs from 'fs';
 import path from 'path';
 
@@ -27,6 +27,7 @@ export default class AppCache {
       throw new Error('AppCache caches must be an array');
     }
 
+    const pathRewrite = this.pathRewrite(plugin);
     const cache = (this.caches.reduce((result, name) => {
       const cache = plugin.caches[name];
       if (!cache || !cache.length) return result;
@@ -38,9 +39,7 @@ export default class AppCache {
       }
 
       return result;
-    }, null) || []).map(
-      plugin.relativePaths ? (path => this.basePath + path) : (a => a)
-    );
+    }, null) || []).map(pathRewrite);
 
     const path = this.directory + this.name;
     const manifest = this.getManifestTemplate(cache, plugin);
@@ -94,6 +93,14 @@ export default class AppCache {
     } else {
       return '';
     }
+  }
+
+  pathRewrite(plugin) {
+    if (plugin.relativePaths) {
+      return (path => isAbsoluteURL(path) ? path : this.basePath + path);
+    }
+
+    return (path => path)
   }
 
   getConfig(plugin) {

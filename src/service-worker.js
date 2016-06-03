@@ -3,7 +3,7 @@ import path from 'path';
 import webpack from 'webpack';
 import deepExtend from 'deep-extend';
 import { Promise } from 'es6-promise';
-import { getSource, pathToBase } from './misc/utils';
+import { getSource, pathToBase, isAbsoluteURL } from './misc/utils';
 
 export default class ServiceWorker {
   constructor(options) {
@@ -132,7 +132,7 @@ export default class ServiceWorker {
 
   pathRewrite(plugin) {
     if (plugin.relativePaths) {
-      return (path => this.basePath + path);
+      return (path => isAbsoluteURL(path) ? path : this.basePath + path);
     }
 
     return (path => path)

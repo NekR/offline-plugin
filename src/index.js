@@ -5,7 +5,7 @@ import path from 'path';
 import deepExtend from 'deep-extend';
 import minimatch from 'minimatch';
 import { Promise } from 'es6-promise';
-import { hasMagic, interpolateString } from './misc/utils';
+import { hasMagic, interpolateString, isAbsoluteURL } from './misc/utils';
 import loaderUtils from 'loader-utils';
 
 const hasOwn = {}.hasOwnProperty;
@@ -466,7 +466,7 @@ export default class OfflinePlugin {
       .filter(asset => !!asset)
       .map(key => {
         // if absolute url, use it as is
-        if (/^(?:\w+:)\/\//.test(key)) {
+        if (isAbsoluteURL(key)) {
           return key;
         }
 
