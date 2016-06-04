@@ -1,6 +1,11 @@
 # CHANGELOG
 
-### 3.0.0
+### 3.3.0
+
+* Fixed absolute URLs being prefixed with relative path when `relativePaths: true` is used ([#39](https://github.com/NekR/offline-plugin/issues/39), [#60](https://github.com/NekR/offline-plugin/issues/60))
+* Added `scope` option to ServiceWorker ([#19](https://github.com/NekR/offline-plugin/issues/19)). See [ServiceWorker.register](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) docs.
+
+### 3.0.0 - 3.2.0
 
 * All assets are now requested cache-bust query parameter (`__uncache=${ Date.now() }`)
 * Assets matching in caches now ignores search (query) path of URLs
