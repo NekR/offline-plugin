@@ -101,6 +101,8 @@ Settings for the `ServiceWorker` cache. Use `null` or `false` to disable `Servic
 _Default:_ `'sw.js'`.
 * `entry`: `string`. Relative or absolute path to file which will be used as `ServiceWorker` entry. Useful to implement additional function or handle other SW events.  
 _Default:_ _empty file_
+* `scope`: `string`. Reflects [ServiceWorker.register](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) `scope` option.  
+_Default:_ `null`
 * `events`: `boolean`. Enables runtime events for ServiceWorker. For supported events see `Runtime`'s `install()` options.
 _Default:_ `false`.
 
