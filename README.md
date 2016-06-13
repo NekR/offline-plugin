@@ -62,7 +62,7 @@ Cache update strategy. [More details about `updateStrategy`](docs/update-strateg
 > Default: `'changed'`.
     
 #### `externals: Array<string>`.
-Explicitly marks the assets as _external_ assets that you can cache. If cache asset is not one of _webpack's generated assets_ and is not marked explicitly as _external_, you will recive warning about it into console. To cache external assets, add them to the `caches` object, by default `caches: 'all'` doesn't cache `externals`.
+Explicitly marks the assets as _external_ assets that you can cache. If cache asset is not one of _webpack's generated assets_ and is not marked explicitly as _external_, you will receive warning about it into console. To cache external assets, add them to the `caches` object, by default `caches: 'all'` doesn't cache `externals`.
 
 > Default: `null`  
 > **Example value:** `['fonts/roboto.woff']`
@@ -76,7 +76,7 @@ Excludes matches assets from being added to caches. Exclusion is performed befor
 
 #### `relativePaths: boolean`
 When set to `true`, all cache asset paths are generated relatively to `ServiceWorker` file or `AppCache` folder respectively.  
-`publichPath` option is ignored when this is set to `true`.
+`publicPath` option is ignored when this is set to `true`.
 > **Default:** `true`
 
 #### `version: string | (plugin: OfflinePlugin) => void`
@@ -112,7 +112,7 @@ Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` g
 
 * `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section.  
 _Default:_ `'*'`.
-* `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` emmited files.  
+* `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` emitted files.  
 _Default:_ `'appcache/'`.
 * `events`: `boolean`. Enables runtime events for AppCache. For supported events see `Runtime`'s `install()` options.  
 _Default:_ `false`.
