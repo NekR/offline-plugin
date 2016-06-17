@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 3.4.0
+
+* Added `ServiceWorker.navigateFallbackURL` option (see #71)
+* Added warning about development mode in `runtime.js` when used without `OfflinePlugin` in `webpack.config.js` (see #74)
+
 ### 3.3.0
 
 * Fixed absolute URLs being prefixed with relative path when `relativePaths: true` is used ([#39](https://github.com/NekR/offline-plugin/issues/39), [#60](https://github.com/NekR/offline-plugin/issues/60))

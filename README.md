@@ -103,6 +103,8 @@ _Default:_ `'sw.js'`.
 _Default:_ _empty file_
 * `scope`: `string`. Reflects [ServiceWorker.register](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register)'s `scope` option.  
 _Default:_ `null`
+* `navigateFallbackURL`: `string`. The URL being returned from the caches when requested navigation URL isn't available. Similar to `AppCache.FALLBACK` option.  
+_Example:_ `navigateFallbackURL: '/'`
 * `events`: `boolean`. Enables runtime events for ServiceWorker. For supported events see `Runtime`'s `install()` options.
 _Default:_ `false`.
 
@@ -186,6 +188,16 @@ Example: ``main: ['index.html', 'scripts/main.*.js']``.
 
 
 ## CHANGELOG
+
+### 3.4.0
+
+* Added `ServiceWorker.navigateFallbackURL` option (see #71)
+* Added warning about development mode in `runtime.js` when used without `OfflinePlugin` in `webpack.config.js` (see #74)
+
+### 3.3.0
+
+* Fixed absolute URLs being prefixed with relative path when `relativePaths: true` is used ([#39](https://github.com/NekR/offline-plugin/issues/39), [#60](https://github.com/NekR/offline-plugin/issues/60))
+* Added `scope` option to ServiceWorker ([#19](https://github.com/NekR/offline-plugin/issues/19)). See [ServiceWorker.register](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) docs.
 
 ### 3.0.0
 
