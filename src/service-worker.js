@@ -12,6 +12,7 @@ export default class ServiceWorker {
     this.basePath = pathToBase(this.output, true);
     this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
+    this.navigateFallbackURL = options.navigateFallbackURL;
 
     this.ENTRY_NAME = 'serviceworker';
     this.CACHE_NAME = 'webpack-offline';
@@ -119,6 +120,7 @@ export default class ServiceWorker {
         },
 
         hashesMap: hashesMap,
+        navigateFallbackURL: this.navigateFallbackURL,
 
         strategy: plugin.strategy,
         version: plugin.version,

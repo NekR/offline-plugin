@@ -26,6 +26,7 @@ function WebpackServiceWorker(params) {
   mapAssets();
 
   const allAssets = [].concat(assets.main, assets.additional, assets.optional);
+  const navigateFallbackURL = params.navigateFallbackURL;
 
   self.addEventListener('install', (event) => {
     console.log('[SW]:', 'Install event');
@@ -242,6 +243,14 @@ function WebpackServiceWorker(params) {
 
     // Match only GET and known caches, otherwise just ignore request
     if (event.request.method !== 'GET' || allAssets.indexOf(urlString) === -1) {
+      if (navigateFallbackURL && isNavigateRequest(event.request)) {
+        event.respondWith(
+          handleNavigateFallback(fetch(event.request))
+        );
+
+        return;
+      }
+
       // Fix for https://twitter.com/wanderview/status/696819243262873600
       if (url.origin !== location.origin && navigator.userAgent.indexOf('Firefox/44.') !== -1) {
         event.respondWith(fetch(event.request));
@@ -250,11 +259,7 @@ function WebpackServiceWorker(params) {
       return;
     }
 
-    const resource = caches.match(urlString, {
-      cacheName: CACHE_NAME
-    })
-    // Return void if error happened (cache not found)
-    .catch(() => {})
+    const resource = cachesMatch(urlString, CACHE_NAME)
     .then((response) => {
       if (response) {
         if (DEBUG) {
@@ -265,7 +270,7 @@ function WebpackServiceWorker(params) {
       }
 
       // Load and cache known assets
-      return fetch(event.request).then((response) => {
+      let fetching = fetch(event.request).then((response) => {
         if (!response || !response.ok) {
           if (DEBUG) {
             console.log(
@@ -291,6 +296,12 @@ function WebpackServiceWorker(params) {
 
         return response;
       });
+
+      if (navigateFallbackURL && isNavigateRequest(event.request)) {
+        return handleNavigateFallback(fetching);
+      }
+
+      return fetching;
     });
 
     event.respondWith(resource);
@@ -306,6 +317,22 @@ function WebpackServiceWorker(params) {
       } break;
     }
   });
+
+  function handleNavigateFallback(fetching) {
+    return fetching
+      .catch(() => {})
+      .then((response) => {
+        if (!response || !response.ok) {
+          if (DEBUG) {
+            console.log('[SW]:', `Loading navigation fallback [${ navigateFallbackURL }] from cache`);
+          }
+
+          return cachesMatch(navigateFallbackURL, CACHE_NAME);
+        }
+
+        return response;
+      });
+  }
 
   function mapAssets() {
     Object.keys(assets).forEach((key) => {
@@ -349,6 +376,14 @@ function addAllNormalized(cache, requests, options) {
   });
 }
 
+function cachesMatch(request, cacheName) {
+  return caches.match(request, {
+    cacheName: cacheName
+  })
+  // Return void if error happened (cache not found)
+  .catch(() => {});
+}
+
 function applyCacheBust(asset, key) {
   const hasQuery = asset.indexOf('?') !== -1;
   return asset + (hasQuery ? '&' : '?') + '__uncache=' + encodeURIComponent(key);
@@ -379,6 +414,12 @@ function getClientsURLs() {
 
     return result;
   });
+}
+
+function isNavigateRequest(request) {
+  return request.mode === 'navigate' ||
+    request.headers.get('Upgrade-Insecure-Requests') ||
+    (request.headers.get('Accept') || '').indexOf('text/html') !== -1;
 }
 
 function logGroup(title, assets) {
