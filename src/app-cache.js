@@ -10,11 +10,12 @@ export default class AppCache {
     this.name = 'manifest';
     this.caches = options.caches;
     this.events = !!options.events;
+    this.location = options.publicLocation;
 
-    this.directory = options.directory
+    this.output = (options.output || options.directory)
       .replace(/^\//, '')
       .replace(/\/$/, '') + '/';
-    this.basePath = pathToBase(this.directory, true);
+    this.basePath = pathToBase(this.output, true);
   }
 
   addEntry(plugin, compilation, compiler) {
@@ -41,7 +42,7 @@ export default class AppCache {
       return result;
     }, null) || []).map(pathRewrite);
 
-    const path = this.directory + this.name;
+    const path = this.output + this.name;
     const manifest = this.getManifestTemplate(cache, plugin);
     const content = this.getPageContent();
     const page = this.getPageTemplate(this.name, content);
@@ -104,8 +105,10 @@ export default class AppCache {
   }
 
   getConfig(plugin) {
+    const location = this.location || (plugin.publicPath || '') + this.output;
+
     return {
-      directory: plugin.publicPath + this.directory,
+      location: location,
       name: this.name,
       events: this.events
     };

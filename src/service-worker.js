@@ -13,6 +13,7 @@ export default class ServiceWorker {
     this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
     this.navigateFallbackURL = options.navigateFallbackURL;
+    this.location = options.publicLocation;
 
     this.ENTRY_NAME = 'serviceworker';
     this.CACHE_NAME = 'webpack-offline';
@@ -142,8 +143,10 @@ export default class ServiceWorker {
   }
 
   getConfig(plugin) {
+    const location = this.location || (plugin.publicPath || '') + this.output;
+
     return {
-      output: plugin.publicPath + this.output,
+      location: location,
       scope: this.scope,
       events: this.events
     };
