@@ -132,7 +132,7 @@ function install(options) {
 
   <% if (typeof AppCache !== 'undefined') { %>
     if (window.applicationCache) {
-      var directory = <%- JSON.stringify(AppCache.directory) %>;
+      var directory = <%- JSON.stringify(AppCache.output) %>;
       var name = <%- JSON.stringify(AppCache.name) %>;
 
       var doLoad = function() {
