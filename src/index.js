@@ -25,7 +25,11 @@ const defaultOptions = {
 
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
-      return dir || '/';
+      if (isAbsoluteURL(match)) {
+        return match;
+      }
+
+      return dir || './';
     });
   },
 
@@ -79,15 +83,8 @@ export default class OfflinePlugin {
       }
     }
 
-    if (this.relativePaths && this.publicPath) {
-      this.warnings.push(
-        new Error(
-          'OfflinePlugin: publicPath is used in conjunction with relativePaths,\n' +
-          'publicPath was set by the OfflinePlugin to empty string'
-        )
-      );
-
-      this.publicPath = '';
+    if (typeof this.publicPath !== 'string') {
+      this.publicPath = null;
     }
 
     if (updateStrategies.indexOf(this.strategy) === -1) {
@@ -160,6 +157,29 @@ export default class OfflinePlugin {
 
   apply(compiler) {
     const runtimePath = path.resolve(__dirname, '../runtime.js');
+    const compilerOptions = compiler.options;
+
+    if (
+      typeof this.publicPath !== 'string' && compilerOptions &&
+      compilerOptions.output && compilerOptions.output.publicPath
+    ) {
+      this.publicPath = compilerOptions.output.publicPath;
+    }
+
+    if (this.publicPath) {
+      this.publicPath = this.publicPath.replace(/\/$/, '') + '/';
+    }
+
+    if (this.relativePaths && this.publicPath) {
+      this.warnings.push(
+        new Error(
+          'OfflinePlugin: `publicPath` is used in conjunction with `relativePaths`,\n' +
+          '`relativePaths` will be ignored'
+        )
+      );
+
+      this.relativePaths = false;
+    }
 
     compiler.plugin('normal-module-factory', (nmf) => {
       nmf.plugin('after-resolve', (result, callback) => {
@@ -462,21 +482,17 @@ export default class OfflinePlugin {
       .map(this.rewrite)
       .filter(asset => !!asset)
       .map(key => {
-        // if absolute url, use it as is
+        // If absolute url, use it as is
         if (isAbsoluteURL(key)) {
           return key;
         }
 
         if (this.relativePaths) {
-          return key.replace(/^\//, '');
+          return key.replace(/^\.\//, '');
         }
 
-        return this.publicPath + key.replace(/^\//, '');
+        return this.publicPath + key.replace(/^\.?\//, '');
       });
-  };
-
-  stripEmptyAssets(asset) {
-    return !!asset;
   }
 
   useTools(fn) {
