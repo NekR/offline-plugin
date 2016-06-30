@@ -25,7 +25,7 @@
     "ejs": "^2.3.4",
     "es6-promise": "^3.0.2",
     "loader-utils": "0.2.x",
-    "minimatch": "^2.0.10"
+    "minimatch": "^3.0.2"
   },
   "bugs": {
     "url": "https://github.com/NekR/offline-plugin/issues"
