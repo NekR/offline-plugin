@@ -50,5 +50,5 @@ export function interpolateString(string, data) {
 }
 
 export function isAbsoluteURL(url) {
-  return /^(?:\w+:)\/\//.test(url);
+  return /^(?:\w+:)?\/\//.test(url);
 }
