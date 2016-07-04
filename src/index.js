@@ -131,6 +131,10 @@ export default class OfflinePlugin {
       };
     }
 
+    if (this.options.navigateFallbackURL && this.options.ServiceWorker) {
+      this.options.ServiceWorker.navigateFallbackURL = this.options.navigateFallbackURL;
+    }
+
     this.REST_KEY = ':rest:';
     this.entryPrefix = '__offline_';
     this.tools = {};
