@@ -69,4 +69,5 @@ _This meant to be tested without adding any code to control SW's update process_
 5. Open that webpage again in a _new tab_
 6. Check if you see `alert(1)`
 
+___________________________________
 _For additional information about `ServiceWorker` life-cycle watch [this video](https://twitter.com/jaffathecake/status/709011058938269696) by Jake Archibald_
