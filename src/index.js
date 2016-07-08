@@ -352,7 +352,7 @@ export default class OfflinePlugin {
   }
 
   setHashesMap(compilation) {
-    const hashesMap = this.findAssetsHashes(compilation, {});
+    const hashesMap = this.findAssetsHashes(compilation);
     const hashedAssets = Object.keys(hashesMap).reduce((result, hash) => {
       result[hashesMap[hash]] = hash;
       return result;
@@ -380,18 +380,14 @@ export default class OfflinePlugin {
     });
   }
 
-  findAssetsHashes(compilation, map) {
+  findAssetsHashes(compilation) {
+    var map = {};
+
     compilation.chunks.forEach((chunk) => {
       if (chunk.hash && chunk.files.length) {
         map[chunk.hash] = chunk.files[0];
       }
     });
-
-    if (compilation.children.length) {
-      compilation.children.forEach((childCompilation) => {
-        this.findAssetsHashes(childCompilation, map);
-      });
-    }
 
     return map;
   }
