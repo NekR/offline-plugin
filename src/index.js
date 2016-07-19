@@ -129,6 +129,7 @@ export default class OfflinePlugin {
     }
 
     this.REST_KEY = ':rest:';
+    this.EXTERNALS_KEY = ':externals:';
     this.entryPrefix = '__offline_';
     this.tools = {};
 
@@ -264,6 +265,7 @@ export default class OfflinePlugin {
     }
 
     const excludes = this.options.excludes;
+    const externals = this.externals;
 
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
@@ -281,12 +283,13 @@ export default class OfflinePlugin {
 
     if (caches === 'all') {
       this.caches = {
-        main: this.validatePaths(assets)
+        main: this.validatePaths(assets).concat(this.validatePaths(externals))
       };
 
       assets = this.caches.main.concat();
     } else {
       let restSection;
+      let externalsSection;
 
       const handledCaches = [
         'main', 'additional', 'optional'
@@ -303,10 +306,19 @@ export default class OfflinePlugin {
         cache.some((cacheKey) => {
           if (cacheKey === this.REST_KEY) {
             if (restSection) {
-              throw new Error('The :rest: keyword can be used only once');
+              throw new Error(`The ${ this.REST_KEY } keyword can be used only once`);
             }
 
             restSection = key;
+            return;
+          }
+
+          if (cacheKey === this.EXTERNALS_KEY) {
+            if (externalsSection) {
+              throw new Error(`The ${ this.EXTERNALS_KEY } keyword can be used only once`);
+            }
+
+            externalsSection = key;
             return;
           }
 
@@ -336,7 +348,10 @@ export default class OfflinePlugin {
           const index = assets.indexOf(cacheKey);
 
           externalsCheck: if (index === -1) {
-            if (this.externals.length && this.externals.indexOf(cacheKey) !== -1) {
+            const externalsIndex = externals.indexOf(cacheKey);
+
+            if (externalsIndex !== -1) {
+              externals.splice(index, 1);
               break externalsCheck;
             }
 
@@ -361,6 +376,11 @@ export default class OfflinePlugin {
       if (restSection && assets.length) {
         handledCaches[restSection] =
           handledCaches[restSection].concat(this.validatePaths(assets));
+      }
+
+      if (externalsSection && externals.length) {
+        handledCaches[externalsSection] =
+          handledCaches[externalsSection].concat(this.validatePaths(externals));
       }
 
       this.caches = handledCaches;
