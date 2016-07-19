@@ -15,7 +15,7 @@ function install(options) {
     if (hasSW()) {
       var registration = navigator.serviceWorker
         .register(
-          <%- JSON.stringify(ServiceWorker.output) %>
+          <%- JSON.stringify(ServiceWorker.location) %>
           <% if (ServiceWorker.scope) { %>
             , { scope: <%- JSON.stringify(ServiceWorker.scope) %> }
           <% } %>
@@ -132,7 +132,7 @@ function install(options) {
 
   <% if (typeof AppCache !== 'undefined') { %>
     if (window.applicationCache) {
-      var directory = <%- JSON.stringify(AppCache.output) %>;
+      var directory = <%- JSON.stringify(AppCache.location) %>;
       var name = <%- JSON.stringify(AppCache.name) %>;
 
       var doLoad = function() {
