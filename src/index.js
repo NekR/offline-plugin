@@ -15,7 +15,7 @@ const defaultOptions = {
 
   caches: 'all',
   publicPath: '',
-  noPublicPath: false,
+  cdnPath: '',
   updateStrategy: 'all',
   externals: [],
   excludes: ['**/.*', '**/*.map'],
@@ -57,7 +57,7 @@ export default class OfflinePlugin {
     this.assets = null;
     this.hashesMap = null;
     this.publicPath = this.options.publicPath;
-    this.noPublicPath = this.options.noPublicPath;
+    this.cdnPath = this.options.cdnPath;
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
     this.relativePaths = this.options.relativePaths;
@@ -469,15 +469,19 @@ export default class OfflinePlugin {
           return key;
         }
 
+
+
+
         if (this.relativePaths) {
           return key.replace(/^\//, '');
         }
 
+        // The path for index.html file cannot include CDN address.
         if(key === '/') {
-          return key;
+          return this.publicPath + key.replace(/^\//, '');
         }
 
-        return this.publicPath + key.replace(/^\//, '');
+        return this.cdnPath + this.publicPath + key.replace(/^\//, '');
       });
   };
 

@@ -143,7 +143,7 @@ export default class ServiceWorker {
 
   getConfig(plugin) {
     return {
-      output: plugin.noPublicPath ? this.output : plugin.publicPath + this.output,
+      output: plugin.publicPath + this.output,
       scope: this.scope,
       events: this.events
     };
