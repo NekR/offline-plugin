@@ -15,6 +15,7 @@ const defaultOptions = {
 
   caches: 'all',
   publicPath: '',
+  noPublicPath: '',
   updateStrategy: 'all',
   externals: [],
   excludes: ['**/.*', '**/*.map'],
@@ -56,6 +57,7 @@ export default class OfflinePlugin {
     this.assets = null;
     this.hashesMap = null;
     this.publicPath = this.options.publicPath;
+    this.noPublicPath = this.options.noPublicPath;
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
     this.relativePaths = this.options.relativePaths;

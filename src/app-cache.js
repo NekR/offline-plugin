@@ -105,7 +105,7 @@ export default class AppCache {
 
   getConfig(plugin) {
     return {
-      directory: plugin.publicPath + this.directory,
+      directory: plugin.noPublicPath ? this.directory : plugin.publicPath + this.directory,
       name: this.name,
       events: this.events
     };
