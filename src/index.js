@@ -473,6 +473,10 @@ export default class OfflinePlugin {
           return key.replace(/^\//, '');
         }
 
+        if(key === '/') {
+          return key;
+        }
+
         return this.publicPath + key.replace(/^\//, '');
       });
   };
