@@ -15,7 +15,7 @@ const defaultOptions = {
 
   caches: 'all',
   publicPath: '',
-  noPublicPath: '',
+  noPublicPath: false,
   updateStrategy: 'all',
   externals: [],
   excludes: ['**/.*', '**/*.map'],
