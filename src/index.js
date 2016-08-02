@@ -92,6 +92,17 @@ export default class OfflinePlugin {
       this.publicPath = '';
     }
 
+    if (this.relativePaths && this.cdnPath) {
+      this.warnings.push(
+        new Error(
+          'OfflinePlugin: cdnPath is used in conjunction with relativePaths,\n' +
+          'cdnPath was set by the OfflinePlugin to empty string'
+        )
+      );
+
+      this.cdnPath = '';
+    }
+
     if (updateStrategies.indexOf(this.strategy) === -1) {
       throw new Error(`Update strategy must be one of [${ updateStrategies }]`);
     } else if (this.strategy === 'hash') {

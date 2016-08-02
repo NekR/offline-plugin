@@ -63,10 +63,21 @@ Same as `publicPath` for `webpack` options, only difference is that absolute pat
 Correct value: `/project/`  
 Incorrect value: `https://example.com/project`
 
+#### `cdnPath: string`
+
+Similar to `publicPath` for Webpack, when it is set to the CDN address. If you serve all your Webpack assets from a CDN address, than this parameter will append this CDN path to all assets added to ServiceWorker/AppCache.
+
+The only exception is the main `/` path, which will still be added to ServiceWorker/AppCache as a direct path, without the CDN address. It doesn't make much sense to try to load your index.html file from the CDN.
+
+This parameter is ignored when `relativePaths` is set to true (which it is by default).
+
+> Default: ''
+> **Example value:** `//some_cdn_key.cloudfront.net/bucket_name`  
+
 #### `updateStrategy: 'changed' | 'all'`
 Cache update strategy. [More details about `updateStrategy`](docs/update-strategies.md)  
 > Default: `'changed'`.
-    
+
 #### `externals: Array<string>`.
 Explicitly marks the assets as _external_ assets that you can cache. If cache asset is not one of _webpack's generated assets_ and is not marked explicitly as _external_, you will receive warning about it into console. To cache external assets, add them to the `caches` object, by default `caches: 'all'` doesn't cache `externals`.
 
@@ -82,7 +93,7 @@ Excludes matches assets from being added to caches. Exclusion is performed befor
 
 #### `relativePaths: boolean`
 When set to `true`, all cache asset paths are generated relatively to `ServiceWorker` file or `AppCache` folder respectively.  
-`publicPath` option is ignored when this is set to `true`.
+`publicPath` and `cdnPath` options are ignored when this is set to `true`.
 > **Default:** `true`
 
 #### `version: string | (plugin: OfflinePlugin) => void`
