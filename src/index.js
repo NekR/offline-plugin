@@ -469,16 +469,13 @@ export default class OfflinePlugin {
           return key;
         }
 
-
-
-
         if (this.relativePaths) {
           return key.replace(/^\//, '');
         }
 
         // The path for index.html file cannot include CDN address.
         if(key === '/') {
-          return this.publicPath + key.replace(/^\//, '');
+          return this.publicPath + key;
         }
 
         return this.cdnPath + this.publicPath + key.replace(/^\//, '');
