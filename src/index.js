@@ -480,6 +480,10 @@ export default class OfflinePlugin {
           return key;
         }
 
+        if(key.includes('::no-transform::')) {
+          return key.split('::no-transform::')[1];
+        }
+
         if (this.relativePaths) {
           return key.replace(/^\//, '');
         }
