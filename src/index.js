@@ -305,7 +305,7 @@ export default class OfflinePlugin {
 
           const magic = hasMagic(cacheKey);
 
-          if (magic) {
+          if (magic && !cacheKey.includes('::no-transform::')) {
             let matched;
 
             for (let i = 0, len = assets.length; i < len; i++) {
