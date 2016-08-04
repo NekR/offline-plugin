@@ -15,6 +15,7 @@ const defaultOptions = {
 
   caches: 'all',
   publicPath: '',
+  cdnPath: '',
   updateStrategy: 'all',
   externals: [],
   excludes: ['**/.*', '**/*.map'],
@@ -56,6 +57,7 @@ export default class OfflinePlugin {
     this.assets = null;
     this.hashesMap = null;
     this.publicPath = this.options.publicPath;
+    this.cdnPath = this.options.cdnPath;
     this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
     this.relativePaths = this.options.relativePaths;
@@ -88,6 +90,17 @@ export default class OfflinePlugin {
       );
 
       this.publicPath = '';
+    }
+
+    if (this.relativePaths && this.cdnPath) {
+      this.warnings.push(
+        new Error(
+          'OfflinePlugin: cdnPath is used in conjunction with relativePaths,\n' +
+          'cdnPath was set by the OfflinePlugin to empty string'
+        )
+      );
+
+      this.cdnPath = '';
     }
 
     if (updateStrategies.indexOf(this.strategy) === -1) {
@@ -292,7 +305,7 @@ export default class OfflinePlugin {
 
           const magic = hasMagic(cacheKey);
 
-          if (magic) {
+          if (magic && !cacheKey.includes('::no-transform::')) {
             let matched;
 
             for (let i = 0, len = assets.length; i < len; i++) {
@@ -467,11 +480,20 @@ export default class OfflinePlugin {
           return key;
         }
 
+        if(key.includes('::no-transform::')) {
+          return key.split('::no-transform::')[1];
+        }
+
         if (this.relativePaths) {
           return key.replace(/^\//, '');
         }
 
-        return this.publicPath + key.replace(/^\//, '');
+        // The path for index.html file cannot include CDN address.
+        if(key === '/') {
+          return this.publicPath + key;
+        }
+
+        return this.cdnPath + this.publicPath + key.replace(/^\//, '');
       });
   };
 
