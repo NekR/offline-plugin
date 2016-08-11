@@ -319,6 +319,10 @@ function WebpackServiceWorker(params) {
 
     hashesMap = Object.keys(hashesMap).reduce((result, hash) => {
       const url = new URL(hashesMap[hash], location);
+      // this is for 403 request popup message
+      // when there is one and a new version added
+      // the browser begin an infinity loop
+      request = new Request(request, {credentials: 'same-origin'});
       url.search = '';
 
       result[hash] = url.toString();
