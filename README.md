@@ -128,6 +128,8 @@ _Default:_ `false`.
 _Example 1:_ `{ '/blog': '/' }` will map all requests starting with `/blog` to the domain roboto when request fails.  
 _Example 2:_ `{ '/': '/offline-page.html' }` will return contents of `/offline-page.html` for any failed request.  
 _Default:_ `null`.
+* `disableInstall` :`boolean`. disable the installation of the `AppCache` when calling to `require('offline-plugin/runtime').install();`. for example if you consume a `AppCache` from the `manifest` attribute in the `html` tag.  
+_Default:_ `false`.
 
 ## Runtime
 

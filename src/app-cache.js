@@ -9,6 +9,7 @@ export default class AppCache {
     this.FALLBACK = options.FALLBACK;
     this.name = 'manifest';
     this.caches = options.caches;
+    this.disableInstall = options.disableInstall || false;
     this.events = !!options.events;
 
     this.directory = options.directory
@@ -107,7 +108,8 @@ export default class AppCache {
     return {
       directory: plugin.publicPath + this.directory,
       name: this.name,
-      events: this.events
+      events: this.events,
+      disableInstall: this.disableInstall
     };
   }
 }

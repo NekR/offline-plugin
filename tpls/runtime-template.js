@@ -10,7 +10,7 @@ function hasSW() {
 
 function install(options) {
   options || (options = {});
-
+  console.log()
   <% if (typeof ServiceWorker !== 'undefined') { %>
     if (hasSW()) {
       var registration = navigator.serviceWorker
@@ -130,7 +130,7 @@ function install(options) {
     }
   <% } %>
 
-  <% if (typeof AppCache !== 'undefined') { %>
+  <% if (typeof AppCache !== 'undefined' && AppCache.disableInstall !== true) { %>
     if (window.applicationCache) {
       var directory = <%- JSON.stringify(AppCache.directory) %>;
       var name = <%- JSON.stringify(AppCache.name) %>;
@@ -192,7 +192,7 @@ function applyUpdate(callback, errback) {
     }
   <% } %>
 
-  <% if (typeof AppCache !== 'undefined' && AppCache.events) { %>
+  <% if (typeof AppCache !== 'undefined' && AppCache.events && AppCache.disableInstall !== true) { %>
     if (appCacheIframe) {
       try {
         appCacheIframe.contentWindow.__applyUpdate();
