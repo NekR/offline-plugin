@@ -9,6 +9,7 @@ export default class AppCache {
     this.FALLBACK = options.FALLBACK;
     this.name = 'manifest';
     this.caches = options.caches;
+    this.disableInstall = options.disableInstall || false;
     this.events = !!options.events;
     this.location = options.publicLocation;
 
@@ -110,7 +111,8 @@ export default class AppCache {
     return {
       location: location,
       name: this.name,
-      events: this.events
+      events: this.events,
+      disableInstall: this.disableInstall
     };
   }
 }
