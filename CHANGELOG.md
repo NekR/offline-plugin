@@ -1,5 +1,16 @@
 # CHANGELOG
 
+### 4.0.0
+
+* `relativePaths` is now automatically set to `false` when `publicPath` is used
+* `publicPath` now uses `webpack.config.js`'s `output.publicPath` by default (when not set in `OfflinePlugin` itself)
+* Added `AppCache.output` which is replacement for `AppCache.directory`. The last is deprecated now
+* Added `ServiceWorker.publicLocation` and `AppCache.publicLocation`
+* Added `:externals:` keyword for caches. When used, keyword is replaced with URLs listed in `externals` option
+* `caches: 'all'` is now equivalent of `caches: { main: [':rest:', ':externals:'] }`. In other words, `externals` URLs are now included in `caches` by default
+* Default options of `offline-plugin` are now exposes as `require('offline-plugin').defaultOptions`
+
+
 ### 3.4.0
 
 * Added `ServiceWorker.navigateFallbackURL` option (see #71)
