@@ -10,7 +10,7 @@ import loaderUtils from 'loader-utils';
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
-const defaultOptions = {
+export const defaultOptions = {
   scope: '', // deprecated
 
   caches: 'all',
