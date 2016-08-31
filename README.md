@@ -38,6 +38,7 @@ require('offline-plugin/runtime').install();
 
 ## Docs
 
+* [Caches](docs/caches.md)
 * [Update process](docs/updates.md)
 
 ## Options
