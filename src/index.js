@@ -322,9 +322,14 @@ export default class OfflinePlugin {
             return;
           }
 
-          const magic = hasMagic(cacheKey);
+          let magic;
 
-          if (magic) {
+          if (
+            !isAbsoluteURL(cacheKey) &&
+            cacheKey[0] !== '/' &&
+            cacheKey.indexOf('./') !== 0 &&
+            (magic = hasMagic(cacheKey))
+          ) {
             let matched;
 
             for (let i = 0, len = assets.length; i < len; i++) {
