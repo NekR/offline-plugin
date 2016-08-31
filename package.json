@@ -10,7 +10,7 @@
     "empty-entry.js"
   ],
   "scripts": {
-    "test": "node tests/run",
+    "test": "node tests/legacy/run",
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch"
   },
@@ -43,7 +43,9 @@
   ],
   "devDependencies": {
     "babel": "^5.8.23",
-    "webpack": "^1.0.0",
-    "es6-promise": "^3.0.2"
+    "dir-compare": "^1.1.0",
+    "es6-promise": "^3.0.2",
+    "on-build-webpack": "^0.1.0",
+    "webpack": "^1.0.0"
   }
 }

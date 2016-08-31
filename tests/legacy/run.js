@@ -1,15 +1,19 @@
 var _exec = require('child_process').exec;
-var _execSync = false && require('child_process').execSync;
+var _execSync = require('child_process').execSync;
 var path = require('path');
 var Promise = require('es6-promise').Promise;
 
-runAll([
+var tests = [
+  'basic',
+  'cache-externals-absolute'
+];
 
-  exec(path.join(__dirname, '../node_modules/.bin/webpack'), {
-    cwd: path.join(__dirname, 'basic')
-  }),
-
-]).catch(function(data) {
+runAll(tests.map(function(testName) {
+  return exec(path.join(__dirname, '../../node_modules/.bin/webpack'), {
+    cwd: path.join(__dirname, testName),
+    stdio: 'inherit'
+  });
+})).catch(function(data) {
   if (!_execSync) {
     process.stderr.write(data.stderr);
   }
