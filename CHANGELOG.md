@@ -28,7 +28,7 @@
 * Rename `scope` option to `publicPath` (`scope` is deprecated now and will produce warnings upon use)
 * Make `publicPath: ''` (empty string) by default
 * Make `relativePaths: true` by default
-* Cache sections `'additional'` and `'optional'` are now allowed only when `updateStrategy`option is set to `'changed'`
+* Cache sections `'additional'` and `'optional'` are now allowed only when `updateStrategy` option is set to `'changed'`
 * `changed` is now default `updateStrategy` and `hash` strategy is gone. `offline-plugin` now uses webpack's build hashes to apply `change` update strategy even when generate file names are the same. [Issue 6](https://github.com/NekR/offline-plugin/issues/6). More details about change in docs.
 * Any of `updateStrategy` is now using `version` option for its version tag
 * `version` now is not set by default and returns (when not set, e.g. default) compilation hash for `updateStrategy: 'changed'` and `version` for `updateStrategy: 'all'`
