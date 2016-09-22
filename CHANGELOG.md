@@ -8,7 +8,8 @@
 * Added `ServiceWorker.publicLocation` and `AppCache.publicLocation`
 * Added `:externals:` keyword for caches. When used, keyword is replaced with URLs listed in `externals` option
 * `caches: 'all'` is now equivalent of `caches: { main: [':rest:', ':externals:'] }`. In other words, `externals` URLs are now included in `caches` by default
-* Default options of `offline-plugin` are now exposed as `require('offline-plugin').defaultOptions`
+* [Reverted right now] ~~Default options of `offline-plugin` are now exposed as `require('offline-plugin').defaultOptions`~~
+* `ignoreSearch` isn't applied to assets added with `externals` anymore. i.e. full URLs with `?query` can now be added to the caches
 
 
 ### 3.4.0
