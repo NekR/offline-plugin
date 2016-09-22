@@ -6,6 +6,7 @@ function WebpackServiceWorker(params) {
   const strategy = params.strategy;
   const assets = params.assets;
   let hashesMap = params.hashesMap;
+  let externals = params.externals;
 
   // Not used yet
   // const alwaysRevalidate = params.alwaysRevalidate;
@@ -237,12 +238,26 @@ function WebpackServiceWorker(params) {
   }
 
   self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
-    url.search = '';
-    const urlString = url.toString();
+    // Handle only GET requests
+    if (event.request.method !== 'GET') {
+      return;
+    }
 
-    // Match only GET and known caches, otherwise just ignore request
-    if (event.request.method !== 'GET' || allAssets.indexOf(urlString) === -1) {
+    const requestUrl = event.request.url;
+    const url = new URL(requestUrl);
+    let urlString;
+
+    if (externals.indexOf(requestUrl) !== -1) {
+      urlString = requestUrl;
+    } else {
+      url.search = '';
+      urlString = url.toString();
+    }
+
+    // If resource isn't cached by the plugin
+    if (allAssets.indexOf(urlString) === -1) {
+      // If isn't a cached asset and is a navigation request,
+      // fallback to navigateFallbackURL if available
       if (navigateFallbackURL && isNavigateRequest(event.request)) {
         event.respondWith(
           handleNavigateFallback(fetch(event.request))
@@ -338,7 +353,13 @@ function WebpackServiceWorker(params) {
     Object.keys(assets).forEach((key) => {
       assets[key] = assets[key].map((path) => {
         const url = new URL(path, location);
-        url.search = '';
+
+        if (externals.indexOf(path) === -1) {
+          url.search = '';
+        } else {
+          // Remove hash from possible passed externals
+          url.hash = '';
+        }
 
         return url.toString();
       });
@@ -351,6 +372,13 @@ function WebpackServiceWorker(params) {
       result[hash] = url.toString();
       return result;
     }, {});
+
+    externals = externals.map((path) => {
+      const url = new URL(externals[path], location);
+      url.hash = '';
+
+      return url.toString();
+    });
   }
 }
 
