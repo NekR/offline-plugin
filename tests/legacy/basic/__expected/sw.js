@@ -73,6 +73,7 @@ var __wpo = {
 	  var strategy = params.strategy;
 	  var assets = params.assets;
 	  var hashesMap = params.hashesMap;
+	  var externals = params.externals;
 
 	  // Not used yet
 	  // const alwaysRevalidate = params.alwaysRevalidate;
@@ -294,12 +295,26 @@ var __wpo = {
 	  }
 
 	  self.addEventListener('fetch', function (event) {
-	    var url = new URL(event.request.url);
-	    url.search = '';
-	    var urlString = url.toString();
+	    // Handle only GET requests
+	    if (event.request.method !== 'GET') {
+	      return;
+	    }
 
-	    // Match only GET and known caches, otherwise just ignore request
-	    if (event.request.method !== 'GET' || allAssets.indexOf(urlString) === -1) {
+	    var requestUrl = event.request.url;
+	    var url = new URL(requestUrl);
+	    var urlString = undefined;
+
+	    if (externals.indexOf(requestUrl) !== -1) {
+	      urlString = requestUrl;
+	    } else {
+	      url.search = '';
+	      urlString = url.toString();
+	    }
+
+	    // If resource isn't cached by the plugin
+	    if (allAssets.indexOf(urlString) === -1) {
+	      // If isn't a cached asset and is a navigation request,
+	      // fallback to navigateFallbackURL if available
 	      if (navigateFallbackURL && isNavigateRequest(event.request)) {
 	        event.respondWith(handleNavigateFallback(fetch(event.request)));
 
@@ -388,7 +403,13 @@ var __wpo = {
 	    Object.keys(assets).forEach(function (key) {
 	      assets[key] = assets[key].map(function (path) {
 	        var url = new URL(path, location);
-	        url.search = '';
+
+	        if (externals.indexOf(path) === -1) {
+	          url.search = '';
+	        } else {
+	          // Remove hash from possible passed externals
+	          url.hash = '';
+	        }
 
 	        return url.toString();
 	      });
@@ -401,6 +422,13 @@ var __wpo = {
 	      result[hash] = url.toString();
 	      return result;
 	    }, {});
+
+	    externals = externals.map(function (path) {
+	      var url = new URL(externals[path], location);
+	      url.hash = '';
+
+	      return url.toString();
+	    });
 	  }
 	}
 
