@@ -6,6 +6,9 @@ var __wpo = {
     "additional": [],
     "optional": []
   },
+  "externals": [
+    "./external.js"
+  ],
   "hashesMap": {},
   "strategy": "all",
   "version": "3b59d46a1a71fdd7f971",

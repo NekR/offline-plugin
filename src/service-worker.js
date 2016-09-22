@@ -100,17 +100,21 @@ export default class ServiceWorker {
   }
 
   getDataTemplate(data, plugin, minify) {
+    const rewriteFunction = this.pathRewrite(plugin);
+
     const cache = (key) => {
-      return (data[key] || []).map(this.pathRewrite(plugin));
+      return (data[key] || []).map(rewriteFunction);
     };
 
     const hashesMap = Object.keys(plugin.hashesMap)
       .reduce((result, hash) => {
         const asset = plugin.hashesMap[hash];
 
-        result[hash] = this.pathRewrite(plugin)(asset);
+        result[hash] = rewriteFunction(asset);
         return result;
       }, {});
+
+    const externals = plugin.externals.map(rewriteFunction);
 
     return `
       var ${ this.SW_DATA_VAR } = ${ JSON.stringify({
@@ -120,6 +124,8 @@ export default class ServiceWorker {
           optional: cache('optional')
         },
 
+        externals: externals,
+
         hashesMap: hashesMap,
         navigateFallbackURL: this.navigateFallbackURL,
 
@@ -127,6 +133,8 @@ export default class ServiceWorker {
         version: plugin.version,
         name: this.CACHE_NAME,
         relativePaths: plugin.relativePaths,
+
+        // These aren't added
         alwaysRevalidate: plugin.alwaysRevalidate,
         preferOnline: plugin.preferOnline,
         ignoreSearch: plugin.ignoreSearch,

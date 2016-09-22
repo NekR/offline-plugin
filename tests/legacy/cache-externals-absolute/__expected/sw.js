@@ -7,6 +7,9 @@ var __wpo = {
     "additional": [],
     "optional": []
   },
+  "externals": [
+    "https://fonts.googleapis.com/css?family=Montserrat:400,700"
+  ],
   "hashesMap": {
     "c7afaa1605360b6eecceecbb43d62f68": "./main.js"
   },

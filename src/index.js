@@ -59,8 +59,8 @@ export default class OfflinePlugin {
     this.hash = null;
     this.assets = null;
     this.hashesMap = null;
+    this.externals = null;
     this.publicPath = this.options.publicPath;
-    this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
     this.relativePaths = this.options.relativePaths;
     this.warnings = [];
@@ -100,8 +100,8 @@ export default class OfflinePlugin {
       this.options.version = '[hash]';
     }
 
-    if (!Array.isArray(this.externals)) {
-      this.externals = [];
+    if (!Array.isArray(this.options.externals)) {
+      this.options.externals = [];
     }
 
     const rewrites = this.options.rewrites || defaultOptions.rewrites;
@@ -248,11 +248,12 @@ export default class OfflinePlugin {
 
   setAssets(compilation) {
     const caches = this.options.caches || defaultOptions.caches;
-    let assets = Object.keys(compilation.assets);
 
     if (
-      this.options.safeToUseOptionalCaches !== true &&
-      ((caches.additional && caches.additional.length) || (caches.optional && caches.optional.length))
+      this.options.safeToUseOptionalCaches !== true && (
+        (caches.additional && caches.additional.length) ||
+        (caches.optional && caches.optional.length)
+      )
     ) {
       compilation.warnings.push(
         new Error(
@@ -265,7 +266,8 @@ export default class OfflinePlugin {
     }
 
     const excludes = this.options.excludes;
-    const externals = this.externals;
+    let assets = Object.keys(compilation.assets);
+    let externals = this.options.externals;
 
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
@@ -281,12 +283,13 @@ export default class OfflinePlugin {
       });
     }
 
-    if (caches === 'all') {
-      this.caches = {
-        main: this.validatePaths(assets).concat(this.validatePaths(externals))
-      };
+    this.externals = this.validatePaths(externals);
 
-      assets = this.caches.main.concat();
+    if (caches === 'all') {
+      this.assets = this.validatePaths(assets).concat(this.externals);
+      this.caches = {
+        main: this.assets.concat()
+      };
     } else {
       let restSection;
       let externalsSection;
@@ -343,7 +346,7 @@ export default class OfflinePlugin {
 
             if (!matched) {
               compilation.warnings.push(
-                new Error(`OfflinePlugin: Cache pattern [${ cacheKey }] did not matched any assets`)
+                new Error(`OfflinePlugin: Cache pattern [${ cacheKey }] did not match any assets`)
               );
             }
 
@@ -352,18 +355,19 @@ export default class OfflinePlugin {
 
           const index = assets.indexOf(cacheKey);
 
-          externalsCheck: if (index === -1) {
+          __EXTERNALS_CHECK:
+          if (index === -1) {
             const externalsIndex = externals.indexOf(cacheKey);
 
             if (externalsIndex !== -1) {
               externals.splice(index, 1);
-              break externalsCheck;
+              break __EXTERNALS_CHECK;
             }
 
             compilation.warnings.push(
               new Error(
-                `OfflinePlugin: Cache asset [${ cacheKey }] is not found in output assets,` +
-                `if it's an external asset, put it to |externals| option to remove this warning`
+                `OfflinePlugin: Cache asset [${ cacheKey }] is not found in the output assets,` +
+                `if it's an external asset, put it to the |externals| option to remove this warning`
               )
             );
           } else {
@@ -389,11 +393,8 @@ export default class OfflinePlugin {
       }
 
       this.caches = handledCaches;
-
-      assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
+      this.assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
     }
-
-    this.assets = assets;
   }
 
   setHashesMap(compilation) {
