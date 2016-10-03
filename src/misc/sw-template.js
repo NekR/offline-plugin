@@ -238,11 +238,6 @@ function WebpackServiceWorker(params) {
   }
 
   self.addEventListener('fetch', (event) => {
-    // Handle only GET requests
-    if (event.request.method !== 'GET') {
-      return;
-    }
-
     const requestUrl = event.request.url;
     const url = new URL(requestUrl);
     let urlString;
@@ -254,8 +249,11 @@ function WebpackServiceWorker(params) {
       urlString = url.toString();
     }
 
-    // If resource isn't cached by the plugin
-    if (allAssets.indexOf(urlString) === -1) {
+    // Handle only GET requests
+    const isGET = event.request.method === 'GET';
+    const assetMatches = allAssets.indexOf(urlString) !== -1;
+
+    if (!assetMatches && isGET) {
       // If isn't a cached asset and is a navigation request,
       // fallback to navigateFallbackURL if available
       if (navigateFallbackURL && isNavigateRequest(event.request)) {
@@ -265,7 +263,9 @@ function WebpackServiceWorker(params) {
 
         return;
       }
+    }
 
+    if (!assetMatches || !isGET) {
       // Fix for https://twitter.com/wanderview/status/696819243262873600
       if (url.origin !== location.origin && navigator.userAgent.indexOf('Firefox/44.') !== -1) {
         event.respondWith(fetch(event.request));
@@ -273,6 +273,10 @@ function WebpackServiceWorker(params) {
 
       return;
     }
+
+    // Logic of caching / fetching is here
+    // * urlString -- url to match from the CACHE_NAME
+    // * event.request -- original Request to perform fetch() if necessary
 
     const resource = cachesMatch(urlString, CACHE_NAME)
     .then((response) => {
