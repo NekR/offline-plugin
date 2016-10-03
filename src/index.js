@@ -540,3 +540,5 @@ export default class OfflinePlugin {
     this.tools[name] = new Tool(options);
   }
 }
+
+OfflinePlugin.defaultOptions = defaultOptions;
