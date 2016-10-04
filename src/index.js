@@ -12,14 +12,12 @@ import loaderUtils from 'loader-utils';
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
-  scope: '', // deprecated
-
   caches: 'all',
-  publicPath: '',
+  publicPath: void 0,
   updateStrategy: 'all',
   externals: [],
   excludes: ['**/.*', '**/*.map'],
-  relativePaths: true,
+  relativePaths: ':relativePaths:',
   version: null,
   // for entry, default all
   for: null,
@@ -65,24 +63,6 @@ export default class OfflinePlugin {
     this.strategy = this.options.updateStrategy;
     this.relativePaths = this.options.relativePaths;
     this.warnings = [];
-
-    if (this.options.scope) {
-      this.warnings.push(
-        new Error(
-          'OfflinePlugin: `scope` option is deprecated, use `publicPath` instead'
-        )
-      );
-
-      if (this.publicPath) {
-        this.warnings.push(
-          new Error(
-            'OfflinePlugin: `publicPath` is used with deprecated `scope` option, `scope` is ignored'
-          )
-        );
-      } else {
-        this.publicPath = this.options.scope;
-      }
-    }
 
     if (typeof this.publicPath !== 'string') {
       this.publicPath = null;
@@ -161,9 +141,14 @@ export default class OfflinePlugin {
     const runtimePath = path.resolve(__dirname, '../runtime.js');
     const compilerOptions = compiler.options;
 
+    if (this.relativePaths === true) {
+      this.publicPath = null;
+    }
+
     if (
       typeof this.publicPath !== 'string' && compilerOptions &&
-      compilerOptions.output && compilerOptions.output.publicPath
+      compilerOptions.output && compilerOptions.output.publicPath &&
+      this.relativePaths !== true
     ) {
       this.publicPath = compilerOptions.output.publicPath;
     }
@@ -172,15 +157,19 @@ export default class OfflinePlugin {
       this.publicPath = this.publicPath.replace(/\/$/, '') + '/';
     }
 
-    if (this.relativePaths && this.publicPath) {
-      this.warnings.push(
+    if (this.relativePaths === true && this.publicPath) {
+      this.errors.push(
         new Error(
           'OfflinePlugin: `publicPath` is used in conjunction with `relativePaths`,\n' +
-          '`relativePaths` will be ignored'
+          'choose one of it'
         )
       );
 
       this.relativePaths = false;
+    }
+
+    if (this.relativePaths === defaultOptions.relativePaths) {
+      this.relativePaths = true;
     }
 
     this.useTools((tool, key) => {
