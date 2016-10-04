@@ -360,7 +360,7 @@ export default class OfflinePlugin {
             const externalsIndex = externals.indexOf(cacheKey);
 
             if (externalsIndex !== -1) {
-              externals.splice(index, 1);
+              externals.splice(externalsIndex, 1);
               break __EXTERNALS_CHECK;
             }
 
