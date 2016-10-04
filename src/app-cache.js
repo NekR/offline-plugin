@@ -5,18 +5,31 @@ import path from 'path';
 
 export default class AppCache {
   constructor(options) {
+    const output = options.output || options.directory;
+
+    if (path.isAbsolute(output)) {
+      throw new Error(
+        'OfflinePlugin: ServiceWorker.output option must be a relative path, ' +
+        'but an absolute path was passed'
+      );
+    }
+
+    this.output = output
+      .replace(/^\//, '')
+      .replace(/\/$/, '') + '/';
+    this.publicLocation = options.publicLocation;
+
+    this.basePath = null;
+    this.location = null;
+    this.pathRewrite = null;
+
+    // Tool specific properties
     this.NETWORK = options.NETWORK;
     this.FALLBACK = options.FALLBACK;
     this.name = 'manifest';
     this.caches = options.caches;
-    this.disableInstall = options.disableInstall || false;
     this.events = !!options.events;
-    this.location = options.publicLocation;
-
-    this.output = (options.output || options.directory)
-      .replace(/^\//, '')
-      .replace(/\/$/, '') + '/';
-    this.basePath = pathToBase(this.output, true);
+    this.disableInstall = options.disableInstall || false;
   }
 
   addEntry(plugin, compilation, compiler) {
@@ -29,7 +42,7 @@ export default class AppCache {
       throw new Error('AppCache caches must be an array');
     }
 
-    const pathRewrite = this.pathRewrite(plugin);
+    const pathRewrite = this.pathRewrite;
     const cache = (this.caches.reduce((result, name) => {
       const cache = plugin.caches[name];
       if (!cache || !cache.length) return result;
@@ -97,19 +110,9 @@ export default class AppCache {
     }
   }
 
-  pathRewrite(plugin) {
-    if (plugin.relativePaths) {
-      return (path => isAbsoluteURL(path) ? path : this.basePath + path);
-    }
-
-    return (path => path)
-  }
-
   getConfig(plugin) {
-    const location = this.location || (plugin.publicPath || '') + this.output;
-
     return {
-      location: location,
+      location: this.location,
       name: this.name,
       events: this.events,
       disableInstall: this.disableInstall

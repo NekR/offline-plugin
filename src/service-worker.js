@@ -7,13 +7,25 @@ import { getSource, pathToBase, isAbsoluteURL } from './misc/utils';
 
 export default class ServiceWorker {
   constructor(options) {
+    if (path.isAbsolute(options.output)) {
+      throw new Error(
+        'OfflinePlugin: ServiceWorker.output option must be a relative path, ' +
+        'but an absolute path was passed'
+      );
+    }
+
+    this.output = options.output.replace(/^\.\/+/, '');
+    this.publicLocation = options.publicLocation;
+
+    this.basePath = null;
+    this.location = null;
+    this.pathRewrite = null;
+
+    // Tool specific properties
     this.entry = options.entry;
-    this.output = options.output.replace(/^\//, '');
-    this.basePath = pathToBase(this.output, true);
     this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
     this.navigateFallbackURL = options.navigateFallbackURL;
-    this.location = options.publicLocation;
 
     this.ENTRY_NAME = 'serviceworker';
     this.CACHE_NAME = 'webpack-offline';
@@ -100,7 +112,7 @@ export default class ServiceWorker {
   }
 
   getDataTemplate(data, plugin, minify) {
-    const rewriteFunction = this.pathRewrite(plugin);
+    const rewriteFunction = this.pathRewrite;
 
     const cache = (key) => {
       return (data[key] || []).map(rewriteFunction);
@@ -142,19 +154,9 @@ export default class ServiceWorker {
     `.trim();
   }
 
-  pathRewrite(plugin) {
-    if (plugin.relativePaths) {
-      return (path => isAbsoluteURL(path) ? path : this.basePath + path);
-    }
-
-    return (path => path)
-  }
-
   getConfig(plugin) {
-    const location = this.location || (plugin.publicPath || '') + this.output;
-
     return {
-      location: location,
+      location: this.location,
       scope: this.scope,
       events: this.events
     };

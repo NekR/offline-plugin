@@ -2,6 +2,7 @@ import AppCache from './app-cache';
 import ServiceWorker from './service-worker';
 
 import path from 'path';
+import url from 'url';
 import deepExtend from 'deep-extend';
 import minimatch from 'minimatch';
 import { Promise } from 'es6-promise';
@@ -181,6 +182,10 @@ export default class OfflinePlugin {
 
       this.relativePaths = false;
     }
+
+    this.useTools((tool, key) => {
+      this.resolveToolPaths(tool, key, compiler);
+    });
 
     compiler.plugin('normal-module-factory', (nmf) => {
       nmf.plugin('after-resolve', (result, callback) => {
@@ -503,6 +508,77 @@ export default class OfflinePlugin {
     }
   }
 
+  resolveToolPaths(tool, key, compiler) {
+    // Tool much implement:
+    //
+    // tool.output
+    // tool.publicLocation
+    // tool.basePath
+    // tool.location
+    // tool.pathRewrite
+
+    if (!this.relativePaths && !this.publicPath) {
+      throw new Error('OfflinePlugin: Cannot generate base path for ' + key);
+    }
+
+    const isDirectory = tool.output[tool.output.length - 1] === '/';
+
+    if (this.relativePaths) {
+      const compilerOutput = (compiler.options.output || { path: process.cwd() }).path;
+      const absoluteOutput = path.resolve(compilerOutput, tool.output);
+
+      let relativeBase;
+
+      if (isDirectory) {
+        relativeBase = path.relative(absoluteOutput, compilerOutput);
+      } else {
+        relativeBase = path.relative(path.dirname(absoluteOutput), compilerOutput);
+      }
+
+      relativeBase = relativeBase.replace(/\/$/, '')
+
+      if (relativeBase) {
+        relativeBase = relativeBase + '/';
+      }
+
+      tool.basePath = relativeBase[0] === '.' ? relativeBase : './' + relativeBase;
+    } else if (this.publicPath) {
+      tool.basePath = this.publicPath.replace(/\/$/, '') + '/';
+    }
+
+    if (this.relativePaths) {
+      tool.location = tool.output;
+    } else if (this.publicPath && tool.publicLocation) {
+      tool.location = tool.publicLocation;
+    } else if (this.publicPath) {
+      const publicUrl = url.parse(this.publicPath);
+      const publicPath = publicUrl.pathname;
+
+      publicUrl.pathname = path.join(publicPath, tool.output);
+      const outerPathname = path.join('/outer/', publicPath, tool.output);
+
+      if (outerPathname.indexOf('/outer/') !== 0) {
+        new Error(`OfflinePlugin: Wrong ${ key }.output value. Final ${ key }.location URL path bounds are outside of publicPath`);
+      }
+
+      tool.location = url.format(publicUrl);
+    }
+
+    if (this.relativePaths) {
+      tool.pathRewrite = (_path => {
+        if (isAbsoluteURL(_path) || _path[0] === '/') {
+          return _path;
+        }
+
+        return tool.basePath + _path;
+      });
+    } else {
+      tool.pathRewrite = (path => {
+        return path;
+      });
+    }
+  }
+
   validatePaths(assets) {
     return assets
       .map(this.rewrite)
@@ -515,6 +591,11 @@ export default class OfflinePlugin {
 
         if (this.relativePaths) {
           return key.replace(/^\.\//, '');
+        }
+
+        // Absolute path, use it as is
+        if (key[0] === '/') {
+          return key;
         }
 
         return this.publicPath + key.replace(/^\.?\//, '');

@@ -1,4 +1,5 @@
 import { Minimatch } from 'minimatch';
+import path = from 'path';
 
 // Based on https://github.com/isaacs/node-glob/blob/master/glob.js#L83
 // (glob.hasMagic)
@@ -30,12 +31,24 @@ export function getSource(source) {
   };
 }
 
-export function pathToBase(path, fillEmpty) {
+export function pathToBase(relativePath, fillEmpty) {
+  if (relativePath[0] === '/') {
+    throw new Error('Base relative path cannot be generated from an absolute URL');
+  }
+
+  const fullPath = path.resolve(relativePath);
+
   const size = path.replace(/^\//, '').split('/').length;
   const level = new Array(size).join('../') || (fillEmpty ? './' : '');
 
   return level;
 }
+
+/*if (this.relativePaths) {
+  return key.replace(/^\.\//, '');
+}
+
+return this.publicPath + key.replace(/^\.?\//, '');*/
 
 export function interpolateString(string, data) {
   const hasOwnProperty = {}.hasOwnProperty;
