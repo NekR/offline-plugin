@@ -4,6 +4,7 @@ if (typeof DEBUG === 'undefined') {
 
 function WebpackServiceWorker(params) {
   const strategy = params.strategy;
+  const responseStrategy = params.responseStrategy;
   const assets = params.assets;
   let hashesMap = params.hashesMap;
   let externals = params.externals;
@@ -278,6 +279,38 @@ function WebpackServiceWorker(params) {
     // * urlString -- url to match from the CACHE_NAME
     // * event.request -- original Request to perform fetch() if necessary
 
+    if (responseStrategy === "network-first") {
+      event.respondWith(
+        fetch(event.request)
+        .then((response) => {
+          if (DEBUG) {
+            console.log('[SW]:', `URL [${ urlString }] from network`);
+          }
+
+          // always fresh cache response for future usage
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, response.clone());
+            if (DEBUG) {
+              console.log('[SW]:', 'Cache asset: ' + urlString);
+            }
+          })
+
+          return response
+        })
+        .catch(() => {
+          if (DEBUG) {
+            console.log('[SW]:', `URL [${ urlString }] from cache if possible`);
+          }
+
+          return caches.match(event.request);
+        })
+      );
+
+      return
+    }
+
+    // else "cache-first"
+    // (responseStrategy has been validated before)
     const resource = cachesMatch(urlString, CACHE_NAME)
     .then((response) => {
       if (response) {

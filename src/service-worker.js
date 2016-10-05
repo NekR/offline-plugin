@@ -142,6 +142,7 @@ export default class ServiceWorker {
         navigateFallbackURL: this.navigateFallbackURL,
 
         strategy: plugin.strategy,
+        responseStrategy: plugin.responseStrategy,
         version: plugin.version,
         name: this.CACHE_NAME,
         relativePaths: plugin.relativePaths,

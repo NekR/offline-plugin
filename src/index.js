@@ -15,6 +15,7 @@ const defaultOptions = {
   caches: 'all',
   publicPath: void 0,
   updateStrategy: 'all',
+  responseStrategy: 'cache-first',
   externals: [],
   excludes: ['**/.*', '**/*.map'],
   relativePaths: ':relativePaths:',
@@ -61,8 +62,19 @@ export default class OfflinePlugin {
     this.externals = null;
     this.publicPath = this.options.publicPath;
     this.strategy = this.options.updateStrategy;
+    this.responseStrategy = this.options.responseStrategy;
     this.relativePaths = this.options.relativePaths;
     this.warnings = [];
+
+    if (
+      this.options.responseStrategy !== "cache-first" &&
+      this.options.responseStrategy !== "network-first"
+    ) {
+      throw new Error(
+        'OfflinePlugin: `responseStrategy` option must use ' +
+        '`cache-first` or `network-first` (or be undefined).'
+      )
+    }
 
     if (typeof this.publicPath !== 'string') {
       this.publicPath = null;
