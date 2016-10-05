@@ -1,5 +1,5 @@
 import { Minimatch } from 'minimatch';
-import path = from 'path';
+import path from 'path';
 
 // Based on https://github.com/isaacs/node-glob/blob/master/glob.js#L83
 // (glob.hasMagic)
