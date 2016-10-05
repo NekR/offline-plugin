@@ -64,10 +64,14 @@ Same as `publicPath` for `webpack` options, only difference is that absolute pat
 Correct value: `/project/`  
 Incorrect value: `https://example.com/project`
 
+#### `responseStrategy: 'cache-first' | 'network-first'`
+Response strategy. Whether to use a cache or network first for responses.
+> Default: `'cache-first'`.
+
 #### `updateStrategy: 'changed' | 'all'`
 Cache update strategy. [More details about `updateStrategy`](docs/update-strategies.md)  
 > Default: `'changed'`.
-    
+
 #### `externals: Array<string>`.
 Explicitly marks the assets as _external_ assets that you can cache. If cache asset is not one of _webpack's generated assets_ and is not marked explicitly as _external_, you will receive warning about it into console. To cache external assets, add them to the `caches` object, by default `caches: 'all'` doesn't cache `externals`.
 
