@@ -11,6 +11,7 @@
 * Default options of `offline-plugin` are now exposed as `require('offline-plugin').defaultOptions`
 * `ignoreSearch` isn't applied to assets added with `externals` anymore. i.e. full URLs with `?query` can now be added to the caches
 * Added `responseStrategy` option. Thanks to [@MoOx](https://github.com/MoOx). [#112](https://github.com/NekR/offline-plugin/pull/112)
+* Add AppVeyor CI tests
 
 
 ### 3.4.0
