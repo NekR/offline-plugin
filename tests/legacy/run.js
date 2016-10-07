@@ -1,7 +1,6 @@
 var _exec = require('child_process').exec;
 var _execSync = require('child_process').execSync;
 var path = require('path');
-var Promise = require('es6-promise').Promise;
 
 var tests = [
   'basic',
