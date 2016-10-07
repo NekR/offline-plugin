@@ -43,6 +43,7 @@
   "devDependencies": {
     "babel": "^5.8.23",
     "dir-compare": "^1.1.0",
+    "minimatch": "^3.0.3",
     "on-build-webpack": "^0.1.0",
     "webpack": "^1.0.0"
   }
