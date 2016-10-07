@@ -13,6 +13,7 @@
 * Added `responseStrategy` option. Thanks to [@MoOx](https://github.com/MoOx). [#112](https://github.com/NekR/offline-plugin/pull/112)
 * Add AppVeyor CI tests
 * Dropped Node 0.10 support
+* Update minimatch to 3.*
 
 
 ### 3.4.0
