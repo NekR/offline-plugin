@@ -105,7 +105,10 @@ export default class ServiceWorker {
       }
 
       delete compilation.assets[name];
-      source += '\n\n' + asset.source();
+
+      if (!plugin.__tests.swMetadataOnly) {
+        source += '\n\n' + asset.source();
+      }
     }
 
     compilation.assets[this.output] = getSource(source);

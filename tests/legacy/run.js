@@ -5,7 +5,9 @@ var Promise = require('es6-promise').Promise;
 
 var tests = [
   'basic',
-  'cache-externals-absolute'
+  'cache-externals-absolute',
+  'paths-generate-inside',
+  'paths-generate-outside',
 ];
 
 runAll(tests.map(function(testName) {

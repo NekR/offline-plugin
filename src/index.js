@@ -50,6 +50,11 @@ const defaultOptions = {
     directory: 'appcache/',
     caches: ['main'],
     events: false
+  },
+
+  // Needed for testing
+  __tests: {
+    swMetadataOnly: false
   }
 };
 
@@ -64,6 +69,7 @@ export default class OfflinePlugin {
     this.strategy = this.options.updateStrategy;
     this.responseStrategy = this.options.responseStrategy;
     this.relativePaths = this.options.relativePaths;
+    this.__tests = this.options.__tests;
     this.warnings = [];
 
     if (
