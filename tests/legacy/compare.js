@@ -38,8 +38,8 @@ module.exports = function(testDir) {
 
   if (!res.same) {
     // setTimeout(function() {
-      throw new Error('Test [' + testDir + '] was completed unsuccessfully');
       console.log(res);
+      throw new Error('Test [' + testDir + '] was completed unsuccessfully');
     // }, 10);
   }
 }
