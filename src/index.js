@@ -5,7 +5,6 @@ import path from 'path';
 import url from 'url';
 import deepExtend from 'deep-extend';
 import minimatch from 'minimatch';
-import { Promise } from 'es6-promise';
 import { hasMagic, interpolateString, isAbsoluteURL } from './misc/utils';
 import loaderUtils from 'loader-utils';
 

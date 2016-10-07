@@ -23,10 +23,8 @@
   "dependencies": {
     "deep-extend": "^0.4.0",
     "ejs": "^2.3.4",
-    "es6-promise": "^3.0.2",
     "loader-utils": "0.2.x",
-    "minimatch": "^3.0.2",
-    "path-is-absolute": "^1.0.1"
+    "minimatch": "^3.0.2"
   },
   "bugs": {
     "url": "https://github.com/NekR/offline-plugin/issues"
@@ -45,7 +43,6 @@
   "devDependencies": {
     "babel": "^5.8.23",
     "dir-compare": "^1.1.0",
-    "es6-promise": "^3.0.2",
     "on-build-webpack": "^0.1.0",
     "webpack": "^1.0.0"
   }

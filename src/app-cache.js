@@ -1,4 +1,3 @@
-import { Promise } from 'es6-promise';
 import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
 import fs from 'fs';
 import path from 'path';

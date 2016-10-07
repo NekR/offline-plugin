@@ -1,6 +1,7 @@
 import { Minimatch } from 'minimatch';
 import path from 'path';
-import isAbsolutePath from 'path-is-absolute';
+
+const isAbsolutePath = path.isAbsolute;
 
 // Based on https://github.com/isaacs/node-glob/blob/master/glob.js#L83
 // (glob.hasMagic)

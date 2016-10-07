@@ -37,11 +37,9 @@ module.exports = function(testDir) {
   });
 
   if (!res.same) {
-    // setTimeout(function() {
-      console.log('Error');
+    setTimeout(function() {
       console.error(res);
-      console.error('Test [' + testDir + '] was completed unsuccessfully');
       process.exit(1);
-    // }, 10);
+    }, 1);
   }
 }
