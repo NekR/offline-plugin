@@ -39,6 +39,6 @@ module.exports = function(testDir) {
   if (!res.same) {
     setTimeout(function() {
       throw new Error('Test [' + testDir + '] was completed unsuccessfully');
-    }, 1);
+    }, 10);
   }
 }
