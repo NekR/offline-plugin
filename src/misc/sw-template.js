@@ -238,6 +238,75 @@ function WebpackServiceWorker(params) {
     });
   }
 
+  function cacheFirst(event, urlString) {
+    return cachesMatch(urlString, CACHE_NAME)
+    .then((response) => {
+      if (response) {
+        if (DEBUG) {
+          console.log('[SW]:', `URL [${ urlString }] from cache`);
+        }
+
+        return response;
+      }
+
+      // Load and cache known assets
+      let fetching = fetch(event.request).then((response) => {
+        if (!response || !response.ok) {
+          if (DEBUG) {
+            console.log(
+              '[SW]:',
+              `URL [${ urlString }] wrong response: [${ response.status }] ${ response.type }`
+            );
+          }
+
+          return response;
+        }
+
+        if (DEBUG) {
+          console.log('[SW]:', `URL [${ urlString }] from network`);
+        }
+
+        const responseClone = response.clone();
+
+        caches.open(CACHE_NAME).then((cache) => {
+          return cache.put(urlString, responseClone);
+        }).then(() => {
+          console.log('[SW]:', 'Cache asset: ' + urlString);
+        });
+
+        return response;
+      });
+
+      return fetching;
+    });
+  }
+
+  function networkFirst(event, urlString) {
+    return fetch(event.request)
+      .then((response) => {
+        console.log('[SW]:', response);
+        if (response.ok) {
+          if (DEBUG) {
+            console.log('[SW]:', `URL [${ urlString }] from network`);
+          }
+
+          return response
+        }
+
+        // throw to reach the code in the catch below
+        throw new Error("response is not ok")
+      })
+      // this needs to be in a catch() and not just in the then() above
+      // cause if your network is down, the fetch() will throw
+      .catch(() => {
+        if (DEBUG) {
+          console.log('[SW]:', `URL [${ urlString }] from cache if possible`);
+        }
+
+        return cachesMatch(event.request, CACHE_NAME);
+      })
+  }
+
   self.addEventListener('fetch', (event) => {
     const requestUrl = event.request.url;
     const url = new URL(requestUrl);
@@ -278,83 +347,20 @@ function WebpackServiceWorker(params) {
     // Logic of caching / fetching is here
     // * urlString -- url to match from the CACHE_NAME
     // * event.request -- original Request to perform fetch() if necessary
+    let resource
 
     if (responseStrategy === "network-first") {
-      event.respondWith(
-        fetch(event.request)
-        .then((response) => {
-          if (DEBUG) {
-            console.log('[SW]:', `URL [${ urlString }] from network`);
-          }
-
-          // always fresh cache response for future usage
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, response.clone());
-            if (DEBUG) {
-              console.log('[SW]:', 'Cache asset: ' + urlString);
-            }
-          })
-
-          return response
-        })
-        .catch(() => {
-          if (DEBUG) {
-            console.log('[SW]:', `URL [${ urlString }] from cache if possible`);
-          }
-
-          return caches.match(event.request);
-        })
-      );
-
-      return
+      resource = networkFirst(event, urlString)
+    }
+    //"cache-first"
+    // (responseStrategy has been validated before)
+    else  {
+      resource = cacheFirst(event, urlString)
     }
 
-    // else "cache-first"
-    // (responseStrategy has been validated before)
-    const resource = cachesMatch(urlString, CACHE_NAME)
-    .then((response) => {
-      if (response) {
-        if (DEBUG) {
-          console.log('[SW]:', `URL [${ urlString }] from cache`);
-        }
-
-        return response;
-      }
-
-      // Load and cache known assets
-      let fetching = fetch(event.request).then((response) => {
-        if (!response || !response.ok) {
-          if (DEBUG) {
-            console.log(
-              '[SW]:',
-              `URL [${ urlString }] wrong response: [${ response.status }] ${ response.type }`
-            );
-          }
-
-          return response;
-        }
-
-        if (DEBUG) {
-          console.log('[SW]:', `URL [${ urlString }] fetched`);
-        }
-
-        const responseClone = response.clone();
-
-        caches.open(CACHE_NAME).then((cache) => {
-          return cache.put(urlString, responseClone);
-        }).then(() => {
-          console.log('[SW]:', 'Cache asset: ' + urlString);
-        });
-
-        return response;
-      });
-
-      if (navigateFallbackURL && isNavigateRequest(event.request)) {
-        return handleNavigateFallback(fetching);
-      }
-
-      return fetching;
-    });
+    if (navigateFallbackURL && isNavigateRequest(event.request)) {
+      resource = handleNavigateFallback(resource);
+    }
 
     event.respondWith(resource);
   });
