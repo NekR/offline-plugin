@@ -3,11 +3,11 @@ import path from 'path';
 import webpack from 'webpack';
 import deepExtend from 'deep-extend';
 import { Promise } from 'es6-promise';
-import { getSource, pathToBase, isAbsoluteURL } from './misc/utils';
+import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
 
 export default class ServiceWorker {
   constructor(options) {
-    if (path.isAbsolute(options.output)) {
+    if (isAbsolutePath(options.output)) {
       throw new Error(
         'OfflinePlugin: ServiceWorker.output option must be a relative path, ' +
         'but an absolute path was passed'

@@ -1,5 +1,5 @@
 import { Promise } from 'es6-promise';
-import { getSource, pathToBase, isAbsoluteURL } from './misc/utils';
+import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
 import fs from 'fs';
 import path from 'path';
 
@@ -7,7 +7,7 @@ export default class AppCache {
   constructor(options) {
     const output = options.output || options.directory;
 
-    if (path.isAbsolute(output)) {
+    if (isAbsolutePath(output)) {
       throw new Error(
         'OfflinePlugin: ServiceWorker.output option must be a relative path, ' +
         'but an absolute path was passed'
