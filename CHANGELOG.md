@@ -10,6 +10,7 @@
 * `caches: 'all'` is now equivalent of `caches: { main: [':rest:', ':externals:'] }`. In other words, `externals` URLs are now included in `caches` by default
 * Default options of `offline-plugin` are now exposed as `require('offline-plugin').defaultOptions`
 * `ignoreSearch` isn't applied to assets added with `externals` anymore. i.e. full URLs with `?query` can now be added to the caches
+* Added `responseStrategy` option. Thanks to @MoOx. https://github.com/NekR/offline-plugin/pull/112
 
 
 ### 3.4.0
