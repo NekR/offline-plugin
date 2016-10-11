@@ -29,10 +29,10 @@ tests.reduce(function(last, testName) {
     stdio: 'inherit'
   });*/
 
-  return last.then(() => {
+  return last.then(function() {
     console.log(testName);
 
-    return new Promise((resolve) => {
+    return new Promise(function(resolve) {
       var testDir = path.join(fixturesPath, testName);
       // var config = fs.readFileSync(path.join(testDir, 'webpack.config.js'), 'utf-8');
       process.chdir(testDir);
@@ -46,7 +46,7 @@ tests.reduce(function(last, testName) {
       });
     });
   });
-}, Promise.resolve()).then(() => {
+}, Promise.resolve()).then(function() {
   process.chdir(originalCWD);
 }).catch(function(data) {
   /*if (!_execSync) {
