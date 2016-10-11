@@ -1,5 +1,5 @@
 var path = require('path');
-var config = require('../config')({
+var config = __CONFIG__({
   externals: [
     '/images/bgz.jpg',
     '/images/hamburger.svg',
@@ -14,7 +14,7 @@ var config = require('../config')({
   version: '[hash]'
 });
 
-config.output.path = path.join(config.output.path, 'inner');
+config.output.path = path.join(config.output.path, 'dist');
 config.output.publicPath = '/dist/';
 
 

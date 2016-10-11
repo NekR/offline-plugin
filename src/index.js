@@ -70,6 +70,7 @@ export default class OfflinePlugin {
     this.relativePaths = this.options.relativePaths;
     this.__tests = this.options.__tests;
     this.warnings = [];
+    this.errors = [];
 
     if (
       this.options.responseStrategy !== "cache-first" &&
@@ -168,6 +169,7 @@ export default class OfflinePlugin {
       this.relativePaths !== true
     ) {
       this.publicPath = compilerOptions.output.publicPath;
+      this.relativePaths = false;
     }
 
     if (this.publicPath) {
@@ -219,6 +221,10 @@ export default class OfflinePlugin {
     compiler.plugin('make', (compilation, callback) => {
       if (this.warnings.length) {
         [].push.apply(compilation.warnings, this.warnings);
+      }
+
+      if (this.errors.length) {
+        [].push.apply(compilation.errors, this.errors);
       }
 
       this.useTools((tool) => {

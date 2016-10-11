@@ -1,6 +1,8 @@
 var _exec = require('child_process').exec;
 var _execSync = require('child_process').execSync;
 var path = require('path');
+var fs = require('fs');
+var webpack = require('webpack');
 
 var tests = [
   'basic',
@@ -9,17 +11,52 @@ var tests = [
   'paths-generate-outside',
 ];
 
-runAll(tests.map(function(testName) {
-  return exec(path.join(__dirname, '../../node_modules/.bin/webpack'), {
-    cwd: path.join(__dirname, testName),
-    stdio: 'inherit'
-  });
-})).catch(function(data) {
-  if (!_execSync) {
-    process.stderr.write(data.stderr);
+var originalCWD = process.cwd();
+var fixturesPath = path.join(__dirname, 'fixtures');
+var tests = fs.readdirSync(fixturesPath).filter(function(file) {
+  if (fs.statSync(path.join(fixturesPath, file)).isDirectory()) {
+    return true;
   }
 
-  process.exit(data.error.code);
+  return false;
+});
+
+global.__CONFIG__ = require('./config');
+
+tests.reduce(function(last, testName) {
+  /*return exec(path.join(__dirname, '../../node_modules/.bin/webpack'), {
+    cwd: path.join(__dirname, testName),
+    stdio: 'inherit'
+  });*/
+
+  return last.then(() => {
+    console.log(testName);
+
+    return new Promise((resolve) => {
+      var testDir = path.join(fixturesPath, testName);
+      // var config = fs.readFileSync(path.join(testDir, 'webpack.config.js'), 'utf-8');
+      process.chdir(testDir);
+      var config = require(path.join(testDir, 'webpack.config.js'));
+
+      console.log(process.cwd());
+      webpack(config, function(err, stats) {
+        console.log(err);
+        // console.log(stats);
+        resolve();
+      });
+    });
+  });
+}, Promise.resolve()).then(() => {
+  process.chdir(originalCWD);
+}).catch(function(data) {
+  /*if (!_execSync) {
+    process.stdout.write(data.stdout);
+    process.stderr.write(data.stderr);
+  }*/
+
+  console.log('catch', data);
+
+  // process.exit(data.error ? data.error.code : 1);
 });
 
 function exec(cmd, options) {

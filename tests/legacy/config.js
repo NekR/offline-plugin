@@ -4,10 +4,10 @@ var path = require('path');
 var OnBuildPlugin = require('on-build-webpack');
 var compare = require('./compare');
 
-var testDir = process.cwd();
-var outputPath = path.join(testDir, '__output');
-
 module.exports = function(OfflinePluginOptions) {
+  var testDir = process.cwd();
+  var outputPath = path.join(testDir, '__output');
+
   OfflinePluginOptions.__tests = {
     swMetadataOnly: true
   };

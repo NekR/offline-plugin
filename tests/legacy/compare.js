@@ -38,7 +38,6 @@ module.exports = function(testDir) {
 
   if (!res.same) {
     setTimeout(function() {
-      console.error(res);
       process.exit(1);
     }, 1);
   }

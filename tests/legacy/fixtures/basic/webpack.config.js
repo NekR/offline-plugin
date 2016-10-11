@@ -1,4 +1,4 @@
-module.exports = require('../config')({
+module.exports = __CONFIG__({
   caches: {
     main: ['external.js', ':rest:']
   },

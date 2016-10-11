@@ -1,4 +1,4 @@
-module.exports = require('../config')({
+var config = __CONFIG__({
   caches: {
     main:[
       'main.js',
@@ -10,3 +10,5 @@ module.exports = require('../config')({
   ],
   version: '[hash]'
 });
+
+module.exports = config;
