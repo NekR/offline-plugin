@@ -185,6 +185,16 @@ Event called when `upUpdating` phase failed by some reason. Nothing is downloade
 Event called when update is applied, either by calling `runtime.applyUpdate()` or some other way by a browser itself.
 
 
+## Examples
+
+* [React Boilerplate](http://reactboilerplate.com) ([source](https://github.com/mxstbr/react-boilerplate))
+* [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
+* [Angular CLI](https://github.com/angular/angular-cli) ([source](https://github.com/angular/angular-cli))
+* [Phenomic](https://phenomic.io) ([source](https://github.com/MoOx/phenomic))
+
+These are just few projects that are using `offline-plugin`. Feel free to add more such projects here by simply sending a Pull request.
+
+
 ## FAQ
 
 **Is it possible to minify `ServiceWorker` script output?**  
