@@ -1,0 +1,11 @@
+CACHE MANIFEST
+#ver:3b59d46a1a71fdd7f971
+
+CACHE:
+../dist/main.js
+/images/bgz.jpg
+/images/hamburger.svg
+/images/logo_grey.svg
+
+NETWORK:
+*
