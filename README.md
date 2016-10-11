@@ -192,7 +192,7 @@ Event called when update is applied, either by calling `runtime.applyUpdate()` o
 * [Angular CLI](https://github.com/angular/angular-cli) ([source](https://github.com/angular/angular-cli))
 * [Phenomic](https://phenomic.io) ([source](https://github.com/MoOx/phenomic))
 
-These are just few projects that are using `offline-plugin`. Feel free to add more such projects here by simply sending a Pull request.
+These are just few projects that are using `offline-plugin`. If you are using `offline-plugin`, feel free to submit a PR to add your project to this list.
 
 
 ## FAQ
