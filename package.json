@@ -24,7 +24,8 @@
     "deep-extend": "^0.4.0",
     "ejs": "^2.3.4",
     "loader-utils": "0.2.x",
-    "minimatch": "^3.0.2"
+    "minimatch": "^3.0.2",
+    "slash": "^1.0.0"
   },
   "bugs": {
     "url": "https://github.com/NekR/offline-plugin/issues"

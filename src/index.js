@@ -7,6 +7,7 @@ import deepExtend from 'deep-extend';
 import minimatch from 'minimatch';
 import { hasMagic, interpolateString, isAbsoluteURL } from './misc/utils';
 import loaderUtils from 'loader-utils';
+import slash from 'slash';
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
@@ -547,6 +548,7 @@ export default class OfflinePlugin {
         relativeBase = path.relative(path.dirname(absoluteOutput), compilerOutput);
       }
 
+      relativeBase = slash(relativeBase);
       relativeBase = relativeBase.replace(/\/$/, '')
 
       if (relativeBase) {
