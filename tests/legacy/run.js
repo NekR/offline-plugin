@@ -30,18 +30,17 @@ tests.reduce(function(last, testName) {
   });*/
 
   return last.then(function() {
-    console.log(testName);
-
     return new Promise(function(resolve) {
       var testDir = path.join(fixturesPath, testName);
       // var config = fs.readFileSync(path.join(testDir, 'webpack.config.js'), 'utf-8');
       process.chdir(testDir);
       var config = require(path.join(testDir, 'webpack.config.js'));
 
-      console.log(process.cwd());
       webpack(config, function(err, stats) {
-        console.log(err);
-        // console.log(stats);
+        if (err) {
+          console.error(err);
+        }
+
         resolve();
       });
     });
@@ -54,7 +53,7 @@ tests.reduce(function(last, testName) {
     process.stderr.write(data.stderr);
   }*/
 
-  console.log('catch', data);
+  console.error('catch', data);
 
   // process.exit(data.error ? data.error.code : 1);
 });
