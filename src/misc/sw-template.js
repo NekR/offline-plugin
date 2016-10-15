@@ -6,6 +6,7 @@ function WebpackServiceWorker(params) {
   const strategy = params.strategy;
   const responseStrategy = params.responseStrategy;
   const assets = params.assets;
+
   let hashesMap = params.hashesMap;
   let externals = params.externals;
 
@@ -14,13 +15,8 @@ function WebpackServiceWorker(params) {
   // const ignoreSearch = params.ignoreSearch;
   // const preferOnline = params.preferOnline;
 
-  const tagMap = {
-    all: params.version,
-    changed: params.version
-  };
-
   const CACHE_PREFIX = params.name;
-  const CACHE_TAG = tagMap[strategy];
+  const CACHE_TAG = params.version;
   const CACHE_NAME = CACHE_PREFIX + ':' + CACHE_TAG;
 
   const STORED_DATA_KEY = '__offline_webpack__data';
@@ -238,7 +234,76 @@ function WebpackServiceWorker(params) {
     });
   }
 
-  function cacheFirst(event, urlString) {
+  self.addEventListener('fetch', (event) => {
+    const requestUrl = event.request.url;
+    const url = new URL(requestUrl);
+    let urlString;
+
+    if (externals.indexOf(requestUrl) !== -1) {
+      urlString = requestUrl;
+    } else {
+      url.search = '';
+      urlString = url.toString();
+    }
+
+    // Handle only GET requests
+    const isGET = event.request.method === 'GET';
+    const assetMatches = allAssets.indexOf(urlString) !== -1;
+
+    if (!assetMatches && isGET) {
+      // If isn't a cached asset and is a navigation request,
+      // fallback to navigateFallbackURL if available
+      if (navigateFallbackURL && isNavigateRequest(event.request)) {
+        event.respondWith(
+          handleNavigateFallback(fetch(event.request))
+        );
+
+        return;
+      }
+    }
+
+    if (!assetMatches || !isGET) {
+      // Fix for https://twitter.com/wanderview/status/696819243262873600
+      if (url.origin !== location.origin && navigator.userAgent.indexOf('Firefox/44.') !== -1) {
+        event.respondWith(fetch(event.request));
+      }
+
+      return;
+    }
+
+    // Logic of caching / fetching is here
+    // * urlString -- url to match from the CACHE_NAME
+    // * event.request -- original Request to perform fetch() if necessary
+    let resource;
+
+    if (responseStrategy === "network-first") {
+      resource = networkFirstResponse(event, urlString);
+    }
+    // "cache-first"
+    // (responseStrategy has been validated before)
+    else {
+      resource = cacheFirstResponse(event, urlString);
+    }
+
+    if (navigateFallbackURL && isNavigateRequest(event.request)) {
+      resource = handleNavigateFallback(resource);
+    }
+
+    event.respondWith(resource);
+  });
+
+  self.addEventListener('message', (e) => {
+    const data = e.data;
+    if (!data) return;
+
+    switch (data.action) {
+      case 'skipWaiting': {
+        if (self.skipWaiting) self.skipWaiting();
+      } break;
+    }
+  });
+
+  function cacheFirstResponse(event, urlString) {
     return cachesMatch(urlString, CACHE_NAME)
     .then((response) => {
       if (response) {
@@ -281,10 +346,9 @@ function WebpackServiceWorker(params) {
     });
   }
 
-  function networkFirst(event, urlString) {
+  function networkFirstResponse(event, urlString) {
     return fetch(event.request)
       .then((response) => {
-        console.log('[SW]:', response);
         if (response.ok) {
           if (DEBUG) {
             console.log('[SW]:', `URL [${ urlString }] from network`);
@@ -306,75 +370,6 @@ function WebpackServiceWorker(params) {
         return cachesMatch(event.request, CACHE_NAME);
       })
   }
-
-  self.addEventListener('fetch', (event) => {
-    const requestUrl = event.request.url;
-    const url = new URL(requestUrl);
-    let urlString;
-
-    if (externals.indexOf(requestUrl) !== -1) {
-      urlString = requestUrl;
-    } else {
-      url.search = '';
-      urlString = url.toString();
-    }
-
-    // Handle only GET requests
-    const isGET = event.request.method === 'GET';
-    const assetMatches = allAssets.indexOf(urlString) !== -1;
-
-    if (!assetMatches && isGET) {
-      // If isn't a cached asset and is a navigation request,
-      // fallback to navigateFallbackURL if available
-      if (navigateFallbackURL && isNavigateRequest(event.request)) {
-        event.respondWith(
-          handleNavigateFallback(fetch(event.request))
-        );
-
-        return;
-      }
-    }
-
-    if (!assetMatches || !isGET) {
-      // Fix for https://twitter.com/wanderview/status/696819243262873600
-      if (url.origin !== location.origin && navigator.userAgent.indexOf('Firefox/44.') !== -1) {
-        event.respondWith(fetch(event.request));
-      }
-
-      return;
-    }
-
-    // Logic of caching / fetching is here
-    // * urlString -- url to match from the CACHE_NAME
-    // * event.request -- original Request to perform fetch() if necessary
-    let resource
-
-    if (responseStrategy === "network-first") {
-      resource = networkFirst(event, urlString)
-    }
-    //"cache-first"
-    // (responseStrategy has been validated before)
-    else  {
-      resource = cacheFirst(event, urlString)
-    }
-
-    if (navigateFallbackURL && isNavigateRequest(event.request)) {
-      resource = handleNavigateFallback(resource);
-    }
-
-    event.respondWith(resource);
-  });
-
-  self.addEventListener('message', (e) => {
-    const data = e.data;
-    if (!data) return;
-
-    switch (data.action) {
-      case 'skipWaiting': {
-        if (self.skipWaiting) self.skipWaiting();
-      } break;
-    }
-  });
 
   function handleNavigateFallback(fetching) {
     return fetching
