@@ -30,7 +30,7 @@ module.exports = {
 
 ```
 
-Then, install the [runtime](#runtime) in your client script:
+Then, add the [runtime](#runtime) into your entry file (typically main entry):
 
 ```js
 require('offline-plugin/runtime').install();

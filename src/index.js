@@ -18,6 +18,7 @@ const defaultOptions = {
   responseStrategy: 'cache-first',
   externals: [],
   excludes: ['**/.*', '**/*.map'],
+  // Hack to have intermediate value, e.g. default one, true and false
   relativePaths: ':relativePaths:',
   version: null,
   // for entry, default all
