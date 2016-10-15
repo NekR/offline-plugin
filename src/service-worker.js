@@ -26,8 +26,14 @@ export default class ServiceWorker {
     this.events = !!options.events;
     this.navigateFallbackURL = options.navigateFallbackURL;
 
+    let cacheNameQualifier = '';
+
+    if (options.cacheName) {
+      cacheNameQualifier = ':' + options.cacheName;
+    }
+
     this.ENTRY_NAME = 'serviceworker';
-    this.CACHE_NAME = 'webpack-offline';
+    this.CACHE_NAME = 'webpack-offline' + cacheNameQualifier;
     this.SW_DATA_VAR = '__wpo';
   }
 

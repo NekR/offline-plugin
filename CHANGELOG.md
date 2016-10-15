@@ -11,6 +11,7 @@
 * Default options of `offline-plugin` are now exposed as `require('offline-plugin').defaultOptions`
 * `ignoreSearch` isn't applied to assets added with `externals` anymore. i.e. full URLs with `?query` can now be added to the caches
 * Added `responseStrategy` option. Thanks to [@MoOx](https://github.com/MoOx). [#112](https://github.com/NekR/offline-plugin/pull/112)
+* Added `ServiceWorker.cacheName` option. Useful (but very dangerous) when you need to run more than one project on the same domain.
 * Add AppVeyor CI tests
 * Dropped Node 0.10 support
 * Updated `minimatch` to 3.*

@@ -116,6 +116,9 @@ _Default:_ `'sw.js'`.
 _Default:_ _empty file_
 * `scope`: `string`. Reflects [ServiceWorker.register](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register)'s `scope` option.  
 _Default:_ `null`
+* `cacheName`: `string`. **This option is very dangerous. Touching it you must realize that you should **not** change it after you go production. Changing it may corrupt the cache and leave old caches on users' devices. This option is useful when you need to run more than one project on _the same domain_.  
+_Default:_ _`''`_ (empty string)
+_Example:_ `'my-project'`
 * `navigateFallbackURL`: `string`. The URL being returned from the caches when requested navigation URL isn't available. Similar to `AppCache.FALLBACK` option.  
 _Example:_ `navigateFallbackURL: '/'`
 * `events`: `boolean`. Enables runtime events for ServiceWorker. For supported events see `Runtime`'s `install()` options.
