@@ -63,7 +63,8 @@ tests.reduce(function(last, testName) {
 });
 
 function cleanOutput(testDir) {
-  return del([path.join(testDir, '__output', '**')]);
+  return del([path.join(testDir, '__output', '**/*')])
+    .catch(function() {});
 }
 
 function exec(cmd, options) {

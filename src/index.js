@@ -21,8 +21,6 @@ const defaultOptions = {
   // Hack to have intermediate value, e.g. default one, true and false
   relativePaths: ':relativePaths:',
   version: null,
-  // for entry, default all
-  for: null,
 
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
@@ -34,9 +32,7 @@ const defaultOptions = {
     });
   },
 
-  alwaysRevalidate: void 0,
-  preferOnline: void 0,
-  ignoreSearch: ['**'],
+  cacheMaps: null,
 
   ServiceWorker: {
     output: 'sw.js',
@@ -56,7 +52,12 @@ const defaultOptions = {
   // Needed for testing
   __tests: {
     swMetadataOnly: false
-  }
+  },
+
+  // Not yet used
+  alwaysRevalidate: void 0,
+  preferOnline: void 0,
+  ignoreSearch: ['**'],
 };
 
 export default class OfflinePlugin {
@@ -190,7 +191,7 @@ export default class OfflinePlugin {
     }
 
     if (this.relativePaths === defaultOptions.relativePaths) {
-      this.relativePaths = true;
+      this.relativePaths = !this.publicPath;
     }
 
     this.useTools((tool, key) => {

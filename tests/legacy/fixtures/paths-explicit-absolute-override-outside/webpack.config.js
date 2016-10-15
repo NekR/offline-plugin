@@ -11,11 +11,11 @@ var config = __CONFIG__({
   AppCache: {
     output: '../appcache'
   },
-  version: '[hash]'
+  version: '[hash]',
+  publicPath: '/dist-new/'
 });
 
 config.output.path = path.join(config.output.path, 'dist');
 config.output.publicPath = '/dist/';
-
 
 module.exports = config;
