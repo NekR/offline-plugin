@@ -2,6 +2,7 @@ var _exec = require('child_process').exec;
 var _execSync = require('child_process').execSync;
 var path = require('path');
 var fs = require('fs');
+var del = require('del');
 var webpack = require('webpack');
 
 var tests = [
@@ -29,9 +30,12 @@ tests.reduce(function(last, testName) {
     stdio: 'inherit'
   });*/
 
+  var testDir = path.join(fixturesPath, testName);
+
   return last.then(function() {
+    cleanOutput(testDir);
+  }).then(function() {
     return new Promise(function(resolve) {
-      var testDir = path.join(fixturesPath, testName);
       // var config = fs.readFileSync(path.join(testDir, 'webpack.config.js'), 'utf-8');
       process.chdir(testDir);
       var config = require(path.join(testDir, 'webpack.config.js'));
@@ -57,6 +61,10 @@ tests.reduce(function(last, testName) {
 
   // process.exit(data.error ? data.error.code : 1);
 });
+
+function cleanOutput(testDir) {
+  return del([path.join(testDir, '__output', '**')]);
+}
 
 function exec(cmd, options) {
   return function() {

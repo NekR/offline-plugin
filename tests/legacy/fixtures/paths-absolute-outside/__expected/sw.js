@@ -17,7 +17,7 @@ var __wpo = {
   "hashesMap": {
     "959bc80c8a61e3ce43a29a8c73aec435": "/dist/main.js"
   },
-  "strategy": "all",
+  "strategy": "changed",
   "responseStrategy": "cache-first",
   "version": "9ac5b95d1b3b0ab68e3e",
   "name": "webpack-offline",

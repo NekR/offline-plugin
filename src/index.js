@@ -14,7 +14,7 @@ const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
   caches: 'all',
   publicPath: void 0,
-  updateStrategy: 'all',
+  updateStrategy: 'changed',
   responseStrategy: 'cache-first',
   externals: [],
   excludes: ['**/.*', '**/*.map'],
