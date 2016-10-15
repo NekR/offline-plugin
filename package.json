@@ -12,7 +12,9 @@
   "scripts": {
     "test": "node tests/legacy/run",
     "build": "./node_modules/.bin/babel src/ -d lib/",
-    "watch": "npm run build -- --watch"
+    "watch": "npm run build -- --watch",
+
+    "prepublish": "npm run build && npm run test"
   },
   "repository": {
     "type": "git",
