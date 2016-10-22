@@ -422,13 +422,17 @@ function WebpackServiceWorker(params) {
 
 function addAllNormalized(cache, requests, options) {
   const bustValue = options && options.bust;
+  const requestInit = options.request || {
+    credentials: 'same-origin',
+    mode: 'cors'
+  };
 
   return Promise.all(requests.map((request) => {
     if (bustValue) {
       request = applyCacheBust(request, bustValue);
     }
 
-    return fetch(request);
+    return fetch(request, requestInit);
   })).then((responses) => {
     if (responses.some(response => !response.ok)) {
       return Promise.reject(new Error('Wrong response status'));

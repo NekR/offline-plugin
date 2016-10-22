@@ -40,7 +40,13 @@ const defaultOptions = {
     output: 'sw.js',
     entry: path.join(__dirname, '../empty-entry.js'),
     scope: null,
-    events: false
+    events: false,
+    prefetchRequest: {
+      credentials: 'same-origin',
+      headers: void 0,
+      mode: 'cors',
+      cache: void 0
+    }
   },
 
   AppCache: {

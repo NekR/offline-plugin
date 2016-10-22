@@ -25,6 +25,7 @@ export default class ServiceWorker {
     this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
     this.navigateFallbackURL = options.navigateFallbackURL;
+    this.prefetchRequest = this.validatePrefetch(options.prefetchRequest);
 
     let cacheNameQualifier = '';
 
@@ -162,6 +163,8 @@ export default class ServiceWorker {
         pluginVersion: pluginVersion,
         relativePaths: plugin.relativePaths,
 
+        prefetchRequest: this.prefetchRequest,
+
         // These aren't added
         alwaysRevalidate: plugin.alwaysRevalidate,
         preferOnline: plugin.preferOnline,
@@ -175,6 +178,28 @@ export default class ServiceWorker {
       location: this.location,
       scope: this.scope,
       events: this.events
+    };
+  }
+
+  validatePrefetch(request) {
+    if (!request) {
+      return void 0;
+    }
+
+    if (
+      request.credentials === 'same-origin' &&
+      request.header === void 0 &&
+      request.mode === 'cors' &&
+      request.cache === void 0
+    ) {
+      return void 0;
+    }
+
+    return {
+      credentials: request.credentials,
+      headers: request.headers,
+      mode: request.mode,
+      cache: request.cache
     };
   }
 }

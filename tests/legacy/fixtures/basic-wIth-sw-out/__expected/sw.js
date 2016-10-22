@@ -472,13 +472,17 @@ var __wpo = {
 
 	function addAllNormalized(cache, requests, options) {
 	  var bustValue = options && options.bust;
+	  var requestInit = options.request || {
+	    credentials: 'same-origin',
+	    mode: 'cors'
+	  };
 
 	  return Promise.all(requests.map(function (request) {
 	    if (bustValue) {
 	      request = applyCacheBust(request, bustValue);
 	    }
 
-	    return fetch(request);
+	    return fetch(request, requestInit);
 	  })).then(function (responses) {
 	    if (responses.some(function (response) {
 	      return !response.ok;
