@@ -423,7 +423,7 @@ function WebpackServiceWorker(params) {
 function addAllNormalized(cache, requests, options) {
   const bustValue = options && options.bust;
   const requestInit = options.request || {
-    credentials: 'same-origin',
+    credentials: 'omit',
     mode: 'cors'
   };
 

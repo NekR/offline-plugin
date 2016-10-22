@@ -473,7 +473,7 @@ var __wpo = {
 	function addAllNormalized(cache, requests, options) {
 	  var bustValue = options && options.bust;
 	  var requestInit = options.request || {
-	    credentials: 'same-origin',
+	    credentials: 'omit',
 	    mode: 'cors'
 	  };
 

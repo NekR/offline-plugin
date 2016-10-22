@@ -42,7 +42,7 @@ const defaultOptions = {
     scope: null,
     events: false,
     prefetchRequest: {
-      credentials: 'same-origin',
+      credentials: 'omit',
       headers: void 0,
       mode: 'cors',
       cache: void 0

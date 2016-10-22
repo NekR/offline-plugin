@@ -134,8 +134,8 @@ _Default:_ `null`
 _Example:_ `'my/new/path/sw.js'`
 
 * `prefetchRequest`: `Object`. Provides a way to specify [request init options](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request) for pre-fetch requests (pre-cache requests on `install` event). Allowed options: `credentials`, `headers`, `mode`, `cache`.  
-_Default:_ `{ credentials: 'same-origin', mode: 'cors' }`  
-_Example:_ `{ credentials: 'include' }`  
+_Default:_ `{ credentials: 'omit', mode: 'cors' }`  
+_Example:_ `{ credentials: 'same-origin' }`  
 
 #### `AppCache: Object | null | false`
 

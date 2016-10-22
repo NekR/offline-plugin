@@ -187,7 +187,7 @@ export default class ServiceWorker {
     }
 
     if (
-      request.credentials === 'same-origin' &&
+      request.credentials === 'omit' &&
       request.header === void 0 &&
       request.mode === 'cors' &&
       request.cache === void 0
