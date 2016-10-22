@@ -1,0 +1,8 @@
+CACHE MANIFEST
+#ver:422fb99590c6ebbb3c26
+
+CACHE:
+../external.js
+
+NETWORK:
+*

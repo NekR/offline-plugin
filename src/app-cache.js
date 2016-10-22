@@ -16,7 +16,7 @@ export default class AppCache {
     this.output = output
       .replace(/^\//, '')
       .replace(/\/$/, '') + '/';
-    this.publicLocation = options.publicLocation;
+    this.publicPath = options.publicPath;
 
     this.basePath = null;
     this.location = null;

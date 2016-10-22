@@ -527,7 +527,7 @@ export default class OfflinePlugin {
     // Tool much implement:
     //
     // tool.output
-    // tool.publicLocation
+    // tool.publicPath
     // tool.basePath
     // tool.location
     // tool.pathRewrite
@@ -564,8 +564,8 @@ export default class OfflinePlugin {
 
     if (this.relativePaths) {
       tool.location = tool.output;
-    } else if (this.publicPath && tool.publicLocation) {
-      tool.location = tool.publicLocation;
+    } else if (this.publicPath && tool.publicPath) {
+      tool.location = tool.publicPath;
     } else if (this.publicPath) {
       const publicUrl = url.parse(this.publicPath);
       const publicPath = publicUrl.pathname;

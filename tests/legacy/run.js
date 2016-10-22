@@ -22,6 +22,7 @@ var tests = fs.readdirSync(fixturesPath).filter(function(file) {
   return false;
 });
 
+global.__ROOT__ = originalCWD;
 global.__CONFIG__ = require('./config');
 
 tests.reduce(function(last, testName) {

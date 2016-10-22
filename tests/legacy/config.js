@@ -1,5 +1,6 @@
-var OfflinePlugin = require('../../');
+var OfflinePlugin = require(__ROOT__);
 var path = require('path');
+var webpack = require('webpack');
 
 var OnBuildPlugin = require('on-build-webpack');
 var compare = require('./compare');
@@ -26,6 +27,9 @@ module.exports = function(OfflinePluginOptions) {
       new OfflinePlugin(OfflinePluginOptions),
       new OnBuildPlugin(function(stats) {
         compare(testDir);
+      }),
+      new webpack.DefinePlugin({
+        RUNTIME_PATH: JSON.stringify(path.join(__ROOT__, 'runtime'))
       }),
     ],
 

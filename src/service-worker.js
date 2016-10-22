@@ -14,7 +14,7 @@ export default class ServiceWorker {
     }
 
     this.output = options.output.replace(/^\.\/+/, '');
-    this.publicLocation = options.publicLocation;
+    this.publicPath = options.publicPath;
 
     this.basePath = null;
     this.location = null;

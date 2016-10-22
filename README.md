@@ -98,7 +98,7 @@ Version of the cache. Might be a function, useful in _watch-mode_ when you need 
 * `Function` is called with plugin instance as first argument
 * `string` can be interpolated with `[hash]` token
 
-> Default: _Current date_.
+> Default: _Current date_
 
 #### `rewrites: Function | Object`
 
@@ -111,35 +111,52 @@ Rewrite function or rewrite map (`Object`). Useful when assets are served in a d
 Settings for the `ServiceWorker` cache. Use `null` or `false` to disable `ServiceWorker` generation.
 
 * `output`: `string`. Relative (from the _webpack_'s config `output.path`) output path for emitted script.  
-_Default:_ `'sw.js'`.
+_Default:_ `'sw.js'`
+
 * `entry`: `string`. Relative or absolute path to file which will be used as `ServiceWorker` entry. Useful to implement additional function or handle other SW events.  
 _Default:_ _empty file_
+
 * `scope`: `string`. Reflects [ServiceWorker.register](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register)'s `scope` option.  
 _Default:_ `null`
+
 * `cacheName`: `string`. **This option is very dangerous. Touching it you must realize that you should **not** change it after you go production. Changing it may corrupt the cache and leave old caches on users' devices. This option is useful when you need to run more than one project on _the same domain_.  
 _Default:_ _`''`_ (empty string)
 _Example:_ `'my-project'`
+
 * `navigateFallbackURL`: `string`. The URL being returned from the caches when requested navigation URL isn't available. Similar to `AppCache.FALLBACK` option.  
 _Example:_ `navigateFallbackURL: '/'`
+
 * `events`: `boolean`. Enables runtime events for ServiceWorker. For supported events see `Runtime`'s `install()` options.
-_Default:_ `false`.
+_Default:_ `false`
+
+* `publicPath`: `string`. Provides a way to override `ServiceWorker`'s script file location on the server. Should be exact path to the generated `ServiceWorker` file.
+_Default:_ `null`
+_Example:_ `'my/new/path/sw.js'`
 
 #### `AppCache: Object | null | false`
 
 Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.
 
 * `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section.  
-_Default:_ `'*'`.
+_Default:_ `'*'`
+
 * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` emitted files.  
-_Default:_ `'appcache/'`.
+_Default:_ `'appcache/'`
+
 * `events`: `boolean`. Enables runtime events for AppCache. For supported events see `Runtime`'s `install()` options.  
-_Default:_ `false`.
+_Default:_ `false`
+
 * `FALLBACK`: `Object`. Reflects `AppCache`'s `FALLBACK` section. Useful for single page applications making use of HTML5 routing or for displaying custom _Offline page_.  
 _Example 1:_ `{ '/blog': '/' }` will map all requests starting with `/blog` to the domain roboto when request fails.  
 _Example 2:_ `{ '/': '/offline-page.html' }` will return contents of `/offline-page.html` for any failed request.  
-_Default:_ `null`.
+_Default:_ `null`
+
 * `disableInstall` :`boolean`. disable the installation of the `AppCache` when calling to `require('offline-plugin/runtime').install();`. for example if you consume a `AppCache` from the `manifest` attribute in the `html` tag.
-_Default:_ `false`.
+_Default:_ `false`
+
+* `publicPath`: `string`. Provides a way to override `AppCache`'s folder location on the server. Should be exact path to the generated `AppCache` folder.
+_Default:_ `null`
+_Example:_ `'my/new/path/appcache'`
 
 ## Runtime
 
