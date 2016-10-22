@@ -5,7 +5,7 @@
 * `relativePaths` is now automatically set to `false` when `publicPath` is used
 * `publicPath` now uses `webpack.config.js`'s `output.publicPath` by default (when not set in `OfflinePlugin` itself)
 * Added `AppCache.output` which is replacement for `AppCache.directory`. The last is deprecated now
-* Added `ServiceWorker.publicLocation` and `AppCache.publicLocation`
+* Added `ServiceWorker.publicPath` and `AppCache.publicPath`
 * Added `:externals:` keyword for caches. When used, keyword is replaced with URLs listed in `externals` option
 * `caches: 'all'` is now equivalent of `caches: { main: [':rest:', ':externals:'] }`. In other words, `externals` URLs are now included in `caches` by default
 * Default options of `offline-plugin` are now exposed as `require('offline-plugin').defaultOptions`
@@ -13,8 +13,10 @@
 * Added `responseStrategy` option. Thanks to [@MoOx](https://github.com/MoOx). [#112](https://github.com/NekR/offline-plugin/pull/112)
 * Added `ServiceWorker.cacheName` option. Useful (but very dangerous) when you need to run more than one project on the same domain
 * Make `updateStrategy` default to `'changed'`
+* Added `ServiceWorker.prefetchRequest` option
+* Plugin now outputs its version to generated `ServiceWorker`/`AppCache` files
 * Add AppVeyor CI tests
-* Dropped Node 0.10 support
+* Dropped Node 0.10, Node 0.12 and IO.js support
 * Updated `minimatch` to 3.*
 
 
