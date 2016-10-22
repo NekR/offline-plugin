@@ -190,24 +190,19 @@ Event called when `upUpdating` phase failed by some reason. Nothing is downloade
 Event called when update is applied, either by calling `runtime.applyUpdate()` or some other way by a browser itself.
 
 
-## Examples
+## Projects using `offline-plugin`
 
 * [React Boilerplate](http://reactboilerplate.com) ([source](https://github.com/mxstbr/react-boilerplate))
 * [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
-* [Angular CLI](https://github.com/angular/angular-cli) ([source](https://github.com/angular/angular-cli))
+* Angular CLI ([source](https://github.com/angular/angular-cli))
 * [Phenomic](https://phenomic.io) ([source](https://github.com/MoOx/phenomic))
 
-These are just few projects that are using `offline-plugin`. If you are using `offline-plugin`, feel free to submit a PR to add your project to this list.
+_If you are using `offline-plugin`, feel free to submit a PR to add your project to this list._
 
 
 ## FAQ
 
-**Is it possible to minify `ServiceWorker` script output?**  
-Yes, `offline-plugin` perfectly works with official `webpack.optimize.UglifyJsPlugin`, so if it's used your will get minified `ServiceWorker` script as well (no additional options required).
-
-**Is there a way to match assets with dynamic file names, like compilation hash or version?**  
-Yes, it's possible with `pattern matching`, which is performed by [minimatch](https://www.npmjs.com/package/minimatch) library.  
-Example: ``main: ['index.html', 'scripts/main.*.js']``.
+[FAQ](FAQ.md)
 
 
 ## License
@@ -217,35 +212,4 @@ Example: ``main: ['index.html', 'scripts/main.*.js']``.
 
 ## CHANGELOG
 
-### 3.4.0
-
-* Added `ServiceWorker.navigateFallbackURL` option (see #71)
-* Added warning about development mode in `runtime.js` when used without `OfflinePlugin` in `webpack.config.js` (see #74)
-
-### 3.3.0
-
-* Fixed absolute URLs being prefixed with relative path when `relativePaths: true` is used ([#39](https://github.com/NekR/offline-plugin/issues/39), [#60](https://github.com/NekR/offline-plugin/issues/60))
-* Added `scope` option to ServiceWorker ([#19](https://github.com/NekR/offline-plugin/issues/19)). See [ServiceWorker.register](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) docs.
-
-### 3.0.0
-
-* All assets are now requested cache-bust query parameter (`__uncache=${ Date.now() }`)
-* Assets matching in caches now ignores search (query) path of URLs
-* Rename `scope` option to `publicPath` (`scope` is deprecated now and will produce warnings upon use)
-* Make `publicPath: ''` (empty string) by default
-* Make `relativePaths: true` by default
-* Cache sections `'additional'` and `'optional'` are now allowed only when `updateStrategy`option is set to `'changed'`
-* `changed` is now default `updateStrategy` and `hash` strategy is gone. `offline-plugin` now uses webpack's build hashes to apply `change` update strategy even when generate file names are the same. [Issue 6](https://github.com/NekR/offline-plugin/issues/6). More details about change in docs.
-* Any of `updateStrategy` is now using `version` option for its version tag
-* `version` now is not set by default and returns (when not set, e.g. default) compilation hash for `updateStrategy: 'changed'` and `version` for `updateStrategy: 'all'`
-* `version` now has interpolation value, use `[hash]` to insert compilation hash to your version string
-* `install()` method signature now is `install(options)` (callbacks are removed)
-* Runtime events are not implemented for ServiceWorker (and some for AppCache): `onUpdating`, `onUpdateReady`, `onUpdated`, `onInstalled`.  
-  Example: `runtime.install({ onInstalled: () => ... })`
-* Added `applyUpdate()` method to runtime
-* Absolute URLs can now be specified in `caches` as any other assets (they are required to be marked as `externals`)
-* Added basic test and Travis CI
-
-______________________________________________
-
-More info in [CHANGELOG](CHANGELOG.md)
+[CHANGELOG](CHANGELOG.md)
