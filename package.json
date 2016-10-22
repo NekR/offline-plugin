@@ -14,7 +14,6 @@
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
 
-    "prepublish": "npm run build && npm run test",
     "install:build-deps": "node build/install.js"
   },
   "repository": {
