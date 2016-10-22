@@ -14,7 +14,8 @@
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
 
-    "prepublish": "npm run build && npm run test"
+    "prepublish": "npm run build && npm run test",
+    "install:build-deps": "node build/install.js"
   },
   "repository": {
     "type": "git",
@@ -26,7 +27,7 @@
     "deep-extend": "^0.4.0",
     "ejs": "^2.3.4",
     "loader-utils": "0.2.x",
-    "minimatch": "^3.0.2",
+    "minimatch": "^3.0.3",
     "slash": "^1.0.0"
   },
   "bugs": {
@@ -44,14 +45,15 @@
     "application cache"
   ],
   "devDependencies": {
-    "babel": "^5.8.23",
+    "del": "^2.2.2",
+    "webpack": "^1.0.0",
     "chalk": "^1.1.3",
     "cli-highlight": "^1.1.4",
-    "del": "^2.2.2",
     "diff": "^3.0.1",
     "dir-compare": "^1.1.0",
-    "minimatch": "^3.0.3",
-    "on-build-webpack": "^0.1.0",
-    "webpack": "^1.0.0"
+    "on-build-webpack": "^0.1.0"
+  },
+  "buildDependencies": {
+    "babel": "^5.8.23"
   }
 }
