@@ -11,7 +11,8 @@ module.exports = function(OfflinePluginOptions) {
 
   OfflinePluginOptions.__tests = {
     swMetadataOnly: true,
-    ignoreRuntime: true
+    ignoreRuntime: true,
+    noVersionDump: true
   };
 
   return {

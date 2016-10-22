@@ -9,6 +9,8 @@ import { hasMagic, interpolateString, isAbsoluteURL } from './misc/utils';
 import loaderUtils from 'loader-utils';
 import slash from 'slash';
 
+const { version: pluginVersion } = require('../package.json');
+
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
@@ -51,7 +53,9 @@ const defaultOptions = {
 
   // Needed for testing
   __tests: {
-    swMetadataOnly: false
+    swMetadataOnly: false,
+    ignoreRuntime: false,
+    noVersionDump: false
   },
 
   // Not yet used
@@ -71,9 +75,11 @@ export default class OfflinePlugin {
     this.strategy = this.options.updateStrategy;
     this.responseStrategy = this.options.responseStrategy;
     this.relativePaths = this.options.relativePaths;
-    this.__tests = this.options.__tests;
+    this.pluginVersion = pluginVersion;
     this.warnings = [];
     this.errors = [];
+
+    this.__tests = this.options.__tests;
     this.flags = {
       runtimeAdded: false
     };

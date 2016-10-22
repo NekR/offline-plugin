@@ -17,7 +17,7 @@ function logFile(file, state) {
 }
 
 module.exports = function(testDir) {
-  log('');
+  // log('');
   log(chalk.inverse('Comparing: ' + path.basename(testDir)));
   log('');
 
@@ -32,7 +32,7 @@ module.exports = function(testDir) {
     var name2 = entry.name2 || '';
 
     if (entry.state === 'equal') {
-      logFile(name1, chalk.green('[equal]'));
+      // logFile(name1, chalk.green('[equal]'));
     } else if (entry.state === 'left') {
       logFile(name1, chalk.red('[missing]'));
     } else if (entry.state === 'right') {

@@ -9,5 +9,5 @@ var config = __CONFIG__({
 });
 
 
-config.plugins[0].__tests.swMetadataOnly = false;
+config.plugins[0].__tests.noVersionDump = false;
 module.exports = config;

@@ -136,6 +136,12 @@ export default class ServiceWorker {
 
     const externals = plugin.externals.map(rewriteFunction);
 
+    let pluginVersion;
+
+    if (plugin.pluginVersion && !plugin.__tests.noVersionDump) {
+      pluginVersion = plugin.pluginVersion;
+    }
+
     return `
       var ${ this.SW_DATA_VAR } = ${ JSON.stringify({
         assets: {
@@ -153,6 +159,7 @@ export default class ServiceWorker {
         responseStrategy: plugin.responseStrategy,
         version: plugin.version,
         name: this.CACHE_NAME,
+        pluginVersion: pluginVersion,
         relativePaths: plugin.relativePaths,
 
         // These aren't added

@@ -65,7 +65,11 @@ export default class AppCache {
   }
 
   getManifestTemplate(cache, plugin) {
-    let tag = 'ver:' + plugin.version;
+    let tag = '#ver:' + plugin.version;
+
+    if (plugin.pluginVersion && !plugin.__tests.noVersionDump) {
+      tag += '\n' + '#plugin:' + plugin.pluginVersion;
+    }
 
     let FALLBACK = '';
     let NETWORK = '';
@@ -83,7 +87,7 @@ export default class AppCache {
 
     return `
       CACHE MANIFEST
-      #${ tag }
+      ${ tag }
 
       CACHE:
       ${ cache.join('\n') }
