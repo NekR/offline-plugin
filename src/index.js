@@ -74,6 +74,9 @@ export default class OfflinePlugin {
     this.__tests = this.options.__tests;
     this.warnings = [];
     this.errors = [];
+    this.flags = {
+      runtimeAdded: false
+    };
 
     if (
       this.options.responseStrategy !== "cache-first" &&
@@ -217,6 +220,7 @@ export default class OfflinePlugin {
             '?' + JSON.stringify(data)
         );
 
+        this.flags.runtimeAdded = true;
         callback(null, result);
       });
     });
@@ -240,6 +244,14 @@ export default class OfflinePlugin {
     });
 
     compiler.plugin('emit', (compilation, callback) => {
+      if (!this.flags.runtimeAdded && !this.__tests.ignoreRuntime) {
+        callback(
+          new Error(`offline-plugin: Plugin's runtime wasn't added to one of your bundle entries. See this https://goo.gl/YwewYp for details.`)
+        );
+        return;
+      }
+
+
       const stats = compilation.getStats().toJson();
 
       // By some reason errors raised here are not fatal,

@@ -10,7 +10,8 @@ module.exports = function(OfflinePluginOptions) {
   var outputPath = path.join(testDir, '__output');
 
   OfflinePluginOptions.__tests = {
-    swMetadataOnly: true
+    swMetadataOnly: true,
+    ignoreRuntime: true
   };
 
   return {
