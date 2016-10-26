@@ -154,7 +154,8 @@ var __wpo = {
 
 	    return caches.open(CACHE_NAME).then(function (cache) {
 	      return addAllNormalized(cache, batch, {
-	        bust: params.version
+	        bust: params.version,
+	        request: params.prefetchRequest
 	      });
 	    }).then(function () {
 	      logGroup('Cached assets: ' + section, batch);
@@ -234,7 +235,8 @@ var __wpo = {
 	        });
 
 	        return Promise.all([move, addAllNormalized(cache, changed, {
-	          bust: params.version
+	          bust: params.version,
+	          request: params.prefetchRequest
 	        })]);
 	      });
 	    });
