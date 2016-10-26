@@ -86,7 +86,8 @@ function WebpackServiceWorker(params) {
 
     return caches.open(CACHE_NAME).then((cache) => {
       return addAllNormalized(cache, batch, {
-        bust: params.version
+        bust: params.version,
+        request: params.prefetchRequest
       });
     }).then(() => {
       logGroup('Cached assets: ' + section, batch);
@@ -175,7 +176,8 @@ function WebpackServiceWorker(params) {
         return Promise.all([
           move,
           addAllNormalized(cache, changed, {
-            bust: params.version
+            bust: params.version,
+            request: params.prefetchRequest
           })
         ]);
       });
