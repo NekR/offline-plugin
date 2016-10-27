@@ -42,7 +42,7 @@ require('offline-plugin/runtime').install();
 
 ## Options
 
-**All options are optional and `offline-plugin` could be used without specifying them.** Also see full list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L9).
+**All options are optional and `offline-plugin` could be used without specifying them.** Also see full list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L13).
 
 #### `caches: 'all' | Object`
 
