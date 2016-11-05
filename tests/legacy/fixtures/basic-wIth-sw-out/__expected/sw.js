@@ -70,10 +70,12 @@ var __wpo = {
 	  var DEBUG = false;
 	}
 
-	function WebpackServiceWorker(params) {
+	function WebpackServiceWorker(params, loaders) {
 	  var strategy = params.strategy;
 	  var responseStrategy = params.responseStrategy;
+
 	  var assets = params.assets;
+	  var loadersMap = params.loaders;
 
 	  var hashesMap = params.hashesMap;
 	  var externals = params.externals;
@@ -455,6 +457,21 @@ var __wpo = {
 	      });
 	    });
 
+	    Object.keys(loadersMap).forEach(function (key) {
+	      loadersMap[key] = loadersMap[key].map(function (path) {
+	        var url = new URL(path, location);
+
+	        if (externals.indexOf(path) === -1) {
+	          url.search = '';
+	        } else {
+	          // Remove hash from possible passed externals
+	          url.hash = '';
+	        }
+
+	        return url.toString();
+	      });
+	    });
+
 	    hashesMap = Object.keys(hashesMap).reduce(function (result, hash) {
 	      var url = new URL(hashesMap[hash], location);
 	      url.search = '';
@@ -470,34 +487,68 @@ var __wpo = {
 	      return url.toString();
 	    });
 	  }
-	}
 
-	function addAllNormalized(cache, requests, options) {
-	  var bustValue = options && options.bust;
-	  var requestInit = options.request || {
-	    credentials: 'omit',
-	    mode: 'cors'
-	  };
+	  function addAllNormalized(cache, requests, options) {
+	    var allowLoaders = options.allowLoaders !== false;
+	    var bustValue = options && options.bust;
+	    var requestInit = options.request || {
+	      credentials: 'omit',
+	      mode: 'cors'
+	    };
 
-	  return Promise.all(requests.map(function (request) {
-	    if (bustValue) {
-	      request = applyCacheBust(request, bustValue);
-	    }
+	    return Promise.all(requests.map(function (request) {
+	      if (bustValue) {
+	        request = applyCacheBust(request, bustValue);
+	      }
 
-	    return fetch(request, requestInit);
-	  })).then(function (responses) {
-	    if (responses.some(function (response) {
-	      return !response.ok;
-	    })) {
-	      return Promise.reject(new Error('Wrong response status'));
-	    }
+	      return fetch(request, requestInit);
+	    })).then(function (responses) {
+	      if (responses.some(function (response) {
+	        return !response.ok;
+	      })) {
+	        return Promise.reject(new Error('Wrong response status'));
+	      }
 
-	    var addAll = responses.map(function (response, i) {
-	      return cache.put(requests[i], response);
+	      var extractedRequests = [];
+	      var addAll = responses.map(function (response, i) {
+	        if (allowLoaders) {
+	          var extracted = extractAssetsWithLoaders(requests[i], response);
+
+	          if (extracted && extracted.length) {
+	            extractedRequests = extractedRequests.concat(extracted);
+	          }
+	        }
+
+	        return cache.put(requests[i], response);
+	      });
+
+	      if (extractedRequests.length) {
+	        options.allowLoaders = false;
+
+	        addAll = addAll.concat(addAllNormalized(cache, extractedRequests, options));
+	      }
+
+	      return Promise.all(addAll);
+	    });
+	  }
+
+	  function extractAssetsWithLoaders(request, response) {
+	    var requests = [];
+
+	    Object.keys(loadersMap).forEach(function (key) {
+	      var loader = loadersMap[key];
+
+	      if (loader.indexOf(request) !== -1 && loaders[key]) {
+	        var urls = loaders[key](response.clone());
+
+	        if (urls.length) {
+	          requests = requests.concat(urls);
+	        }
+	      }
 	    });
 
-	    return Promise.all(addAll);
-	  });
+	    return requests;
+	  }
 	}
 
 	function cachesMatch(request, cacheName) {
