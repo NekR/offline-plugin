@@ -13,18 +13,31 @@ module.exports.pitch = function(remainingRequest, precedingRequest, data) {
   const request = loaderUtils.stringifyRequest(this, remainingRequest);
   const source = 'module.exports = require(' + request + ')';
 
-  const polyfillRequest = loaderUtils.stringifyRequest(this, '!!' + path.join(__dirname, 'sw-polyfill.js'));
-  const polyfill = 'require(' + polyfillRequest + ')';
+  const loaders = (params.loaders || []).map((loader) => {
+    const loaderPath = path.join(__dirname, '../loaders', loader + '.js');
+    const loaderRequest = loaderUtils.stringifyRequest(this, '!!' + loaderPath);
+
+    this.addDependency(loaderPath);
+
+    return `${ JSON.stringify(loader) }: require(${ loaderRequest })`;
+  });
 
   this.addDependency(templatePath);
+
+  let loadersCode = '';
+
+  if (loaders.length) {
+    loadersCode = `, {
+      ${ loaders.join(',\n') }
+    }`
+  }
 
   fs.readFile(templatePath, 'utf-8', function(err, template) {
     if (err) return callback(err);
 
     template = `
       ${ template }
-      ${ polyfill }
-      WebpackServiceWorker(${ params.data_var_name });
+      WebpackServiceWorker(${ params.data_var_name }${ loadersCode });
       ${ source }
     `;
 

@@ -2,10 +2,12 @@ if (typeof DEBUG === 'undefined') {
   var DEBUG = false;
 }
 
-function WebpackServiceWorker(params) {
+function WebpackServiceWorker(params, loaders) {
   const strategy = params.strategy;
   const responseStrategy = params.responseStrategy;
+
   const assets = params.assets;
+  const loadersMap = params.loaders;
 
   let hashesMap = params.hashesMap;
   let externals = params.externals;
@@ -318,7 +320,7 @@ function WebpackServiceWorker(params) {
 
       // Load and cache known assets
       let fetching = fetch(event.request).then((response) => {
-        if (!response || !response.ok) {
+        if (!response.ok) {
           if (DEBUG) {
             console.log(
               '[SW]:',
@@ -405,6 +407,21 @@ function WebpackServiceWorker(params) {
       });
     });
 
+    Object.keys(loadersMap).forEach((key) => {
+      loadersMap[key] = loadersMap[key].map((path) => {
+        const url = new URL(path, location);
+
+        if (externals.indexOf(path) === -1) {
+          url.search = '';
+        } else {
+          // Remove hash from possible passed externals
+          url.hash = '';
+        }
+
+        return url.toString();
+      });
+    });
+
     hashesMap = Object.keys(hashesMap).reduce((result, hash) => {
       const url = new URL(hashesMap[hash], location);
       url.search = '';
@@ -420,32 +437,68 @@ function WebpackServiceWorker(params) {
       return url.toString();
     });
   }
-}
 
-function addAllNormalized(cache, requests, options) {
-  const bustValue = options && options.bust;
-  const requestInit = options.request || {
-    credentials: 'omit',
-    mode: 'cors'
-  };
+  function addAllNormalized(cache, requests, options) {
+    const allowLoaders = options.allowLoaders !== false;
+    const bustValue = options && options.bust;
+    const requestInit = options.request || {
+      credentials: 'omit',
+      mode: 'cors'
+    };
 
-  return Promise.all(requests.map((request) => {
-    if (bustValue) {
-      request = applyCacheBust(request, bustValue);
-    }
+    return Promise.all(requests.map((request) => {
+      if (bustValue) {
+        request = applyCacheBust(request, bustValue);
+      }
 
-    return fetch(request, requestInit);
-  })).then((responses) => {
-    if (responses.some(response => !response.ok)) {
-      return Promise.reject(new Error('Wrong response status'));
-    }
+      return fetch(request, requestInit);
+    })).then((responses) => {
+      if (responses.some(response => !response.ok)) {
+        return Promise.reject(new Error('Wrong response status'));
+      }
 
-    const addAll = responses.map((response, i) => {
-      return cache.put(requests[i], response);
+      let extractedRequests = [];
+      let addAll = responses.map((response, i) => {
+        if (allowLoaders) {
+          const extracted = extractAssetsWithLoaders(requests[i], response);
+
+          if (extracted && extracted.length) {
+            extractedRequests = extractedRequests.concat(extracted);
+          }
+        }
+
+        return cache.put(requests[i], response);
+      });
+
+      if (extractedRequests.length) {
+        options.allowLoaders = false;
+
+        addAll = addAll.concat(
+          addAllNormalized(cache, extractedRequests, options)
+        );
+      }
+
+      return Promise.all(addAll);
+    });
+  }
+
+  function extractAssetsWithLoaders(request, response) {
+    let requests = [];
+
+    Object.keys(loadersMap).forEach((key) => {
+      const loader = loadersMap[key];
+
+      if (loader.indexOf(request) !== -1 && loaders[key]) {
+        const urls = loaders[key](response.clone());
+
+        if (urls.length) {
+          requests = requests.concat(urls);
+        }
+      }
     });
 
-    return Promise.all(addAll);
-  });
+    return requests;
+  }
 }
 
 function cachesMatch(request, cacheName) {

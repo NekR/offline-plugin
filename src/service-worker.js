@@ -48,7 +48,8 @@ export default class ServiceWorker {
     });
 
     const data = JSON.stringify({
-      data_var_name: this.SW_DATA_VAR
+      data_var_name: this.SW_DATA_VAR,
+      loaders: Object.keys(plugin.loaders)
     });
     const loader = '!!' + path.join(__dirname, 'misc/sw-loader.js') + '?' + data;
     const entry = loader + '!' + this.entry;
@@ -143,6 +144,9 @@ export default class ServiceWorker {
       pluginVersion = plugin.pluginVersion;
     }
 
+    const loaders = Object.keys(plugin.loaders).length ?
+      plugin.loaders : void 0;
+
     return `
       var ${ this.SW_DATA_VAR } = ${ JSON.stringify({
         assets: {
@@ -164,6 +168,7 @@ export default class ServiceWorker {
         relativePaths: plugin.relativePaths,
 
         prefetchRequest: this.prefetchRequest,
+        loaders: loaders,
 
         // These aren't added
         alwaysRevalidate: plugin.alwaysRevalidate,

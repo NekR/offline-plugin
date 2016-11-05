@@ -1,20 +1,27 @@
 var __wpo = {
   "assets": {
     "main": [
-      "./external.js"
+      "./external.js",
+      "https://fonts.googleapis.com/css?family=Montserrat:400,700"
     ],
     "additional": [],
     "optional": []
   },
   "externals": [
-    "./external.js"
+    "./external.js",
+    "https://fonts.googleapis.com/css?family=Montserrat:400,700"
   ],
   "hashesMap": {},
   "strategy": "changed",
   "responseStrategy": "cache-first",
   "version": "3b59d46a1a71fdd7f971",
   "name": "webpack-offline",
-  "relativePaths": true
+  "relativePaths": true,
+  "loaders": {
+    "fonts-css": [
+      "https://fonts.googleapis.com/css?family=Montserrat:400,700"
+    ]
+  }
 };
 
 /******/ (function(modules) { // webpackBootstrap
@@ -154,8 +161,7 @@ var __wpo = {
 
 	    return caches.open(CACHE_NAME).then(function (cache) {
 	      return addAllNormalized(cache, batch, {
-	        bust: params.version,
-	        request: params.prefetchRequest
+	        bust: params.version
 	      });
 	    }).then(function () {
 	      logGroup('Cached assets: ' + section, batch);
@@ -235,8 +241,7 @@ var __wpo = {
 	        });
 
 	        return Promise.all([move, addAllNormalized(cache, changed, {
-	          bust: params.version,
-	          request: params.prefetchRequest
+	          bust: params.version
 	        })]);
 	      });
 	    });
@@ -553,12 +558,129 @@ var __wpo = {
 
 	  console.groupEnd();
 	}
-	      WebpackServiceWorker(__wpo);
-	      module.exports = __webpack_require__(1)
+	      WebpackServiceWorker(__wpo, {
+	      "fonts-css": __webpack_require__(1)
+	    });
+	      module.exports = __webpack_require__(2)
 	    
 
 /***/ },
 /* 1 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+	exports['default'] = fontsCssLoader;
+	var R_FONT_FACE = /\@font-face\s*\{([\s\S]*?)\}/g;
+	var R_CSS_PAIR = /\s*([a-zA-Z\-]+)\s*:\s*([\s\S]+?)\s*(?:;|$)/g;
+	var R_URL_SRC = /^\s*url\(([\s\S]*?)\)(?:\s+format\(([\s\S]*?)\))?\s*$/;
+
+	function fontsCssLoader(response) {
+	  return response.clone().text().then(function (text) {
+	    var fonts = parseStylesheet(text);
+	    var urls = extractFontURLs(fonts);
+
+	    return urls;
+	  });
+	}
+
+	function parseStylesheet(content) {
+	  var fonts = [];
+	  var face = undefined;
+
+	  if (!content) {
+	    return fonts;
+	  }
+
+	  while (face = R_FONT_FACE.exec(content)) {
+	    var font = {};
+	    var faceData = face[1].trim();
+	    var pair = undefined;
+
+	    while (pair = R_CSS_PAIR.exec(faceData)) {
+	      var prop = pair[1].replace('font-', '');
+	      var val = pair[2];
+
+	      if (prop === 'unicode-range') {
+	        font.unicodeRange = val;
+	      } else if (prop === 'feature-settings') {
+	        font.featureSettings = val;
+	      } else {
+	        font[prop] = prop === 'family' ? val.replace(/'|"/g, '') : val;
+	      }
+	    }
+
+	    fonts.push(font);
+	  }
+
+	  return fonts;
+	}
+
+	function extractFontURLs(fonts) {
+	  var urls = [];
+
+	  if (!fonts.length) {
+	    return urls;
+	  }
+
+	  fonts.forEach(function (font) {
+	    var sources = parseSources(font);
+	    if (!sources) return;
+
+	    sources.url.forEach(function (source) {
+	      source = parseUrlSource(source);
+
+	      if (source[0]) {
+	        urls.push(source[0]);
+	      }
+	    });
+	  });
+
+	  return urls;
+	}
+
+	function parseSources(font) {
+	  if (!font || !font.src) {
+	    return;
+	  }
+
+	  var sources = font.src.trim().split(/\s*,\s*/);
+
+	  var localSources = [];
+	  var urlSources = [];
+
+	  for (var i = 0, len = sources.length; i < len; i++) {
+	    var source = sources[i];
+
+	    if (source.indexOf('local') === 0) {
+	      localSources.push(source);
+	    } else {
+	      urlSources.push(source);
+	    }
+	  }
+
+	  return {
+	    local: localSources,
+	    url: urlSources
+	  };
+	}
+
+	function parseUrlSource(source) {
+	  var match = source && source.match(R_URL_SRC);
+
+	  if (!match) {
+	    return [];
+	  }
+
+	  return [match[1] && match[1].replace(/'|"/g, ''), match[2] && match[2].replace(/'|"/g, '')];
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	

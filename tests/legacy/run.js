@@ -36,14 +36,25 @@ tests.reduce(function(last, testName) {
   return last.then(function() {
     cleanOutput(testDir);
   }).then(function() {
-    return new Promise(function(resolve) {
+    return new Promise(function(resolve, reject) {
       // var config = fs.readFileSync(path.join(testDir, 'webpack.config.js'), 'utf-8');
       process.chdir(testDir);
       var config = require(path.join(testDir, 'webpack.config.js'));
 
       webpack(config, function(err, stats) {
         if (err) {
-          console.error(err);
+          reject(err);
+          return;
+        }
+
+        if (stats.compilation.warnings.length) {
+          reject(stats.compilation.warnings);
+          return;
+        }
+
+        if (stats.compilation.errors.length) {
+          reject(stats.compilation.errors);
+          return;
         }
 
         resolve();
@@ -52,15 +63,14 @@ tests.reduce(function(last, testName) {
   });
 }, Promise.resolve()).then(function() {
   process.chdir(originalCWD);
-}).catch(function(data) {
+}).catch(function(error) {
   /*if (!_execSync) {
     process.stdout.write(data.stdout);
     process.stderr.write(data.stderr);
   }*/
 
-  console.error('catch', data);
-
-  // process.exit(data.error ? data.error.code : 1);
+  console.error(error);
+  process.exit(error && isFinite(error.code) ? error.code : 1);
 });
 
 function cleanOutput(testDir) {
