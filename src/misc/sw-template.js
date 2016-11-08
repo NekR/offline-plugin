@@ -471,10 +471,11 @@ function WebpackServiceWorker(params, loaders) {
       });
 
       if (extractedRequests.length) {
-        options.allowLoaders = false;
+        const newOptions = copyObject(options);
+        newOptions.allowLoaders = false;
 
         addAll = addAll.concat(
-          addAllNormalized(cache, extractedRequests, options)
+          addAllNormalized(cache, extractedRequests, newOptions)
         );
       }
 
@@ -545,6 +546,13 @@ function isNavigateRequest(request) {
   return request.mode === 'navigate' ||
     request.headers.get('Upgrade-Insecure-Requests') ||
     (request.headers.get('Accept') || '').indexOf('text/html') !== -1;
+}
+
+function copyObject(original) {
+  return Object.keys(original).reduce((result, key) => {
+    result[key] = original[key];
+    return result;
+  }, {});
 }
 
 function logGroup(title, assets) {

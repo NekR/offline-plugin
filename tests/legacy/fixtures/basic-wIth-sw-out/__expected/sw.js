@@ -523,9 +523,10 @@ var __wpo = {
 	      });
 
 	      if (extractedRequests.length) {
-	        options.allowLoaders = false;
+	        var newOptions = copyObject(options);
+	        newOptions.allowLoaders = false;
 
-	        addAll = addAll.concat(addAllNormalized(cache, extractedRequests, options));
+	        addAll = addAll.concat(addAllNormalized(cache, extractedRequests, newOptions));
 	      }
 
 	      return Promise.all(addAll);
@@ -593,6 +594,13 @@ var __wpo = {
 
 	function isNavigateRequest(request) {
 	  return request.mode === 'navigate' || request.headers.get('Upgrade-Insecure-Requests') || (request.headers.get('Accept') || '').indexOf('text/html') !== -1;
+	}
+
+	function copyObject(original) {
+	  return Object.keys(original).reduce(function (result, key) {
+	    result[key] = original[key];
+	    return result;
+	  }, {});
 	}
 
 	function logGroup(title, assets) {
