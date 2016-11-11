@@ -272,9 +272,13 @@ export default class OfflinePlugin {
       // By some reason errors raised here are not fatal,
       // so we need manually try..catch and exit with error
       try {
-        this.hash = compilation.hash;
         this.setAssets(compilation);
         this.setHashesMap(compilation);
+
+        // Generate bundle hash manually (from what we have)
+        this.hash = loaderUtils.getHashDigest(
+          Object.keys(this.hashesMap).join(''), 'sha1'
+        );
 
         // Not used yet
         // this.setNetworkOptions();
@@ -449,12 +453,6 @@ export default class OfflinePlugin {
   }
 
   setHashesMap(compilation) {
-    const hashesMap = this.findAssetsHashes(compilation);
-    const hashedAssets = Object.keys(hashesMap).reduce((result, hash) => {
-      result[hashesMap[hash]] = hash;
-      return result;
-    }, {});
-
     this.hashesMap = {}
 
     Object.keys(compilation.assets).forEach((key) => {
@@ -465,28 +463,12 @@ export default class OfflinePlugin {
         this.assets.indexOf(validatedPath) === -1
       ) return;
 
-      let hash;
-
-      if (hashedAssets[key]) {
-        hash = hashedAssets[key];
-      } else {
-        hash = loaderUtils.getHashDigest(compilation.assets[key].source());
-      }
+      const hash = loaderUtils.getHashDigest(
+        compilation.assets[key].source(), 'sha1'
+      );
 
       this.hashesMap[hash] = validatedPath;
     });
-  }
-
-  findAssetsHashes(compilation) {
-    var map = {};
-
-    compilation.chunks.forEach((chunk) => {
-      if (chunk.hash && chunk.files.length) {
-        map[chunk.hash] = chunk.files[0];
-      }
-    });
-
-    return map;
   }
 
   setNetworkOptions() {

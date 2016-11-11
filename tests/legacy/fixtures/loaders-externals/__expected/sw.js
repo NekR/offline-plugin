@@ -1,20 +1,27 @@
 var __wpo = {
   "assets": {
     "main": [
-      "./external.js"
+      "./external.js",
+      "https://fonts.googleapis.com/css?family=Montserrat:400,700"
     ],
     "additional": [],
     "optional": []
   },
   "externals": [
-    "./external.js"
+    "./external.js",
+    "https://fonts.googleapis.com/css?family=Montserrat:400,700"
   ],
   "hashesMap": {},
   "strategy": "changed",
   "responseStrategy": "cache-first",
-  "version": "3b59d46a1a71fdd7f971",
+  "version": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
   "name": "webpack-offline",
-  "relativePaths": true
+  "relativePaths": true,
+  "loaders": {
+    "fonts-css": [
+      "https://fonts.googleapis.com/css?family=Montserrat:400,700"
+    ]
+  }
 };
 
 /******/ (function(modules) { // webpackBootstrap
@@ -70,10 +77,12 @@ var __wpo = {
 	  var DEBUG = false;
 	}
 
-	function WebpackServiceWorker(params) {
+	function WebpackServiceWorker(params, loaders) {
 	  var strategy = params.strategy;
 	  var responseStrategy = params.responseStrategy;
+
 	  var assets = params.assets;
+	  var loadersMap = params.loaders;
 
 	  var hashesMap = params.hashesMap;
 	  var externals = params.externals;
@@ -154,7 +163,8 @@ var __wpo = {
 
 	    return caches.open(CACHE_NAME).then(function (cache) {
 	      return addAllNormalized(cache, batch, {
-	        bust: params.version
+	        bust: params.version,
+	        request: params.prefetchRequest
 	      });
 	    }).then(function () {
 	      logGroup('Cached assets: ' + section, batch);
@@ -234,7 +244,8 @@ var __wpo = {
 	        });
 
 	        return Promise.all([move, addAllNormalized(cache, changed, {
-	          bust: params.version
+	          bust: params.version,
+	          request: params.prefetchRequest
 	        })]);
 	      });
 	    });
@@ -453,6 +464,21 @@ var __wpo = {
 	      });
 	    });
 
+	    Object.keys(loadersMap).forEach(function (key) {
+	      loadersMap[key] = loadersMap[key].map(function (path) {
+	        var url = new URL(path, location);
+
+	        if (externals.indexOf(path) === -1) {
+	          url.search = '';
+	        } else {
+	          // Remove hash from possible passed externals
+	          url.hash = '';
+	        }
+
+	        return url.toString();
+	      });
+	    });
+
 	    hashesMap = Object.keys(hashesMap).reduce(function (result, hash) {
 	      var url = new URL(hashesMap[hash], location);
 	      url.search = '';
@@ -468,34 +494,69 @@ var __wpo = {
 	      return url.toString();
 	    });
 	  }
-	}
 
-	function addAllNormalized(cache, requests, options) {
-	  var bustValue = options && options.bust;
-	  var requestInit = options.request || {
-	    credentials: 'omit',
-	    mode: 'cors'
-	  };
+	  function addAllNormalized(cache, requests, options) {
+	    var allowLoaders = options.allowLoaders !== false;
+	    var bustValue = options && options.bust;
+	    var requestInit = options.request || {
+	      credentials: 'omit',
+	      mode: 'cors'
+	    };
 
-	  return Promise.all(requests.map(function (request) {
-	    if (bustValue) {
-	      request = applyCacheBust(request, bustValue);
-	    }
+	    return Promise.all(requests.map(function (request) {
+	      if (bustValue) {
+	        request = applyCacheBust(request, bustValue);
+	      }
 
-	    return fetch(request, requestInit);
-	  })).then(function (responses) {
-	    if (responses.some(function (response) {
-	      return !response.ok;
-	    })) {
-	      return Promise.reject(new Error('Wrong response status'));
-	    }
+	      return fetch(request, requestInit);
+	    })).then(function (responses) {
+	      if (responses.some(function (response) {
+	        return !response.ok;
+	      })) {
+	        return Promise.reject(new Error('Wrong response status'));
+	      }
 
-	    var addAll = responses.map(function (response, i) {
-	      return cache.put(requests[i], response);
+	      var extractedRequests = [];
+	      var addAll = responses.map(function (response, i) {
+	        if (allowLoaders) {
+	          var extracted = extractAssetsWithLoaders(requests[i], response);
+
+	          if (extracted && extracted.length) {
+	            extractedRequests = extractedRequests.concat(extracted);
+	          }
+	        }
+
+	        return cache.put(requests[i], response);
+	      });
+
+	      if (extractedRequests.length) {
+	        var newOptions = copyObject(options);
+	        newOptions.allowLoaders = false;
+
+	        addAll = addAll.concat(addAllNormalized(cache, extractedRequests, newOptions));
+	      }
+
+	      return Promise.all(addAll);
+	    });
+	  }
+
+	  function extractAssetsWithLoaders(request, response) {
+	    var requests = [];
+
+	    Object.keys(loadersMap).forEach(function (key) {
+	      var loader = loadersMap[key];
+
+	      if (loader.indexOf(request) !== -1 && loaders[key]) {
+	        var urls = loaders[key](response.clone());
+
+	        if (urls.length) {
+	          requests = requests.concat(urls);
+	        }
+	      }
 	    });
 
-	    return Promise.all(addAll);
-	  });
+	    return requests;
+	  }
 	}
 
 	function cachesMatch(request, cacheName) {
@@ -542,6 +603,13 @@ var __wpo = {
 	  return request.mode === 'navigate' || request.headers.get('Upgrade-Insecure-Requests') || (request.headers.get('Accept') || '').indexOf('text/html') !== -1;
 	}
 
+	function copyObject(original) {
+	  return Object.keys(original).reduce(function (result, key) {
+	    result[key] = original[key];
+	    return result;
+	  }, {});
+	}
+
 	function logGroup(title, assets) {
 	  console.groupCollapsed('[SW]:', title);
 
@@ -551,15 +619,127 @@ var __wpo = {
 
 	  console.groupEnd();
 	}
-	      WebpackServiceWorker(__wpo);
-	      module.exports = __webpack_require__(1)
+	      WebpackServiceWorker(__wpo, {
+	      "fonts-css": __webpack_require__(1)
+	    });
+	      module.exports = __webpack_require__(2)
 	    
 
 /***/ },
 /* 1 */
 /***/ function(module, exports) {
 
-	// custom sw entry
+	'use strict';
+
+	var R_FONT_FACE = /\@font-face\s*\{([\s\S]*?)\}/g;
+	var R_CSS_PAIR = /\s*([a-zA-Z\-]+)\s*:\s*([\s\S]+?)\s*(?:;|$)/g;
+	var R_URL_SRC = /^\s*url\(([\s\S]*?)\)(?:\s+format\(([\s\S]*?)\))?\s*$/;
+
+	module.exports = function fontsCssLoader(response) {
+	  return response.text().then(function (text) {
+	    var fonts = parseStylesheet(text);
+	    var urls = extractFontURLs(fonts);
+
+	    return urls;
+	  });
+	};
+
+	function parseStylesheet(content) {
+	  var fonts = [];
+	  var face = undefined;
+
+	  if (!content) {
+	    return fonts;
+	  }
+
+	  while (face = R_FONT_FACE.exec(content)) {
+	    var font = {};
+	    var faceData = face[1].trim();
+	    var pair = undefined;
+
+	    while (pair = R_CSS_PAIR.exec(faceData)) {
+	      var prop = pair[1].replace('font-', '');
+	      var val = pair[2];
+
+	      if (prop === 'unicode-range') {
+	        font.unicodeRange = val;
+	      } else if (prop === 'feature-settings') {
+	        font.featureSettings = val;
+	      } else {
+	        font[prop] = prop === 'family' ? val.replace(/'|"/g, '') : val;
+	      }
+	    }
+
+	    fonts.push(font);
+	  }
+
+	  return fonts;
+	}
+
+	function extractFontURLs(fonts) {
+	  var urls = [];
+
+	  if (!fonts.length) {
+	    return urls;
+	  }
+
+	  fonts.forEach(function (font) {
+	    var sources = parseSources(font);
+	    if (!sources) return;
+
+	    sources.url.forEach(function (source) {
+	      source = parseUrlSource(source);
+
+	      if (source[0]) {
+	        urls.push(source[0]);
+	      }
+	    });
+	  });
+
+	  return urls;
+	}
+
+	function parseSources(font) {
+	  if (!font || !font.src) {
+	    return;
+	  }
+
+	  var sources = font.src.trim().split(/\s*,\s*/);
+
+	  var localSources = [];
+	  var urlSources = [];
+
+	  for (var i = 0, len = sources.length; i < len; i++) {
+	    var source = sources[i];
+
+	    if (source.indexOf('local') === 0) {
+	      localSources.push(source);
+	    } else {
+	      urlSources.push(source);
+	    }
+	  }
+
+	  return {
+	    local: localSources,
+	    url: urlSources
+	  };
+	}
+
+	function parseUrlSource(source) {
+	  var match = source && source.match(R_URL_SRC);
+
+	  if (!match) {
+	    return [];
+	  }
+
+	  return [match[1] && match[1].replace(/'|"/g, ''), match[2] && match[2].replace(/'|"/g, '')];
+	}
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	
 
 /***/ }
 /******/ ]);
