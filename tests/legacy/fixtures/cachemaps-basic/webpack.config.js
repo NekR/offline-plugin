@@ -13,6 +13,17 @@ var config = __CONFIG__({
           return url.href.replace('https://google.com', 'https://facebook.com');
         }
       }
+    },
+    {
+      match: function(url) {
+        if (url.origin !== location.origin) return;
+
+        if (url.pathname.indexOf('/api/') === 0) {
+          return;
+        }
+
+        return new URL('/', location);
+      }
     }
   ]
 });

@@ -52,7 +52,8 @@ export default class ServiceWorker {
       loaders: Object.keys(plugin.loaders),
       cacheMaps: plugin.cacheMaps,
     });
-    const loader = '!!' + path.join(__dirname, 'misc/sw-loader.js') + '?' + data;
+
+    const loader = '!!' + path.join(__dirname, 'misc/sw-loader.js') + '?json=' + escape(data);
     const entry = loader + '!' + this.entry;
 
     childCompiler.context = compiler.context;

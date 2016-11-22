@@ -8,7 +8,8 @@ module.exports.pitch = function pitch(remainingRequest, precedingRequest, data) 
 
   const callback = this.async();
   const templatePath = path.join(__dirname, 'sw-template.js');
-  const params = JSON.parse(this.query.slice(1));
+  const query = loaderUtils.parseQuery(this.query);
+  const params = JSON.parse(query.json);
 
   const request = loaderUtils.stringifyRequest(this, remainingRequest);
   const source = 'module.exports = require(' + request + ')';

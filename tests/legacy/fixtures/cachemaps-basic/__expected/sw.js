@@ -662,6 +662,18 @@ var __wpo = {
 	        }
 	      },
 	      to: null
+	    },
+	{
+	      match: function (url) {
+	        if (url.origin !== location.origin) return;
+
+	        if (url.pathname.indexOf('/api/') === 0) {
+	          return;
+	        }
+
+	        return new URL('/', location);
+	      },
+	      to: null
 	    }
 	    ],
 	});
