@@ -70,7 +70,10 @@ var __wpo = {
 	  var DEBUG = false;
 	}
 
-	function WebpackServiceWorker(params, loaders) {
+	function WebpackServiceWorker(params, helpers) {
+	  var loaders = helpers.loaders;
+	  var cacheMaps = helpers.cacheMaps;
+
 	  var strategy = params.strategy;
 	  var responseStrategy = params.responseStrategy;
 
@@ -311,6 +314,18 @@ var __wpo = {
 	    // Handle only GET requests
 	    var isGET = event.request.method === 'GET';
 	    var assetMatches = allAssets.indexOf(urlString) !== -1;
+	    var cacheUrl = undefined;
+
+	    if (assetMatches) {
+	      cacheUrl = urlString;
+	    } else {
+	      var cacheRewrite = matchCacheMap(requestUrl);
+
+	      if (cacheRewrite) {
+	        cacheUrl = cacheRewrite;
+	        assetMatches = true;
+	      }
+	    }
 
 	    if (!assetMatches && isGET) {
 	      // If isn't a cached asset and is a navigation request,
@@ -337,12 +352,12 @@ var __wpo = {
 	    var resource = undefined;
 
 	    if (responseStrategy === "network-first") {
-	      resource = networkFirstResponse(event, urlString);
+	      resource = networkFirstResponse(event, urlString, cacheUrl);
 	    }
 	    // "cache-first"
 	    // (responseStrategy has been validated before)
 	    else {
-	        resource = cacheFirstResponse(event, urlString);
+	        resource = cacheFirstResponse(event, urlString, cacheUrl);
 	      }
 
 	    if (navigateFallbackURL && isNavigateRequest(event.request)) {
@@ -364,11 +379,11 @@ var __wpo = {
 	    }
 	  });
 
-	  function cacheFirstResponse(event, urlString) {
-	    return cachesMatch(urlString, CACHE_NAME).then(function (response) {
+	  function cacheFirstResponse(event, urlString, cacheUrl) {
+	    return cachesMatch(cacheUrl, CACHE_NAME).then(function (response) {
 	      if (response) {
 	        if (false) {
-	          console.log('[SW]:', 'URL [' + urlString + '] from cache');
+	          console.log('[SW]:', 'URL [' + cacheUrl + '](' + urlString + ') from cache');
 	        }
 
 	        return response;
@@ -388,13 +403,17 @@ var __wpo = {
 	          console.log('[SW]:', 'URL [' + urlString + '] from network');
 	        }
 
-	        var responseClone = response.clone();
+	        if (cacheUrl === urlString) {
+	          (function () {
+	            var responseClone = response.clone();
 
-	        caches.open(CACHE_NAME).then(function (cache) {
-	          return cache.put(urlString, responseClone);
-	        }).then(function () {
-	          console.log('[SW]:', 'Cache asset: ' + urlString);
-	        });
+	            caches.open(CACHE_NAME).then(function (cache) {
+	              return cache.put(urlString, responseClone);
+	            }).then(function () {
+	              console.log('[SW]:', 'Cache asset: ' + urlString);
+	            });
+	          })();
+	        }
 
 	        return response;
 	      });
@@ -403,7 +422,7 @@ var __wpo = {
 	    });
 	  }
 
-	  function networkFirstResponse(event, urlString) {
+	  function networkFirstResponse(event, urlString, cacheUrl) {
 	    return fetch(event.request).then(function (response) {
 	      if (response.ok) {
 	        if (false) {
@@ -423,7 +442,7 @@ var __wpo = {
 	        console.log('[SW]:', 'URL [' + urlString + '] from cache if possible');
 	      }
 
-	      return cachesMatch(event.request, CACHE_NAME);
+	      return cachesMatch(cacheUrl, CACHE_NAME);
 	    });
 	  }
 
@@ -550,6 +569,27 @@ var __wpo = {
 
 	    return requests;
 	  }
+
+	  function matchCacheMap(urlString) {
+	    var url = new URL(urlString);
+
+	    for (var i = 0; i < cacheMaps.length; i++) {
+	      var map = cacheMaps[i];
+	      if (!map) continue;
+
+	      var newString = undefined;
+
+	      if (typeof map.match === 'function') {
+	        newString = map.match(url);
+	      } else {
+	        newString = urlString.replace(map.match, map.to);
+	      }
+
+	      if (newString && newString !== urlString) {
+	        return newString;
+	      }
+	    }
+	  }
 	}
 
 	function cachesMatch(request, cacheName) {
@@ -612,7 +652,10 @@ var __wpo = {
 
 	  console.groupEnd();
 	}
-	      WebpackServiceWorker(__wpo);
+	      WebpackServiceWorker(__wpo, {
+	loaders: {},
+	cacheMaps: [],
+	});
 	      module.exports = __webpack_require__(1)
 	    
 

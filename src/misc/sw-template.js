@@ -2,7 +2,10 @@ if (typeof DEBUG === 'undefined') {
   var DEBUG = false;
 }
 
-function WebpackServiceWorker(params, loaders) {
+function WebpackServiceWorker(params, helpers) {
+  const loaders = helpers.loaders;
+  const cacheMaps = helpers.cacheMaps;
+
   const strategy = params.strategy;
   const responseStrategy = params.responseStrategy;
 
@@ -252,7 +255,19 @@ function WebpackServiceWorker(params, loaders) {
 
     // Handle only GET requests
     const isGET = event.request.method === 'GET';
-    const assetMatches = allAssets.indexOf(urlString) !== -1;
+    let assetMatches = allAssets.indexOf(urlString) !== -1;
+    let cacheUrl;
+
+    if (assetMatches) {
+      cacheUrl = urlString;
+    } else {
+      let cacheRewrite = matchCacheMap(requestUrl);
+
+      if (cacheRewrite) {
+        cacheUrl = cacheRewrite;
+        assetMatches = true;
+      }
+    }
 
     if (!assetMatches && isGET) {
       // If isn't a cached asset and is a navigation request,
@@ -268,7 +283,10 @@ function WebpackServiceWorker(params, loaders) {
 
     if (!assetMatches || !isGET) {
       // Fix for https://twitter.com/wanderview/status/696819243262873600
-      if (url.origin !== location.origin && navigator.userAgent.indexOf('Firefox/44.') !== -1) {
+      if (
+        url.origin !== location.origin &&
+        navigator.userAgent.indexOf('Firefox/44.') !== -1
+      ) {
         event.respondWith(fetch(event.request));
       }
 
@@ -281,12 +299,12 @@ function WebpackServiceWorker(params, loaders) {
     let resource;
 
     if (responseStrategy === "network-first") {
-      resource = networkFirstResponse(event, urlString);
+      resource = networkFirstResponse(event, urlString, cacheUrl);
     }
     // "cache-first"
     // (responseStrategy has been validated before)
     else {
-      resource = cacheFirstResponse(event, urlString);
+      resource = cacheFirstResponse(event, urlString, cacheUrl);
     }
 
     if (navigateFallbackURL && isNavigateRequest(event.request)) {
@@ -307,12 +325,12 @@ function WebpackServiceWorker(params, loaders) {
     }
   });
 
-  function cacheFirstResponse(event, urlString) {
-    return cachesMatch(urlString, CACHE_NAME)
+  function cacheFirstResponse(event, urlString, cacheUrl) {
+    return cachesMatch(cacheUrl, CACHE_NAME)
     .then((response) => {
       if (response) {
         if (DEBUG) {
-          console.log('[SW]:', `URL [${ urlString }] from cache`);
+          console.log('[SW]:', `URL [${ cacheUrl }](${ urlString }) from cache`);
         }
 
         return response;
@@ -335,13 +353,15 @@ function WebpackServiceWorker(params, loaders) {
           console.log('[SW]:', `URL [${ urlString }] from network`);
         }
 
-        const responseClone = response.clone();
+        if (cacheUrl === urlString) {
+          const responseClone = response.clone();
 
-        caches.open(CACHE_NAME).then((cache) => {
-          return cache.put(urlString, responseClone);
-        }).then(() => {
-          console.log('[SW]:', 'Cache asset: ' + urlString);
-        });
+          caches.open(CACHE_NAME).then((cache) => {
+            return cache.put(urlString, responseClone);
+          }).then(() => {
+            console.log('[SW]:', 'Cache asset: ' + urlString);
+          });
+        }
 
         return response;
       });
@@ -350,7 +370,7 @@ function WebpackServiceWorker(params, loaders) {
     });
   }
 
-  function networkFirstResponse(event, urlString) {
+  function networkFirstResponse(event, urlString, cacheUrl) {
     return fetch(event.request)
       .then((response) => {
         if (response.ok) {
@@ -371,8 +391,8 @@ function WebpackServiceWorker(params, loaders) {
           console.log('[SW]:', `URL [${ urlString }] from cache if possible`);
         }
 
-        return cachesMatch(event.request, CACHE_NAME);
-      })
+        return cachesMatch(cacheUrl, CACHE_NAME);
+      });
   }
 
   function handleNavigateFallback(fetching) {
@@ -499,6 +519,27 @@ function WebpackServiceWorker(params, loaders) {
     });
 
     return requests;
+  }
+
+  function matchCacheMap(urlString) {
+    const url = new URL(urlString);
+
+    for (let i = 0; i < cacheMaps.length; i++) {
+      const map = cacheMaps[i];
+      if (!map) continue;
+
+      let newString;
+
+      if (typeof map.match === 'function') {
+        newString = map.match(url);
+      } else {
+        newString = urlString.replace(map.match, map.to);
+      }
+
+      if (newString && newString !== urlString) {
+        return newString;
+      }
+    }
   }
 }
 

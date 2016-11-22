@@ -49,7 +49,8 @@ export default class ServiceWorker {
 
     const data = JSON.stringify({
       data_var_name: this.SW_DATA_VAR,
-      loaders: Object.keys(plugin.loaders)
+      loaders: Object.keys(plugin.loaders),
+      cacheMaps: plugin.cacheMaps,
     });
     const loader = '!!' + path.join(__dirname, 'misc/sw-loader.js') + '?' + data;
     const entry = loader + '!' + this.entry;

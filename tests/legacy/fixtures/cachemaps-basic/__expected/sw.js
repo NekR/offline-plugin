@@ -1,14 +1,10 @@
 var __wpo = {
   "assets": {
-    "main": [
-      "./external.js"
-    ],
+    "main": [],
     "additional": [],
     "optional": []
   },
-  "externals": [
-    "./external.js"
-  ],
+  "externals": [],
   "hashesMap": {},
   "strategy": "changed",
   "responseStrategy": "cache-first",
@@ -654,7 +650,20 @@ var __wpo = {
 	}
 	      WebpackServiceWorker(__wpo, {
 	loaders: {},
-	cacheMaps: [],
+	cacheMaps: [
+	      {
+	      match: /^https:\/\/google\.com\/([\s\S]+)$/,
+	      to: "https://facebook.com/$1"
+	    },
+	{
+	      match: function (url) {
+	        if (url.href.indexOf('https://google.com') === 0) {
+	          return url.href.replace('https://google.com', 'https://facebook.com');
+	        }
+	      },
+	      to: null
+	    }
+	    ],
 	});
 	      module.exports = __webpack_require__(1)
 	    
@@ -663,7 +672,7 @@ var __wpo = {
 /* 1 */
 /***/ function(module, exports) {
 
-	// custom sw entry
+	
 
 /***/ }
 /******/ ]);

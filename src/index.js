@@ -5,7 +5,7 @@ import path from 'path';
 import url from 'url';
 import deepExtend from 'deep-extend';
 import minimatch from 'minimatch';
-import { hasMagic, interpolateString, isAbsoluteURL } from './misc/utils';
+import { hasMagic, interpolateString, isAbsoluteURL, escapeRegexp } from './misc/utils';
 import loaderUtils from 'loader-utils';
 import slash from 'slash';
 
@@ -91,6 +91,10 @@ export default class OfflinePlugin {
       runtimeAdded: false
     };
 
+    if (this.__tests.pluginVersion) {
+      this.pluginVersion = this.__tests.pluginVersion;
+    }
+
     if (
       this.options.responseStrategy !== "cache-first" &&
       this.options.responseStrategy !== "network-first"
@@ -145,6 +149,8 @@ export default class OfflinePlugin {
         return rewrites[asset];
       };
     }
+
+    this.cacheMaps = this.stringifyCacheMaps(options.cacheMaps);
 
     this.REST_KEY = ':rest:';
     this.EXTERNALS_KEY = ':externals:';
@@ -556,6 +562,23 @@ export default class OfflinePlugin {
       }
 
       return asset;
+    });
+  }
+
+  stringifyCacheMaps(cacheMaps) {
+    if (!cacheMaps) {
+      return [];
+    }
+
+    return cacheMaps.map((map) => {
+      if (map.to != null && typeof map.to !== 'string') {
+        throw new Error('cacheMaps `to` property must either string, undefined or null');
+      }
+
+      return {
+        match: map.match + '',
+        to: JSON.stringify(map.to || null)
+      };
     });
   }
 
