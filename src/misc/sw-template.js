@@ -256,11 +256,9 @@ function WebpackServiceWorker(params, helpers) {
     // Handle only GET requests
     const isGET = event.request.method === 'GET';
     let assetMatches = allAssets.indexOf(urlString) !== -1;
-    let cacheUrl;
+    let cacheUrl = urlString;
 
-    if (assetMatches) {
-      cacheUrl = urlString;
-    } else {
+    if (!assetMatches) {
       let cacheRewrite = matchCacheMap(requestUrl);
 
       if (cacheRewrite) {
@@ -451,7 +449,7 @@ function WebpackServiceWorker(params, helpers) {
     }, {});
 
     externals = externals.map((path) => {
-      const url = new URL(externals[path], location);
+      const url = new URL(path, location);
       url.hash = '';
 
       return url.toString();
@@ -477,48 +475,52 @@ function WebpackServiceWorker(params, helpers) {
         return Promise.reject(new Error('Wrong response status'));
       }
 
-      let extractedRequests = [];
+      let extracted = [];
       let addAll = responses.map((response, i) => {
         if (allowLoaders) {
-          const extracted = extractAssetsWithLoaders(requests[i], response);
-
-          if (extracted && extracted.length) {
-            extractedRequests = extractedRequests.concat(extracted);
-          }
+          extracted.push(extractAssetsWithLoaders(requests[i], response));
         }
 
         return cache.put(requests[i], response);
       });
 
-      if (extractedRequests.length) {
+      if (extracted.length) {
         const newOptions = copyObject(options);
         newOptions.allowLoaders = false;
 
-        addAll = addAll.concat(
-          addAllNormalized(cache, extractedRequests, newOptions)
-        );
+        let waitAll = addAll;
+
+        addAll = Promise.all(extracted).then((all) => {
+          const extractedRequests = [].concat.apply([], all);
+
+          if (requests.length) {
+            waitAll = waitAll.concat(
+              addAllNormalized(cache, extractedRequests, newOptions)
+            );
+          }
+
+          return Promise.all(waitAll);
+        });
+      } else {
+        addAll = Promise.all(addAll);
       }
 
-      return Promise.all(addAll);
+      return addAll;
     });
   }
 
   function extractAssetsWithLoaders(request, response) {
-    let requests = [];
-
-    Object.keys(loadersMap).forEach((key) => {
+    const all = Object.keys(loadersMap).map((key) => {
       const loader = loadersMap[key];
 
       if (loader.indexOf(request) !== -1 && loaders[key]) {
-        const urls = loaders[key](response.clone());
-
-        if (urls.length) {
-          requests = requests.concat(urls);
-        }
+        return loaders[key](response.clone());
       }
-    });
+    }).filter(a => !!a);
 
-    return requests;
+    return Promise.all(all).then((all) => {
+      return [].concat.apply([], all);
+    });
   }
 
   function matchCacheMap(urlString) {
