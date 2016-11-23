@@ -38,8 +38,6 @@ export default class AppCache {
   }
 
   apply(plugin, compilation, compiler) {
-    console.log(this);
-
     if (!Array.isArray(this.caches)) {
       throw new Error('AppCache caches must be an array');
     }
