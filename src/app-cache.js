@@ -28,7 +28,8 @@ export default class AppCache {
     this.name = 'manifest';
     this.caches = options.caches;
     this.events = !!options.events;
-    this.disableInstall = options.disableInstall || false;
+    this.disableInstall = options.disableInstall;
+    this.includeCrossOrigin = options.includeCrossOrigin;
   }
 
   addEntry(plugin, compilation, compiler) {
@@ -37,6 +38,8 @@ export default class AppCache {
   }
 
   apply(plugin, compilation, compiler) {
+    console.log(this);
+
     if (!Array.isArray(this.caches)) {
       throw new Error('AppCache caches must be an array');
     }
@@ -83,6 +86,19 @@ export default class AppCache {
       FALLBACK = 'FALLBACK:\n' + Object.keys(this.FALLBACK).map((path) => {
         return path + ' ' + this.FALLBACK[path];
       }).join('\n');
+    }
+
+    if (!this.includeCrossOrigin) {
+      cache = cache.filter((asset) => {
+        if (
+          isAbsoluteURL(asset) &&
+          (this.basePath === '/' || asset.indexOf(this.basePath) !== 0)
+        ) {
+          return false;
+        }
+
+        return true;
+      });
     }
 
     return `

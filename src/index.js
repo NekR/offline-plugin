@@ -54,7 +54,9 @@ const defaultOptions = {
     FALLBACK: null,
     directory: 'appcache/',
     caches: ['main'],
-    events: false
+    events: false,
+    disableInstall: false,
+    includeCrossOrigin: false
   },
 
   // Needed for testing
