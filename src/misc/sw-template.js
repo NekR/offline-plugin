@@ -10,7 +10,7 @@ function WebpackServiceWorker(params, helpers) {
   const responseStrategy = params.responseStrategy;
 
   const assets = params.assets;
-  const loadersMap = params.loaders;
+  const loadersMap = params.loaders || {};
 
   let hashesMap = params.hashesMap;
   let externals = params.externals;
