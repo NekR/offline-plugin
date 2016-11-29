@@ -1,6 +1,6 @@
 # `offline-plugin` for webpack
 
-[![npm](https://img.shields.io/npm/v/offline-plugin.svg?maxAge=2592000)](https://www.npmjs.com/package/offline-plugin)
+[![npm](https://img.shields.io/npm/v/offline-plugin.svg?maxAge=2592000&v4)](https://www.npmjs.com/package/offline-plugin)
 [![npm](https://img.shields.io/npm/dm/offline-plugin.svg?maxAge=2592000)](https://www.npmjs.com/package/offline-plugin)
 [![Join the chat at https://gitter.im/NekR/offline-plugin](https://badges.gitter.im/NekR/offline-plugin.svg)](https://gitter.im/NekR/offline-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
