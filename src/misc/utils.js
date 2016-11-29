@@ -1,4 +1,7 @@
 import { Minimatch } from 'minimatch';
+import path from 'path';
+
+const isAbsolutePath = path.isAbsolute;
 
 // Based on https://github.com/isaacs/node-glob/blob/master/glob.js#L83
 // (glob.hasMagic)
@@ -30,13 +33,6 @@ export function getSource(source) {
   };
 }
 
-export function pathToBase(path, fillEmpty) {
-  const size = path.replace(/^\//, '').split('/').length;
-  const level = new Array(size).join('../') || (fillEmpty ? './' : '');
-
-  return level;
-}
-
 export function interpolateString(string, data) {
   const hasOwnProperty = {}.hasOwnProperty;
 
@@ -50,5 +46,7 @@ export function interpolateString(string, data) {
 }
 
 export function isAbsoluteURL(url) {
-  return /^(?:\w+:)\/\//.test(url);
+  return /^(?:\w+:)?\/\//.test(url);
 }
+
+export { isAbsolutePath }

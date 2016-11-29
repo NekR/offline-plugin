@@ -1,5 +1,7 @@
 # `offline-plugin` for webpack
 
+[![npm](https://img.shields.io/npm/v/offline-plugin.svg?maxAge=2592000)](https://www.npmjs.com/package/offline-plugin)
+[![npm](https://img.shields.io/npm/dm/offline-plugin.svg?maxAge=2592000)](https://www.npmjs.com/package/offline-plugin)
 [![Join the chat at https://gitter.im/NekR/offline-plugin](https://badges.gitter.im/NekR/offline-plugin.svg)](https://gitter.im/NekR/offline-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This plugin is intended to provide offline experience for **webpack** projects. It uses **ServiceWorker** and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config``, and the accompanying runtime in your client script, and your project will become offline ready by caching all (or some) output assets.
@@ -30,7 +32,7 @@ module.exports = {
 
 ```
 
-Then, install the [runtime](#runtime) in your client script:
+Then, add the [runtime](#runtime) into your entry file (typically main entry):
 
 ```js
 require('offline-plugin/runtime').install();
@@ -38,6 +40,7 @@ require('offline-plugin/runtime').install();
 
 ## Docs
 
+* [Caches](docs/caches.md)
 * [Update process](docs/updates.md)
 
 ## Options
@@ -48,7 +51,7 @@ require('offline-plugin/runtime').install();
 
 Tells to the plugin what to cache and how.
 
-* `'all'`: means that everything (all the webpack output assets) will be cached on install.
+* `'all'`: means that everything (all the webpack output assets) and URLs listed in `externals` option will be cached on install.
 * `Object`: Object with 3 possible `Array<string>` sections (properties): `main`, `additional`, `optional`. All sections are optional and by default are empty (no assets added).
 
 [More details about `caches`](docs/caches.md)
@@ -63,10 +66,14 @@ Same as `publicPath` for `webpack` options, only difference is that absolute pat
 Correct value: `/project/`  
 Incorrect value: `https://example.com/project`
 
+#### `responseStrategy: 'cache-first' | 'network-first'`
+Response strategy. Whether to use a cache or network first for responses.
+> Default: `'cache-first'`.
+
 #### `updateStrategy: 'changed' | 'all'`
 Cache update strategy. [More details about `updateStrategy`](docs/update-strategies.md)  
 > Default: `'changed'`.
-    
+
 #### `externals: Array<string>`.
 Explicitly marks the assets as _external_ assets that you can cache. If cache asset is not one of _webpack's generated assets_ and is not marked explicitly as _external_, you will receive warning about it into console. To cache external assets, add them to the `caches` object, by default `caches: 'all'` doesn't cache `externals`.
 
@@ -91,7 +98,7 @@ Version of the cache. Might be a function, useful in _watch-mode_ when you need 
 * `Function` is called with plugin instance as first argument
 * `string` can be interpolated with `[hash]` token
 
-> Default: _Current date_.
+> Default: _Current date_
 
 #### `rewrites: Function | Object`
 
@@ -104,30 +111,59 @@ Rewrite function or rewrite map (`Object`). Useful when assets are served in a d
 Settings for the `ServiceWorker` cache. Use `null` or `false` to disable `ServiceWorker` generation.
 
 * `output`: `string`. Relative (from the _webpack_'s config `output.path`) output path for emitted script.  
-_Default:_ `'sw.js'`.
+_Default:_ `'sw.js'`
+
 * `entry`: `string`. Relative or absolute path to file which will be used as `ServiceWorker` entry. Useful to implement additional function or handle other SW events.  
 _Default:_ _empty file_
+
 * `scope`: `string`. Reflects [ServiceWorker.register](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register)'s `scope` option.  
 _Default:_ `null`
+
+* `cacheName`: `string`. **This option is very dangerous. Touching it you must realize that you should **not** change it after you go production. Changing it may corrupt the cache and leave old caches on users' devices. This option is useful when you need to run more than one project on _the same domain_.  
+_Default:_ _`''`_ (empty string)
+_Example:_ `'my-project'`
+
 * `navigateFallbackURL`: `string`. The URL being returned from the caches when requested navigation URL isn't available. Similar to `AppCache.FALLBACK` option.  
 _Example:_ `navigateFallbackURL: '/'`
+
 * `events`: `boolean`. Enables runtime events for ServiceWorker. For supported events see `Runtime`'s `install()` options.
-_Default:_ `false`.
+_Default:_ `false`
+
+* `publicPath`: `string`. Provides a way to override `ServiceWorker`'s script file location on the server. Should be exact path to the generated `ServiceWorker` file.
+_Default:_ `null`
+_Example:_ `'my/new/path/sw.js'`
+
+* `prefetchRequest`: `Object`. Provides a way to specify [request init options](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request) for pre-fetch requests (pre-cache requests on `install` event). Allowed options: `credentials`, `headers`, `mode`, `cache`.  
+_Default:_ `{ credentials: 'omit', mode: 'cors' }`  
+_Example:_ `{ credentials: 'same-origin' }`  
 
 #### `AppCache: Object | null | false`
 
 Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.
 
-* `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section.  
-_Default:_ `'*'`.
 * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` emitted files.  
-_Default:_ `'appcache/'`.
-* `events`: `boolean`. Enables runtime events for AppCache. For supported events see `Runtime`'s `install()` options.  
-_Default:_ `false`.
+_Default:_ `'appcache/'`
+
+* `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section.  
+_Default:_ `'*'`
+
 * `FALLBACK`: `Object`. Reflects `AppCache`'s `FALLBACK` section. Useful for single page applications making use of HTML5 routing or for displaying custom _Offline page_.  
 _Example 1:_ `{ '/blog': '/' }` will map all requests starting with `/blog` to the domain roboto when request fails.  
 _Example 2:_ `{ '/': '/offline-page.html' }` will return contents of `/offline-page.html` for any failed request.  
-_Default:_ `null`.
+_Default:_ `null`
+
+* `events`: `boolean`. Enables runtime events for AppCache. For supported events see `Runtime`'s `install()` options.  
+_Default:_ `false`
+
+* `publicPath`: `string`. Provides a way to override `AppCache`'s folder location on the server. Should be exact path to the generated `AppCache` folder.  
+_Default:_ `null`  
+_Example:_ `'my/new/path/appcache'`
+
+* `disableInstall` :`boolean`. Disable the automatic installation of the `AppCache` when calling to `runtime.install()`. Useful when you to specify `<html manifest="...">` attribute manually (to cache every page user visits).  
+_Default:_ `false`
+
+* `includeCrossOrigin` :`boolean`. Outputs cross-origin URLs into `AppCache`'s manifest file. **Cross-origin URLs aren't supported in `AppCache` when used on HTTPS.**  
+_Default:_ `false`
 
 ## Runtime
 
@@ -178,14 +214,19 @@ Event called when `upUpdating` phase failed by some reason. Nothing is downloade
 Event called when update is applied, either by calling `runtime.applyUpdate()` or some other way by a browser itself.
 
 
+## Projects using `offline-plugin`
+
+* [React Boilerplate](http://reactboilerplate.com) ([source](https://github.com/mxstbr/react-boilerplate))
+* [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
+* Angular CLI ([source](https://github.com/angular/angular-cli))
+* [Phenomic](https://phenomic.io) ([source](https://github.com/MoOx/phenomic))
+
+_If you are using `offline-plugin`, feel free to submit a PR to add your project to this list._
+
+
 ## FAQ
 
-**Is it possible to minify `ServiceWorker` script output?**  
-Yes, `offline-plugin` perfectly works with official `webpack.optimize.UglifyJsPlugin`, so if it's used your will get minified `ServiceWorker` script as well (no additional options required).
-
-**Is there a way to match assets with dynamic file names, like compilation hash or version?**  
-Yes, it's possible with `pattern matching`, which is performed by [minimatch](https://www.npmjs.com/package/minimatch) library.  
-Example: ``main: ['index.html', 'scripts/main.*.js']``.
+[FAQ](FAQ.md)
 
 
 ## License
@@ -195,35 +236,4 @@ Example: ``main: ['index.html', 'scripts/main.*.js']``.
 
 ## CHANGELOG
 
-### 3.4.0
-
-* Added `ServiceWorker.navigateFallbackURL` option (see #71)
-* Added warning about development mode in `runtime.js` when used without `OfflinePlugin` in `webpack.config.js` (see #74)
-
-### 3.3.0
-
-* Fixed absolute URLs being prefixed with relative path when `relativePaths: true` is used ([#39](https://github.com/NekR/offline-plugin/issues/39), [#60](https://github.com/NekR/offline-plugin/issues/60))
-* Added `scope` option to ServiceWorker ([#19](https://github.com/NekR/offline-plugin/issues/19)). See [ServiceWorker.register](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) docs.
-
-### 3.0.0
-
-* All assets are now requested cache-bust query parameter (`__uncache=${ Date.now() }`)
-* Assets matching in caches now ignores search (query) path of URLs
-* Rename `scope` option to `publicPath` (`scope` is deprecated now and will produce warnings upon use)
-* Make `publicPath: ''` (empty string) by default
-* Make `relativePaths: true` by default
-* Cache sections `'additional'` and `'optional'` are now allowed only when `updateStrategy`option is set to `'changed'`
-* `changed` is now default `updateStrategy` and `hash` strategy is gone. `offline-plugin` now uses webpack's build hashes to apply `change` update strategy even when generate file names are the same. [Issue 6](https://github.com/NekR/offline-plugin/issues/6). More details about change in docs.
-* Any of `updateStrategy` is now using `version` option for its version tag
-* `version` now is not set by default and returns (when not set, e.g. default) compilation hash for `updateStrategy: 'changed'` and `version` for `updateStrategy: 'all'`
-* `version` now has interpolation value, use `[hash]` to insert compilation hash to your version string
-* `install()` method signature now is `install(options)` (callbacks are removed)
-* Runtime events are not implemented for ServiceWorker (and some for AppCache): `onUpdating`, `onUpdateReady`, `onUpdated`, `onInstalled`.  
-  Example: `runtime.install({ onInstalled: () => ... })`
-* Added `applyUpdate()` method to runtime
-* Absolute URLs can now be specified in `caches` as any other assets (they are required to be marked as `externals`)
-* Added basic test and Travis CI
-
-______________________________________________
-
-More info in [CHANGELOG](CHANGELOG.md)
+[CHANGELOG](CHANGELOG.md)

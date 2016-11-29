@@ -2,20 +2,39 @@ import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import path from 'path';
 import webpack from 'webpack';
 import deepExtend from 'deep-extend';
-import { Promise } from 'es6-promise';
-import { getSource, pathToBase, isAbsoluteURL } from './misc/utils';
+import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
 
 export default class ServiceWorker {
   constructor(options) {
+    if (isAbsolutePath(options.output)) {
+      throw new Error(
+        'OfflinePlugin: ServiceWorker.output option must be a relative path, ' +
+        'but an absolute path was passed'
+      );
+    }
+
+    this.output = options.output.replace(/^\.\/+/, '');
+    this.publicPath = options.publicPath;
+
+    this.basePath = null;
+    this.location = null;
+    this.pathRewrite = null;
+
+    // Tool specific properties
     this.entry = options.entry;
-    this.output = options.output.replace(/^\//, '');
-    this.basePath = pathToBase(this.output, true);
     this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
     this.navigateFallbackURL = options.navigateFallbackURL;
+    this.prefetchRequest = this.validatePrefetch(options.prefetchRequest);
+
+    let cacheNameQualifier = '';
+
+    if (options.cacheName) {
+      cacheNameQualifier = ':' + options.cacheName;
+    }
 
     this.ENTRY_NAME = 'serviceworker';
-    this.CACHE_NAME = 'webpack-offline';
+    this.CACHE_NAME = 'webpack-offline' + cacheNameQualifier;
     this.SW_DATA_VAR = '__wpo';
   }
 
@@ -29,9 +48,12 @@ export default class ServiceWorker {
     });
 
     const data = JSON.stringify({
-      data_var_name: this.SW_DATA_VAR
+      data_var_name: this.SW_DATA_VAR,
+      loaders: Object.keys(plugin.loaders),
+      cacheMaps: plugin.cacheMaps,
     });
-    const loader = '!!' + path.join(__dirname, 'misc/sw-loader.js') + '?' + data;
+
+    const loader = '!!' + path.join(__dirname, 'misc/sw-loader.js') + '?json=' + escape(data);
     const entry = loader + '!' + this.entry;
 
     childCompiler.context = compiler.context;
@@ -92,24 +114,40 @@ export default class ServiceWorker {
       }
 
       delete compilation.assets[name];
-      source += '\n\n' + asset.source();
+
+      if (!plugin.__tests.swMetadataOnly) {
+        source += '\n\n' + asset.source();
+      }
     }
 
     compilation.assets[this.output] = getSource(source);
   }
 
   getDataTemplate(data, plugin, minify) {
+    const rewriteFunction = this.pathRewrite;
+
     const cache = (key) => {
-      return (data[key] || []).map(this.pathRewrite(plugin));
+      return (data[key] || []).map(rewriteFunction);
     };
 
     const hashesMap = Object.keys(plugin.hashesMap)
       .reduce((result, hash) => {
         const asset = plugin.hashesMap[hash];
 
-        result[hash] = this.pathRewrite(plugin)(asset);
+        result[hash] = rewriteFunction(asset);
         return result;
       }, {});
+
+    const externals = plugin.externals.map(rewriteFunction);
+
+    let pluginVersion;
+
+    if (plugin.pluginVersion && !plugin.__tests.noVersionDump) {
+      pluginVersion = plugin.pluginVersion;
+    }
+
+    const loaders = Object.keys(plugin.loaders).length ?
+      plugin.loaders : void 0;
 
     return `
       var ${ this.SW_DATA_VAR } = ${ JSON.stringify({
@@ -119,13 +157,22 @@ export default class ServiceWorker {
           optional: cache('optional')
         },
 
+        externals: externals,
+
         hashesMap: hashesMap,
         navigateFallbackURL: this.navigateFallbackURL,
 
         strategy: plugin.strategy,
+        responseStrategy: plugin.responseStrategy,
         version: plugin.version,
         name: this.CACHE_NAME,
+        pluginVersion: pluginVersion,
         relativePaths: plugin.relativePaths,
+
+        prefetchRequest: this.prefetchRequest,
+        loaders: loaders,
+
+        // These aren't added
         alwaysRevalidate: plugin.alwaysRevalidate,
         preferOnline: plugin.preferOnline,
         ignoreSearch: plugin.ignoreSearch,
@@ -133,19 +180,33 @@ export default class ServiceWorker {
     `.trim();
   }
 
-  pathRewrite(plugin) {
-    if (plugin.relativePaths) {
-      return (path => isAbsoluteURL(path) ? path : this.basePath + path);
-    }
-
-    return (path => path)
-  }
-
   getConfig(plugin) {
     return {
-      output: plugin.publicPath + this.output,
+      location: this.location,
       scope: this.scope,
       events: this.events
+    };
+  }
+
+  validatePrefetch(request) {
+    if (!request) {
+      return void 0;
+    }
+
+    if (
+      request.credentials === 'omit' &&
+      request.header === void 0 &&
+      request.mode === 'cors' &&
+      request.cache === void 0
+    ) {
+      return void 0;
+    }
+
+    return {
+      credentials: request.credentials,
+      headers: request.headers,
+      mode: request.mode,
+      cache: request.cache
     };
   }
 }

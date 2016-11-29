@@ -1,5 +1,27 @@
 # CHANGELOG
 
+### 4.0.0
+
+* `relativePaths` is now automatically set to `false` when `publicPath` is used
+* `publicPath` now uses `webpack.config.js`'s `output.publicPath` by default (when not set in `OfflinePlugin` itself)
+* Added `AppCache.output` which is replacement for `AppCache.directory`. The last is deprecated now
+* Added `ServiceWorker.publicPath` and `AppCache.publicPath`
+* Added `:externals:` keyword for caches. When used, keyword is replaced with URLs listed in `externals` option
+* `caches: 'all'` is now equivalent of `caches: { main: [':rest:', ':externals:'] }`. In other words, `externals` URLs are now included in `caches` by default
+* Default options of `offline-plugin` are now exposed as `require('offline-plugin').defaultOptions`
+* `ignoreSearch` isn't applied to assets added with `externals` anymore. i.e. full URLs with `?query` can now be added to the caches
+* Added `responseStrategy` option. Thanks to [@MoOx](https://github.com/MoOx). [#112](https://github.com/NekR/offline-plugin/pull/112)
+* Added `ServiceWorker.cacheName` option. Useful (but very dangerous) when you need to run more than one project on the same domain
+* Make `updateStrategy` default to `'changed'`
+* Added `ServiceWorker.prefetchRequest` option
+* Plugin now outputs its version to generated `ServiceWorker`/`AppCache` files
+* Implemented `cacheMaps` option
+* Made AppCache to not include cross origin URLs by default (because they don't work there on HTTPS). Could be returned back with `AppCache.includeCrossOrigin = true`
+* Dropped Node 0.10, Node 0.12 and IO.js support
+* Updated `minimatch` to 3.*
+* Add AppVeyor CI tests
+
+
 ### 3.4.0
 
 * Added `ServiceWorker.navigateFallbackURL` option (see #71)
@@ -17,7 +39,7 @@
 * Rename `scope` option to `publicPath` (`scope` is deprecated now and will produce warnings upon use)
 * Make `publicPath: ''` (empty string) by default
 * Make `relativePaths: true` by default
-* Cache sections `'additional'` and `'optional'` are now allowed only when `updateStrategy`option is set to `'changed'`
+* Cache sections `'additional'` and `'optional'` are now allowed only when `updateStrategy` option is set to `'changed'`
 * `changed` is now default `updateStrategy` and `hash` strategy is gone. `offline-plugin` now uses webpack's build hashes to apply `change` update strategy even when generate file names are the same. [Issue 6](https://github.com/NekR/offline-plugin/issues/6). More details about change in docs.
 * Any of `updateStrategy` is now using `version` option for its version tag
 * `version` now is not set by default and returns (when not set, e.g. default) compilation hash for `updateStrategy: 'changed'` and `version` for `updateStrategy: 'all'`

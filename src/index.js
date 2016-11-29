@@ -2,42 +2,51 @@ import AppCache from './app-cache';
 import ServiceWorker from './service-worker';
 
 import path from 'path';
+import url from 'url';
 import deepExtend from 'deep-extend';
 import minimatch from 'minimatch';
-import { Promise } from 'es6-promise';
-import { hasMagic, interpolateString, isAbsoluteURL } from './misc/utils';
+import { hasMagic, interpolateString, isAbsoluteURL, escapeRegexp } from './misc/utils';
 import loaderUtils from 'loader-utils';
+import slash from 'slash';
+
+const { version: pluginVersion } = require('../package.json');
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
 const defaultOptions = {
-  scope: '', // deprecated
-
   caches: 'all',
-  publicPath: '',
-  updateStrategy: 'all',
+  publicPath: void 0,
+  updateStrategy: 'changed',
+  responseStrategy: 'cache-first',
   externals: [],
   excludes: ['**/.*', '**/*.map'],
-  relativePaths: true,
+  // Hack to have intermediate value, e.g. default one, true and false
+  relativePaths: ':relativePaths:',
   version: null,
-  // for entry, default all
-  for: null,
 
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
-      return dir || '/';
+      if (isAbsoluteURL(match)) {
+        return match;
+      }
+
+      return dir || './';
     });
   },
 
-  alwaysRevalidate: void 0,
-  preferOnline: void 0,
-  ignoreSearch: ['**'],
+  cacheMaps: null,
 
   ServiceWorker: {
     output: 'sw.js',
     entry: path.join(__dirname, '../empty-entry.js'),
     scope: null,
-    events: false
+    events: false,
+    prefetchRequest: {
+      credentials: 'omit',
+      headers: void 0,
+      mode: 'cors',
+      cache: void 0
+    }
   },
 
   AppCache: {
@@ -45,8 +54,22 @@ const defaultOptions = {
     FALLBACK: null,
     directory: 'appcache/',
     caches: ['main'],
-    events: false
-  }
+    events: false,
+    disableInstall: false,
+    includeCrossOrigin: false
+  },
+
+  // Needed for testing
+  __tests: {
+    swMetadataOnly: false,
+    ignoreRuntime: false,
+    noVersionDump: false
+  },
+
+  // Not yet used
+  alwaysRevalidate: void 0,
+  preferOnline: void 0,
+  ignoreSearch: ['**'],
 };
 
 export default class OfflinePlugin {
@@ -55,39 +78,37 @@ export default class OfflinePlugin {
     this.hash = null;
     this.assets = null;
     this.hashesMap = null;
+    this.externals = null;
     this.publicPath = this.options.publicPath;
-    this.externals = this.options.externals;
     this.strategy = this.options.updateStrategy;
+    this.responseStrategy = this.options.responseStrategy;
     this.relativePaths = this.options.relativePaths;
+    this.pluginVersion = pluginVersion;
+    this.loaders = {};
     this.warnings = [];
+    this.errors = [];
 
-    if (this.options.scope) {
-      this.warnings.push(
-        new Error(
-          'OfflinePlugin: `scope` option is deprecated, use `publicPath` instead'
-        )
-      );
+    this.__tests = this.options.__tests;
+    this.flags = {
+      runtimeAdded: false
+    };
 
-      if (this.publicPath) {
-        this.warnings.push(
-          new Error(
-            'OfflinePlugin: `publicPath` is used with deprecated `scope` option, `scope` is ignored'
-          )
-        );
-      } else {
-        this.publicPath = this.options.scope;
-      }
+    if (this.__tests.pluginVersion) {
+      this.pluginVersion = this.__tests.pluginVersion;
     }
 
-    if (this.relativePaths && this.publicPath) {
-      this.warnings.push(
-        new Error(
-          'OfflinePlugin: publicPath is used in conjunction with relativePaths,\n' +
-          'publicPath was set by the OfflinePlugin to empty string'
-        )
-      );
+    if (
+      this.options.responseStrategy !== "cache-first" &&
+      this.options.responseStrategy !== "network-first"
+    ) {
+      throw new Error(
+        'OfflinePlugin: `responseStrategy` option must use ' +
+        '`cache-first` or `network-first` (or be undefined).'
+      )
+    }
 
-      this.publicPath = '';
+    if (typeof this.publicPath !== 'string') {
+      this.publicPath = null;
     }
 
     if (updateStrategies.indexOf(this.strategy) === -1) {
@@ -103,8 +124,8 @@ export default class OfflinePlugin {
       this.options.version = '[hash]';
     }
 
-    if (!Array.isArray(this.externals)) {
-      this.externals = [];
+    if (!Array.isArray(this.options.externals)) {
+      this.options.externals = [];
     }
 
     const rewrites = this.options.rewrites || defaultOptions.rewrites;
@@ -131,7 +152,10 @@ export default class OfflinePlugin {
       };
     }
 
+    this.cacheMaps = this.stringifyCacheMaps(options.cacheMaps);
+
     this.REST_KEY = ':rest:';
+    this.EXTERNALS_KEY = ':externals:';
     this.entryPrefix = '__offline_';
     this.tools = {};
 
@@ -160,6 +184,45 @@ export default class OfflinePlugin {
 
   apply(compiler) {
     const runtimePath = path.resolve(__dirname, '../runtime.js');
+    const compilerOptions = compiler.options;
+
+    this.options.externals = this.extractLoaders(this.options.externals);
+
+    if (this.relativePaths === true) {
+      this.publicPath = null;
+    }
+
+    if (
+      typeof this.publicPath !== 'string' && compilerOptions &&
+      compilerOptions.output && compilerOptions.output.publicPath &&
+      this.relativePaths !== true
+    ) {
+      this.publicPath = compilerOptions.output.publicPath;
+      this.relativePaths = false;
+    }
+
+    if (this.publicPath) {
+      this.publicPath = this.publicPath.replace(/\/$/, '') + '/';
+    }
+
+    if (this.relativePaths === true && this.publicPath) {
+      this.errors.push(
+        new Error(
+          'OfflinePlugin: `publicPath` is used in conjunction with `relativePaths`,\n' +
+          'choose one of it'
+        )
+      );
+
+      this.relativePaths = false;
+    }
+
+    if (this.relativePaths === defaultOptions.relativePaths) {
+      this.relativePaths = !this.publicPath;
+    }
+
+    this.useTools((tool, key) => {
+      this.resolveToolPaths(tool, key, compiler);
+    });
 
     compiler.plugin('normal-module-factory', (nmf) => {
       nmf.plugin('after-resolve', (result, callback) => {
@@ -180,6 +243,7 @@ export default class OfflinePlugin {
             '?' + JSON.stringify(data)
         );
 
+        this.flags.runtimeAdded = true;
         callback(null, result);
       });
     });
@@ -187,6 +251,10 @@ export default class OfflinePlugin {
     compiler.plugin('make', (compilation, callback) => {
       if (this.warnings.length) {
         [].push.apply(compilation.warnings, this.warnings);
+      }
+
+      if (this.errors.length) {
+        [].push.apply(compilation.errors, this.errors);
       }
 
       this.useTools((tool) => {
@@ -199,14 +267,26 @@ export default class OfflinePlugin {
     });
 
     compiler.plugin('emit', (compilation, callback) => {
+      if (!this.flags.runtimeAdded && !this.__tests.ignoreRuntime) {
+        callback(
+          new Error(`offline-plugin: Plugin's runtime wasn't added to one of your bundle entries. See this https://goo.gl/YwewYp for details.`)
+        );
+        return;
+      }
+
+
       const stats = compilation.getStats().toJson();
 
       // By some reason errors raised here are not fatal,
       // so we need manually try..catch and exit with error
       try {
-        this.hash = compilation.hash;
         this.setAssets(compilation);
         this.setHashesMap(compilation);
+
+        // Generate bundle hash manually (from what we have)
+        this.hash = loaderUtils.getHashDigest(
+          Object.keys(this.hashesMap).join(''), 'sha1'
+        );
 
         // Not used yet
         // this.setNetworkOptions();
@@ -227,11 +307,12 @@ export default class OfflinePlugin {
 
   setAssets(compilation) {
     const caches = this.options.caches || defaultOptions.caches;
-    let assets = Object.keys(compilation.assets);
 
     if (
-      this.options.safeToUseOptionalCaches !== true &&
-      ((caches.additional && caches.additional.length) || (caches.optional && caches.optional.length))
+      this.options.safeToUseOptionalCaches !== true && (
+        (caches.additional && caches.additional.length) ||
+        (caches.optional && caches.optional.length)
+      )
     ) {
       compilation.warnings.push(
         new Error(
@@ -244,6 +325,8 @@ export default class OfflinePlugin {
     }
 
     const excludes = this.options.excludes;
+    let assets = Object.keys(compilation.assets);
+    let externals = this.options.externals;
 
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
@@ -259,14 +342,16 @@ export default class OfflinePlugin {
       });
     }
 
-    if (caches === 'all') {
-      this.caches = {
-        main: this.validatePaths(assets)
-      };
+    this.externals = this.validatePaths(externals);
 
-      assets = this.caches.main.concat();
+    if (caches === 'all') {
+      this.assets = this.validatePaths(assets).concat(this.externals);
+      this.caches = {
+        main: this.assets.concat()
+      };
     } else {
       let restSection;
+      let externalsSection;
 
       const handledCaches = [
         'main', 'additional', 'optional'
@@ -283,16 +368,30 @@ export default class OfflinePlugin {
         cache.some((cacheKey) => {
           if (cacheKey === this.REST_KEY) {
             if (restSection) {
-              throw new Error('The :rest: keyword can be used only once');
+              throw new Error(`The ${ this.REST_KEY } keyword can be used only once`);
             }
 
             restSection = key;
             return;
           }
 
-          const magic = hasMagic(cacheKey);
+          if (cacheKey === this.EXTERNALS_KEY) {
+            if (externalsSection) {
+              throw new Error(`The ${ this.EXTERNALS_KEY } keyword can be used only once`);
+            }
 
-          if (magic) {
+            externalsSection = key;
+            return;
+          }
+
+          let magic;
+
+          if (
+            !isAbsoluteURL(cacheKey) &&
+            cacheKey[0] !== '/' &&
+            cacheKey.indexOf('./') !== 0 &&
+            (magic = hasMagic(cacheKey))
+          ) {
             let matched;
 
             for (let i = 0, len = assets.length; i < len; i++) {
@@ -306,7 +405,7 @@ export default class OfflinePlugin {
 
             if (!matched) {
               compilation.warnings.push(
-                new Error(`OfflinePlugin: Cache pattern [${ cacheKey }] did not matched any assets`)
+                new Error(`OfflinePlugin: Cache pattern [${ cacheKey }] did not match any assets`)
               );
             }
 
@@ -315,15 +414,19 @@ export default class OfflinePlugin {
 
           const index = assets.indexOf(cacheKey);
 
-          externalsCheck: if (index === -1) {
-            if (this.externals.length && this.externals.indexOf(cacheKey) !== -1) {
-              break externalsCheck;
+          __EXTERNALS_CHECK:
+          if (index === -1) {
+            const externalsIndex = externals.indexOf(cacheKey);
+
+            if (externalsIndex !== -1) {
+              externals.splice(externalsIndex, 1);
+              break __EXTERNALS_CHECK;
             }
 
             compilation.warnings.push(
               new Error(
-                `OfflinePlugin: Cache asset [${ cacheKey }] is not found in output assets,` +
-                `if it's an external asset, put it to |externals| option to remove this warning`
+                `OfflinePlugin: Cache asset [${ cacheKey }] is not found in the output assets,` +
+                `if it's an external asset, put it to the |externals| option to remove this warning`
               )
             );
           } else {
@@ -343,21 +446,21 @@ export default class OfflinePlugin {
           handledCaches[restSection].concat(this.validatePaths(assets));
       }
 
-      this.caches = handledCaches;
+      if (externalsSection && externals.length) {
+        handledCaches[externalsSection] =
+          handledCaches[externalsSection].concat(this.validatePaths(externals));
+      }
 
-      assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
+      this.caches = handledCaches;
+      this.assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
     }
 
-    this.assets = assets;
+    Object.keys(this.loaders).forEach((loader) => {
+      this.loaders[loader] = this.validatePaths(this.loaders[loader]);
+    });
   }
 
   setHashesMap(compilation) {
-    const hashesMap = this.findAssetsHashes(compilation);
-    const hashedAssets = Object.keys(hashesMap).reduce((result, hash) => {
-      result[hashesMap[hash]] = hash;
-      return result;
-    }, {});
-
     this.hashesMap = {}
 
     Object.keys(compilation.assets).forEach((key) => {
@@ -368,28 +471,12 @@ export default class OfflinePlugin {
         this.assets.indexOf(validatedPath) === -1
       ) return;
 
-      let hash;
-
-      if (hashedAssets[key]) {
-        hash = hashedAssets[key];
-      } else {
-        hash = loaderUtils.getHashDigest(compilation.assets[key].source());
-      }
+      const hash = loaderUtils.getHashDigest(
+        compilation.assets[key].source(), 'sha1'
+      );
 
       this.hashesMap[hash] = validatedPath;
     });
-  }
-
-  findAssetsHashes(compilation) {
-    var map = {};
-
-    compilation.chunks.forEach((chunk) => {
-      if (chunk.hash && chunk.files.length) {
-        map[chunk.hash] = chunk.files[0];
-      }
-    });
-
-    return map;
   }
 
   setNetworkOptions() {
@@ -457,26 +544,166 @@ export default class OfflinePlugin {
     }
   }
 
+  extractLoaders(assets) {
+    const R_LOADER = /^([^\s]+?):(\/\/)?/;
+
+    return assets.map((asset) => {
+      const loaderMatch = asset.match(R_LOADER);
+
+      if (loaderMatch && !loaderMatch[2]) {
+        asset = asset.slice(loaderMatch[0].length);
+
+        const loaderName = loaderMatch[1];
+        let loader = this.loaders[loaderName];
+
+        if (!loader) {
+          loader = this.loaders[loaderName] = [];
+        }
+
+        loader.push(asset);
+      }
+
+      return asset;
+    });
+  }
+
+  stringifyCacheMaps(cacheMaps) {
+    if (!cacheMaps) {
+      return [];
+    }
+
+    return cacheMaps.map((map) => {
+      if (map.to != null && typeof map.to !== 'string' && typeof map.to !== 'function') {
+        throw new Error('cacheMaps `to` property must either string, function, undefined or null');
+      }
+
+      if (map.requestTypes != null) {
+        if (Array.isArray(map.requestTypes)) {
+          const types = map.requestTypes.filter((item) => {
+            if (item === 'navigate' || item === 'same-origin' || item === 'cross-origin') {
+              return false;
+            }
+
+            return true;
+          });
+
+          if (types.length) {
+            throw new Error("cacheMaps `requestTypes` array values could be only: 'navigate', 'same-origin' or 'cross-origin'");
+          }
+        } else {
+          throw new Error('cacheMaps `requestTypes` property must either array, undefined or null');
+        }
+      }
+
+      let to;
+
+      if (typeof map.to === 'function') {
+        to = map.to + '';
+      } else {
+        to = map.to ? JSON.stringify(map.to) : null;
+      }
+
+      return {
+        match: map.match + '',
+        to: to,
+        requestTypes: map.requestTypes || null
+      };
+    });
+  }
+
+  resolveToolPaths(tool, key, compiler) {
+    // Tool much implement:
+    //
+    // tool.output
+    // tool.publicPath
+    // tool.basePath
+    // tool.location
+    // tool.pathRewrite
+
+    if (!this.relativePaths && !this.publicPath) {
+      throw new Error('OfflinePlugin: Cannot generate base path for ' + key);
+    }
+
+    const isDirectory = tool.output[tool.output.length - 1] === '/';
+
+    if (this.relativePaths) {
+      const compilerOutput = (compiler.options.output || { path: process.cwd() }).path;
+      const absoluteOutput = path.resolve(compilerOutput, tool.output);
+
+      let relativeBase;
+
+      if (isDirectory) {
+        relativeBase = path.relative(absoluteOutput, compilerOutput);
+      } else {
+        relativeBase = path.relative(path.dirname(absoluteOutput), compilerOutput);
+      }
+
+      relativeBase = slash(relativeBase);
+      relativeBase = relativeBase.replace(/\/$/, '')
+
+      if (relativeBase) {
+        relativeBase = relativeBase + '/';
+      }
+
+      tool.basePath = relativeBase[0] === '.' ? relativeBase : './' + relativeBase;
+    } else if (this.publicPath) {
+      tool.basePath = this.publicPath.replace(/\/$/, '') + '/';
+    }
+
+    if (this.relativePaths) {
+      tool.location = tool.output;
+    } else if (this.publicPath && tool.publicPath) {
+      tool.location = tool.publicPath;
+    } else if (this.publicPath) {
+      const publicUrl = url.parse(this.publicPath);
+      const publicPath = publicUrl.pathname;
+
+      publicUrl.pathname = path.join(publicPath, tool.output);
+      const outerPathname = path.join('/outer/', publicPath, tool.output);
+
+      if (outerPathname.indexOf('/outer/') !== 0) {
+        new Error(`OfflinePlugin: Wrong ${ key }.output value. Final ${ key }.location URL path bounds are outside of publicPath`);
+      }
+
+      tool.location = url.format(publicUrl);
+    }
+
+    if (this.relativePaths) {
+      tool.pathRewrite = (_path => {
+        if (isAbsoluteURL(_path) || _path[0] === '/') {
+          return _path;
+        }
+
+        return tool.basePath + _path;
+      });
+    } else {
+      tool.pathRewrite = (path => {
+        return path;
+      });
+    }
+  }
+
   validatePaths(assets) {
     return assets
       .map(this.rewrite)
       .filter(asset => !!asset)
       .map(key => {
-        // if absolute url, use it as is
+        // If absolute url, use it as is
         if (isAbsoluteURL(key)) {
           return key;
         }
 
         if (this.relativePaths) {
-          return key.replace(/^\//, '');
+          return key.replace(/^\.\//, '');
         }
 
-        return this.publicPath + key.replace(/^\//, '');
-      });
-  };
+        // Absolute path, use it as is
+        if (key[0] === '/') {
+          return key;
+        }
 
-  stripEmptyAssets(asset) {
-    return !!asset;
+        return this.publicPath + key.replace(/^\.?\//, '');
+      });
   }
 
   useTools(fn) {
@@ -498,3 +725,5 @@ export default class OfflinePlugin {
     this.tools[name] = new Tool(options);
   }
 }
+
+OfflinePlugin.defaultOptions = defaultOptions;

@@ -1,20 +1,35 @@
-import { Promise } from 'es6-promise';
-import { getSource, pathToBase, isAbsoluteURL } from './misc/utils';
+import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
 import fs from 'fs';
 import path from 'path';
 
 export default class AppCache {
   constructor(options) {
+    const output = options.output || options.directory;
+
+    if (isAbsolutePath(output)) {
+      throw new Error(
+        'OfflinePlugin: ServiceWorker.output option must be a relative path, ' +
+        'but an absolute path was passed'
+      );
+    }
+
+    this.output = output
+      .replace(/^\//, '')
+      .replace(/\/$/, '') + '/';
+    this.publicPath = options.publicPath;
+
+    this.basePath = null;
+    this.location = null;
+    this.pathRewrite = null;
+
+    // Tool specific properties
     this.NETWORK = options.NETWORK;
     this.FALLBACK = options.FALLBACK;
     this.name = 'manifest';
     this.caches = options.caches;
     this.events = !!options.events;
-
-    this.directory = options.directory
-      .replace(/^\//, '')
-      .replace(/\/$/, '') + '/';
-    this.basePath = pathToBase(this.directory, true);
+    this.disableInstall = options.disableInstall;
+    this.includeCrossOrigin = options.includeCrossOrigin;
   }
 
   addEntry(plugin, compilation, compiler) {
@@ -27,7 +42,7 @@ export default class AppCache {
       throw new Error('AppCache caches must be an array');
     }
 
-    const pathRewrite = this.pathRewrite(plugin);
+    const pathRewrite = this.pathRewrite;
     const cache = (this.caches.reduce((result, name) => {
       const cache = plugin.caches[name];
       if (!cache || !cache.length) return result;
@@ -41,7 +56,7 @@ export default class AppCache {
       return result;
     }, null) || []).map(pathRewrite);
 
-    const path = this.directory + this.name;
+    const path = this.output + this.name;
     const manifest = this.getManifestTemplate(cache, plugin);
     const content = this.getPageContent();
     const page = this.getPageTemplate(this.name, content);
@@ -51,7 +66,11 @@ export default class AppCache {
   }
 
   getManifestTemplate(cache, plugin) {
-    let tag = 'ver:' + plugin.version;
+    let tag = '#ver:' + plugin.version;
+
+    if (plugin.pluginVersion && !plugin.__tests.noVersionDump) {
+      tag += '\n' + '#plugin:' + plugin.pluginVersion;
+    }
 
     let FALLBACK = '';
     let NETWORK = '';
@@ -67,9 +86,22 @@ export default class AppCache {
       }).join('\n');
     }
 
+    if (!this.includeCrossOrigin) {
+      cache = cache.filter((asset) => {
+        if (
+          isAbsoluteURL(asset) &&
+          (this.basePath === '/' || asset.indexOf(this.basePath) !== 0)
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+    }
+
     return `
       CACHE MANIFEST
-      #${ tag }
+      ${ tag }
 
       CACHE:
       ${ cache.join('\n') }
@@ -95,19 +127,12 @@ export default class AppCache {
     }
   }
 
-  pathRewrite(plugin) {
-    if (plugin.relativePaths) {
-      return (path => isAbsoluteURL(path) ? path : this.basePath + path);
-    }
-
-    return (path => path)
-  }
-
   getConfig(plugin) {
     return {
-      directory: plugin.publicPath + this.directory,
+      location: this.location,
       name: this.name,
-      events: this.events
+      events: this.events,
+      disableInstall: this.disableInstall
     };
   }
 }

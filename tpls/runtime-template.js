@@ -15,7 +15,7 @@ function install(options) {
     if (hasSW()) {
       var registration = navigator.serviceWorker
         .register(
-          <%- JSON.stringify(ServiceWorker.output) %>
+          <%- JSON.stringify(ServiceWorker.location) %>
           <% if (ServiceWorker.scope) { %>
             , { scope: <%- JSON.stringify(ServiceWorker.scope) %> }
           <% } %>
@@ -130,9 +130,9 @@ function install(options) {
     }
   <% } %>
 
-  <% if (typeof AppCache !== 'undefined') { %>
+  <% if (typeof AppCache !== 'undefined' && AppCache.disableInstall !== true) { %>
     if (window.applicationCache) {
-      var directory = <%- JSON.stringify(AppCache.directory) %>;
+      var directory = <%- JSON.stringify(AppCache.location) %>;
       var name = <%- JSON.stringify(AppCache.name) %>;
 
       var doLoad = function() {
@@ -192,7 +192,7 @@ function applyUpdate(callback, errback) {
     }
   <% } %>
 
-  <% if (typeof AppCache !== 'undefined' && AppCache.events) { %>
+  <% if (typeof AppCache !== 'undefined' && AppCache.events && AppCache.disableInstall !== true) { %>
     if (appCacheIframe) {
       try {
         appCacheIframe.contentWindow.__applyUpdate();
