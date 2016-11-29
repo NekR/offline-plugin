@@ -141,26 +141,29 @@ _Example:_ `{ credentials: 'same-origin' }`
 
 Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.
 
-* `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section.  
-_Default:_ `'*'`
-
 * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` emitted files.  
 _Default:_ `'appcache/'`
 
-* `events`: `boolean`. Enables runtime events for AppCache. For supported events see `Runtime`'s `install()` options.  
-_Default:_ `false`
+* `NETWORK`: `string`. Reflects `AppCache`'s `NETWORK` section.  
+_Default:_ `'*'`
 
 * `FALLBACK`: `Object`. Reflects `AppCache`'s `FALLBACK` section. Useful for single page applications making use of HTML5 routing or for displaying custom _Offline page_.  
 _Example 1:_ `{ '/blog': '/' }` will map all requests starting with `/blog` to the domain roboto when request fails.  
 _Example 2:_ `{ '/': '/offline-page.html' }` will return contents of `/offline-page.html` for any failed request.  
 _Default:_ `null`
 
-* `disableInstall` :`boolean`. disable the installation of the `AppCache` when calling to `require('offline-plugin/runtime').install();`. for example if you consume a `AppCache` from the `manifest` attribute in the `html` tag.  
+* `events`: `boolean`. Enables runtime events for AppCache. For supported events see `Runtime`'s `install()` options.  
 _Default:_ `false`
 
 * `publicPath`: `string`. Provides a way to override `AppCache`'s folder location on the server. Should be exact path to the generated `AppCache` folder.  
 _Default:_ `null`  
 _Example:_ `'my/new/path/appcache'`
+
+* `disableInstall` :`boolean`. Disable the automatic installation of the `AppCache` when calling to `runtime.install()`. Useful when you to specify `<html manifest="...">` attribute manually (to cache every page user visits).  
+_Default:_ `false`
+
+* `includeCrossOrigin` :`boolean`. Outputs cross-origin URLs into `AppCache`'s manifest file. **Cross-origin URLs aren't supported in `AppCache` when used on HTTPS.**  
+_Default:_ `false`
 
 ## Runtime
 

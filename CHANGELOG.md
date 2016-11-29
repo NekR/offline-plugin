@@ -15,9 +15,11 @@
 * Make `updateStrategy` default to `'changed'`
 * Added `ServiceWorker.prefetchRequest` option
 * Plugin now outputs its version to generated `ServiceWorker`/`AppCache` files
-* Add AppVeyor CI tests
+* Implemented `cacheMaps` option
+* Made AppCache to not include cross origin URLs by default (because they don't work there on HTTPS). Could be returned back with `AppCache.includeCrossOrigin = true`
 * Dropped Node 0.10, Node 0.12 and IO.js support
 * Updated `minimatch` to 3.*
+* Add AppVeyor CI tests
 
 
 ### 3.4.0
