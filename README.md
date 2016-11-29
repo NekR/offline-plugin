@@ -106,6 +106,11 @@ Rewrite function or rewrite map (`Object`). Useful when assets are served in a d
 
 [See more about `rewrites` option and default function](docs/rewrite.md)
 
+#### `cacheMaps: Array<Object>`
+
+See [documentation of `cacheMaps`](docs/cache-maps) for syntax and usage examples
+
+
 #### `ServiceWorker: Object | null | false`
 
 Settings for the `ServiceWorker` cache. Use `null` or `false` to disable `ServiceWorker` generation.
