@@ -26,7 +26,8 @@ module.exports.pitch = function pitch(remainingRequest, precedingRequest, data) 
   const cacheMaps = (params.cacheMaps || []).map((map) => {
     return `{
       match: ${map.match},
-      to: ${map.to}
+      to: ${map.to},
+      requestTypes: ${JSON.stringify(map.requestTypes)},
     }`;
   });
 

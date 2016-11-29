@@ -17,6 +17,7 @@ module.exports = function(OfflinePluginOptions) {
   };
 
   return {
+    bail: true,
     entry: {
       main: 'main.js'
     },

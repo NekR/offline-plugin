@@ -573,13 +573,40 @@ export default class OfflinePlugin {
     }
 
     return cacheMaps.map((map) => {
-      if (map.to != null && typeof map.to !== 'string') {
-        throw new Error('cacheMaps `to` property must either string, undefined or null');
+      if (map.to != null && typeof map.to !== 'string' && typeof map.to !== 'function') {
+        throw new Error('cacheMaps `to` property must either string, function, undefined or null');
+      }
+
+      if (map.requestTypes != null) {
+        if (Array.isArray(map.requestTypes)) {
+          const types = map.requestTypes.filter((item) => {
+            if (item === 'navigate' || item === 'same-origin' || item === 'cross-origin') {
+              return false;
+            }
+
+            return true;
+          });
+
+          if (types.length) {
+            throw new Error("cacheMaps `requestTypes` array values could be only: 'navigate', 'same-origin' or 'cross-origin'");
+          }
+        } else {
+          throw new Error('cacheMaps `requestTypes` property must either array, undefined or null');
+        }
+      }
+
+      let to;
+
+      if (typeof map.to === 'function') {
+        to = map.to + '';
+      } else {
+        to = map.to ? JSON.stringify(map.to) : null;
       }
 
       return {
         match: map.match + '',
-        to: JSON.stringify(map.to || null)
+        to: to,
+        requestTypes: map.requestTypes || null
       };
     });
   }

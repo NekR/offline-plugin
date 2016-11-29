@@ -74,7 +74,7 @@ var __wpo = {
 	  var responseStrategy = params.responseStrategy;
 
 	  var assets = params.assets;
-	  var loadersMap = params.loaders;
+	  var loadersMap = params.loaders || {};
 
 	  var hashesMap = params.hashesMap;
 	  var externals = params.externals;
@@ -310,12 +310,10 @@ var __wpo = {
 	    // Handle only GET requests
 	    var isGET = event.request.method === 'GET';
 	    var assetMatches = allAssets.indexOf(urlString) !== -1;
-	    var cacheUrl = undefined;
+	    var cacheUrl = urlString;
 
-	    if (assetMatches) {
-	      cacheUrl = urlString;
-	    } else {
-	      var cacheRewrite = matchCacheMap(requestUrl);
+	    if (!assetMatches) {
+	      var cacheRewrite = matchCacheMap(event.request);
 
 	      if (cacheRewrite) {
 	        cacheUrl = cacheRewrite;
@@ -496,7 +494,7 @@ var __wpo = {
 	    }, {});
 
 	    externals = externals.map(function (path) {
-	      var url = new URL(externals[path], location);
+	      var url = new URL(path, location);
 	      url.hash = '';
 
 	      return url.toString();
@@ -524,59 +522,82 @@ var __wpo = {
 	        return Promise.reject(new Error('Wrong response status'));
 	      }
 
-	      var extractedRequests = [];
+	      var extracted = [];
 	      var addAll = responses.map(function (response, i) {
 	        if (allowLoaders) {
-	          var extracted = extractAssetsWithLoaders(requests[i], response);
-
-	          if (extracted && extracted.length) {
-	            extractedRequests = extractedRequests.concat(extracted);
-	          }
+	          extracted.push(extractAssetsWithLoaders(requests[i], response));
 	        }
 
 	        return cache.put(requests[i], response);
 	      });
 
-	      if (extractedRequests.length) {
-	        var newOptions = copyObject(options);
-	        newOptions.allowLoaders = false;
+	      if (extracted.length) {
+	        (function () {
+	          var newOptions = copyObject(options);
+	          newOptions.allowLoaders = false;
 
-	        addAll = addAll.concat(addAllNormalized(cache, extractedRequests, newOptions));
+	          var waitAll = addAll;
+
+	          addAll = Promise.all(extracted).then(function (all) {
+	            var extractedRequests = [].concat.apply([], all);
+
+	            if (requests.length) {
+	              waitAll = waitAll.concat(addAllNormalized(cache, extractedRequests, newOptions));
+	            }
+
+	            return Promise.all(waitAll);
+	          });
+	        })();
+	      } else {
+	        addAll = Promise.all(addAll);
 	      }
 
-	      return Promise.all(addAll);
+	      return addAll;
 	    });
 	  }
 
 	  function extractAssetsWithLoaders(request, response) {
-	    var requests = [];
-
-	    Object.keys(loadersMap).forEach(function (key) {
+	    var all = Object.keys(loadersMap).map(function (key) {
 	      var loader = loadersMap[key];
 
 	      if (loader.indexOf(request) !== -1 && loaders[key]) {
-	        var urls = loaders[key](response.clone());
-
-	        if (urls.length) {
-	          requests = requests.concat(urls);
-	        }
+	        return loaders[key](response.clone());
 	      }
+	    }).filter(function (a) {
+	      return !!a;
 	    });
 
-	    return requests;
+	    return Promise.all(all).then(function (all) {
+	      return [].concat.apply([], all);
+	    });
 	  }
 
-	  function matchCacheMap(urlString) {
+	  function matchCacheMap(request) {
+	    var urlString = request.url;
 	    var url = new URL(urlString);
+
+	    var requestType = undefined;
+
+	    if (request.mode === 'navigate') {
+	      requestType = 'navigate';
+	    } else if (url.origin === location.origin) {
+	      requestType = 'same-origin';
+	    } else {
+	      requestType = 'cross-origin';
+	    }
 
 	    for (var i = 0; i < cacheMaps.length; i++) {
 	      var map = cacheMaps[i];
+
 	      if (!map) continue;
+	      if (map.requestTypes && map.requestTypes.indexOf(requestType) === -1) {
+	        continue;
+	      }
 
 	      var newString = undefined;
 
 	      if (typeof map.match === 'function') {
-	        newString = map.match(url);
+	        newString = map.match(url, request);
 	      } else {
 	        newString = urlString.replace(map.match, map.to);
 	      }
@@ -653,7 +674,8 @@ var __wpo = {
 	cacheMaps: [
 	      {
 	      match: /^https:\/\/google\.com\/([\s\S]+)$/,
-	      to: "https://facebook.com/$1"
+	      to: "https://facebook.com/$1",
+	      requestTypes: null,
 	    },
 	{
 	      match: function (url) {
@@ -661,7 +683,8 @@ var __wpo = {
 	          return url.href.replace('https://google.com', 'https://facebook.com');
 	        }
 	      },
-	      to: null
+	      to: null,
+	      requestTypes: null,
 	    },
 	{
 	      match: function (url) {
@@ -673,7 +696,8 @@ var __wpo = {
 
 	        return new URL('/', location);
 	      },
-	      to: null
+	      to: null,
+	      requestTypes: null,
 	    }
 	    ],
 	});

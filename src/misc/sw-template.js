@@ -259,7 +259,7 @@ function WebpackServiceWorker(params, helpers) {
     let cacheUrl = urlString;
 
     if (!assetMatches) {
-      let cacheRewrite = matchCacheMap(requestUrl);
+      let cacheRewrite = matchCacheMap(event.request);
 
       if (cacheRewrite) {
         cacheUrl = cacheRewrite;
@@ -523,17 +523,32 @@ function WebpackServiceWorker(params, helpers) {
     });
   }
 
-  function matchCacheMap(urlString) {
+  function matchCacheMap(request) {
+    const urlString = request.url;
     const url = new URL(urlString);
+
+    let requestType;
+
+    if (request.mode === 'navigate') {
+      requestType = 'navigate';
+    } else if (url.origin === location.origin) {
+      requestType = 'same-origin';
+    } else {
+      requestType = 'cross-origin';
+    }
 
     for (let i = 0; i < cacheMaps.length; i++) {
       const map = cacheMaps[i];
+
       if (!map) continue;
+      if (map.requestTypes && map.requestTypes.indexOf(requestType) === -1) {
+        continue
+      }
 
       let newString;
 
       if (typeof map.match === 'function') {
-        newString = map.match(url);
+        newString = map.match(url, request);
       } else {
         newString = urlString.replace(map.match, map.to);
       }
