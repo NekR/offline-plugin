@@ -108,7 +108,7 @@ Rewrite function or rewrite map (`Object`). Useful when assets are served in a d
 
 #### `cacheMaps: Array<Object>`
 
-See [documentation of `cacheMaps`](docs/cache-maps) for syntax and usage examples
+See [documentation of `cacheMaps`](docs/cache-maps.md) for syntax and usage examples
 
 
 #### `ServiceWorker: Object | null | false`
