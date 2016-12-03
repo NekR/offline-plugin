@@ -1,7 +1,7 @@
 # `offline-plugin` for webpack
 
 [![npm](https://img.shields.io/npm/v/offline-plugin.svg?maxAge=2592000&v4)](https://www.npmjs.com/package/offline-plugin)
-[![npm](https://img.shields.io/npm/dm/offline-plugin.svg?maxAge=2592000)](https://www.npmjs.com/package/offline-plugin)
+[![npm](https://img.shields.io/npm/dm/offline-plugin.svg?maxAge=3600)](https://www.npmjs.com/package/offline-plugin)
 [![Join the chat at https://gitter.im/NekR/offline-plugin](https://badges.gitter.im/NekR/offline-plugin.svg)](https://gitter.im/NekR/offline-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This plugin is intended to provide offline experience for **webpack** projects. It uses **ServiceWorker** and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config``, and the accompanying runtime in your client script, and your project will become offline ready by caching all (or some) output assets.
@@ -219,12 +219,21 @@ Event called when `upUpdating` phase failed by some reason. Nothing is downloade
 Event called when update is applied, either by calling `runtime.applyUpdate()` or some other way by a browser itself.
 
 
-## Projects using `offline-plugin`
+## Who is using `offline-plugin`
 
-* [React Boilerplate](http://reactboilerplate.com) ([source](https://github.com/mxstbr/react-boilerplate))
+### Projects
+
+* [React Boilerplate](https://github.com/mxstbr/react-boilerplate)
+* [Phenomic](https://phenomic.io)
+* [Gatsby](https://github.com/gatsbyjs/gatsby)
+* [Angular CLI](https://github.com/angular/angular-cli)
+
+### PWAs
+
 * [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
-* Angular CLI ([source](https://github.com/angular/angular-cli))
-* [Phenomic](https://phenomic.io) ([source](https://github.com/MoOx/phenomic))
+* [Preact](https://preactjs.com/) ([source](https://github.com/developit/preact-www))
+* [Omroep West (_Proof of Concept_)](https://omroep-west.now.sh/)
+
 
 _If you are using `offline-plugin`, feel free to submit a PR to add your project to this list._
 
