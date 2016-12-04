@@ -37,10 +37,16 @@
     "plugin",
     "offline",
     "cache",
+    "caching",
+    "storage",
     "service-worker",
     "serviceworker",
     "appcache",
-    "application cache"
+    "application cache",
+    "pwa",
+    "progressive web apps",
+    "app-shell",
+    "appshell"
   ],
   "devDependencies": {
     "del": "^2.2.2",
