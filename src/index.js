@@ -152,7 +152,7 @@ export default class OfflinePlugin {
       };
     }
 
-    this.cacheMaps = this.stringifyCacheMaps(options.cacheMaps);
+    this.cacheMaps = this.stringifyCacheMaps(this.options.cacheMaps);
 
     this.REST_KEY = ':rest:';
     this.EXTERNALS_KEY = ':externals:';
