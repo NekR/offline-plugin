@@ -147,6 +147,8 @@ _Example:_ `{ credentials: 'same-origin' }`
 
 Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.
 
+ > WARNING: Officially the AppCache feature [has been deprecated](https://developer.mozilla.org/en-US/docs/Web/HTML/Using_the_application_cache) in favour of Service Workers.  However, Service Workers are still being implemented across all browsers (you can track progress [here](https://jakearchibald.github.io/isserviceworkerready/)) so AppCache is unlikely to suddenly disappear.  Therefore please don't be afraid to use the AppCache feature if you have a need to provide offline support to browsers that do not support Service Workers, but it is good to be aware of this fact and make an deliberate decision on your configuration.
+
 * `directory`: `string`. Relative (from the _webpack_'s config `output.path`) output directly path for the `AppCache` emitted files.  
 _Default:_ `'appcache/'`
 
