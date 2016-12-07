@@ -43,6 +43,8 @@ require('offline-plugin/runtime').install();
 * [Caches](docs/caches.md)
 * [Update process](docs/updates.md)
 
+## [FAQ](FAQ.md)
+
 ## Options
 
 **All options are optional and `offline-plugin` could be used without specifying them.** Also see full list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L9).
@@ -237,10 +239,9 @@ Event called when update is applied, either by calling `runtime.applyUpdate()` o
 
 _If you are using `offline-plugin`, feel free to submit a PR to add your project to this list._
 
+## Like `offline-plugin`?
 
-## FAQ
-
-[FAQ](FAQ.md)
+Support it by giving [feedback](issues), contributing or just by 🌟 starring the project!
 
 
 ## License
