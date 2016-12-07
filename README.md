@@ -32,7 +32,7 @@ module.exports = {
 
 ```
 
-Then, add the [runtime](#runtime) into your entry file (typically main entry):
+Then, add the [runtime](docs/runtime.md) into your entry file (typically main entry):
 
 ```js
 require('offline-plugin/runtime').install();
@@ -42,8 +42,7 @@ require('offline-plugin/runtime').install();
 
 * [Caches](docs/caches.md)
 * [Update process](docs/updates.md)
-
-## [FAQ](FAQ.md)
+* [FAQ](FAQ.md)
 
 ## Options
 
@@ -172,55 +171,6 @@ _Default:_ `false`
 * `includeCrossOrigin` :`boolean`. Outputs cross-origin URLs into `AppCache`'s manifest file. **Cross-origin URLs aren't supported in `AppCache` when used on HTTPS.**  
 _Default:_ `false`
 
-## Runtime
-
-Besides plugin configuration, you also need to initialize it at runtime phase. It's done this way:
-
-```js
-require('offline-plugin/runtime').install();
-```
-
-### Methods
-
-Runtime has following methods:
-
-#### `install(options: Object)`
-
-Starts installation flow for `ServiceWorker`/`AppCache` it's safe and must be called each time your page loads (i.e. do not wrap it into any conditions).
-
-#### `applyUpdate()`
-
-Used to apply update for existing installation. See `install` options below.
-
-### `install` Options
-
-Runtime `install` accepts 1 optional argument, `options` object. Right now you can use following runtime options:
-
-_**Note:** Events must be explicitly enabled for each tool (`ServiceWorker`/`AppCache`) in their options._
-
-#### `onInstalled`
-
-Event called exactly once when `ServiceWorker` or `AppCache` is installed. Can be useful to display `"App is ready for offline usage"` message.
-
-#### `onUpdating`
-
-_Not supported for `AppCache`_
-
-Event called when update is found and browsers started updating process. At this moment, some assets are downloading.
-
-#### `onUpdateReady`
-
-Event called when `onUpdating` phase finished. All required assets are downloaded at this moment and are ready to be updated. Call `runtime.applyUpdate()` to apply update.
-
-#### `onUpdateFailed`
-
-Event called when `upUpdating` phase failed by some reason. Nothing is downloaded at this moment and current update process in your code should be canceled or ignored.
-
-#### `onUpdated`
-
-Event called when update is applied, either by calling `runtime.applyUpdate()` or some other way by a browser itself.
-
-
 ## Who is using `offline-plugin`
 
 ### Projects
@@ -241,7 +191,7 @@ _If you are using `offline-plugin`, feel free to submit a PR to add your project
 
 ## Like `offline-plugin`?
 
-Support it by giving [feedback](issues), contributing or just by 🌟 starring the project!
+Support it by giving [feedback](https://github.com/NekR/offline-plugin/issues), contributing or just by 🌟 starring the project!
 
 
 ## License
