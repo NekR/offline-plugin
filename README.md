@@ -193,8 +193,12 @@ _If you are using `offline-plugin`, feel free to submit a PR to add your project
 
 Support it by giving [feedback](https://github.com/NekR/offline-plugin/issues), contributing or just by 🌟 starring the project!
 
-## Miscellaneous
 
-License [MIT](LICENSE.md)
+## License
+
+[MIT](LICENSE.md)
+
+
+## CHANGELOG
 
 [CHANGELOG](CHANGELOG.md)
