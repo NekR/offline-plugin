@@ -64,8 +64,8 @@ Tells to the plugin what to cache and how.
 Same as `webpack`'s `output.publicPath` option. Useful to specify or override `publicPath` specifically for `offline-plugin`. When not specified, `webpack`'s `output.publicPath` value is used. When `webpack`'s `output.publicPath` value isn't specified, relative paths are used (see `relativePaths` option).
 
 > __Examples:__  
-`publiectPath: '/project/'`  
-`publiectPath: 'https://example.com/project'`  
+`publicPath: '/project/'`  
+`publicPath: 'https://example.com/project'`  
 
 #### `responseStrategy: 'cache-first' | 'network-first'`
 Response strategy. Whether to use a cache or network first for responses.
