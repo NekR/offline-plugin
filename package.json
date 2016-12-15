@@ -22,6 +22,7 @@
   "author": "Arthur Stolyar <nekr.fabula@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "async-waituntil-polyfill": "^1.0.2",
     "deep-extend": "^0.4.0",
     "ejs": "^2.3.4",
     "loader-utils": "0.2.x",

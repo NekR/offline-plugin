@@ -1,3 +1,5 @@
+import 'async-waituntil-polyfill';
+
 if (typeof DEBUG === 'undefined') {
   var DEBUG = false;
 }
@@ -353,12 +355,13 @@ function WebpackServiceWorker(params, helpers) {
 
         if (cacheUrl === urlString) {
           const responseClone = response.clone();
-
-          caches.open(CACHE_NAME).then((cache) => {
+          const storing = caches.open(CACHE_NAME).then((cache) => {
             return cache.put(urlString, responseClone);
           }).then(() => {
             console.log('[SW]:', 'Cache asset: ' + urlString);
           });
+
+          event.waitUntil(storing);
         }
 
         return response;
