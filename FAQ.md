@@ -6,8 +6,10 @@ Yes, it's possible with `pattern matching`, which is performed by [minimatch](ht
 Example: ``main: ['index.html', 'scripts/main.*.js']``.
 
 **Is there a way to prevent/disable console logging?**  
+
 Yes, you can disable/prevent console logging when `webpack.optimize.UglifyPlugin` is used with `compress.drop_console` option. Example:
-```
+
+```js
 new webpack.optimize.UglifyPlugin({
   compress: {
     drop_console: true,
