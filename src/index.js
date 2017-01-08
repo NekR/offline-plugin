@@ -268,9 +268,10 @@ export default class OfflinePlugin {
 
     compiler.plugin('emit', (compilation, callback) => {
       if (!this.flags.runtimeAdded && !this.__tests.ignoreRuntime) {
-        callback(
-          new Error(`offline-plugin: Plugin's runtime wasn't added to one of your bundle entries. See this https://goo.gl/YwewYp for details.`)
+        compilation.errors.push(
+          new Error(`OfflinePlugin: Plugin's runtime wasn't added to one of your bundle entries. See this https://goo.gl/YwewYp for details.`)
         );
+        callback();
         return;
       }
 
