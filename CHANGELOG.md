@@ -1,6 +1,10 @@
 # CHANGELOG
 
-### 4.0.0
+### 4.5.4
+
+* Use `compilation.errors` instead of `callback(new Error('...'))` when runtime is missing
+
+### 4.0.0 - 4.5.3
 
 * `relativePaths` is now automatically set to `false` when `publicPath` is used
 * `publicPath` now uses `webpack.config.js`'s `output.publicPath` by default (when not set in `OfflinePlugin` itself)
