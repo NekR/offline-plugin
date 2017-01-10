@@ -1,4 +1,4 @@
-{
+(function() {
   const waitUntil = ExtendableEvent.prototype.waitUntil;
   const respondWith = FetchEvent.prototype.respondWith;
   const promisesMap = new WeakMap();
@@ -35,4 +35,4 @@
     this.waitUntil(promise);
     return respondWith.call(this, promise);
   };
-}
+}());

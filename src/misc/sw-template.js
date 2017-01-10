@@ -1,5 +1,3 @@
-import './lib/misc/async-waituntil';
-
 if (typeof DEBUG === 'undefined') {
   var DEBUG = false;
 }
