@@ -195,7 +195,7 @@ export default class ServiceWorker {
 
     if (
       request.credentials === 'omit' &&
-      request.header === void 0 &&
+      request.headers === void 0 &&
       request.mode === 'cors' &&
       request.cache === void 0
     ) {
