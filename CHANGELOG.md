@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 4.5.5
+
+* Fix `request.headers` typo in `validatePrefetch` which was preventing setting custom headers for prefetch requests
+
 ### 4.5.4
 
 * Use `compilation.errors` instead of `callback(new Error('...'))` when runtime is missing
