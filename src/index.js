@@ -235,8 +235,8 @@ export default class OfflinePlugin {
         }
 
         const data = {
-          autoUpdate: this.autoUpdate,
-          autoUpdateInterval: this.autoUpdateInterval,
+          autoUpdate: this.options.autoUpdate,
+          autoUpdateInterval: this.options.autoUpdateInterval,
         };
 
         this.useTools((tool, key) => {
