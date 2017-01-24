@@ -218,7 +218,7 @@ function updateOfflineService() {
 }
 
 <% if (typeof autoUpdate !== 'undefined' && autoUpdate === true) { %>
-  setInterval(() => updateOfflineService(), <%- JSON.stringify(autoUpdateInterval) %>);
+  setInterval(function () { updateOfflineService(); }, <%- JSON.stringify(autoUpdateInterval) %>);
 <% } %>
 
 exports.install = install;
