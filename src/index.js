@@ -234,7 +234,10 @@ export default class OfflinePlugin {
           return callback(null, result);
         }
 
-        const data = {};
+        const data = {
+          autoUpdate: this.autoUpdate,
+          autoUpdateInterval: this.autoUpdateInterval,
+        };
 
         this.useTools((tool, key) => {
           data[key] = tool.getConfig(this);
