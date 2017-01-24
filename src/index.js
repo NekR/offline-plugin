@@ -731,6 +731,6 @@ export default class OfflinePlugin {
     this.tools[name] = new Tool(options);
   }
 }
-exports = OfflinePlugin;
+module.exports = OfflinePlugin;
 
 OfflinePlugin.defaultOptions = defaultOptions;
