@@ -204,5 +204,20 @@ function applyUpdate(callback, errback) {
   <% } %>
 }
 
+function updateOfflineService() {
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.ready.then((registration) => {
+      if(!registration) {
+        return;
+      }
+      return registration.update();
+    });
+  } else if (window.applicationCache) {
+    applicationCache.update();
+  }
+}
+
+setInterval(() => updateOfflineService(), 60*60*1000);
+
 exports.install = install;
 exports.applyUpdate = applyUpdate;
