@@ -8,4 +8,5 @@ var config = __CONFIG__({
   version: '[hash]'
 });
 
+config.plugins[0].__tests.ignoreRuntime = false;
 module.exports = config;
