@@ -126,6 +126,8 @@
 	}
 
 
+	  setInterval(function () { updateOfflineService(); }, 5000);
+
 
 	exports.install = install;
 	exports.applyUpdate = applyUpdate;
