@@ -49,13 +49,13 @@
     "appshell"
   ],
   "devDependencies": {
+    "del": "^2.2.2",
+    "webpack": "^1.0.0",
     "chalk": "^1.1.3",
     "cli-highlight": "^1.1.4",
-    "del": "^2.2.2",
     "diff": "^3.0.1",
     "dir-compare": "^1.1.0",
-    "on-build-webpack": "^0.1.0",
-    "webpack": "^1.0.0"
+    "on-build-webpack": "^0.1.0"
   },
   "buildDependencies": {
     "babel": "^5.8.23"
