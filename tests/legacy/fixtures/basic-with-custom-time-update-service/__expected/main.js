@@ -113,15 +113,15 @@
 	}
 
 	function updateOfflineService() {
-	  if (navigator.serviceWorker) {
+	  if (hasSW()) {
 	    navigator.serviceWorker.ready.then((registration) => {
 	      if(!registration) {
 	        return;
 	      }
 	      return registration.update();
 	    });
-	  } else if (window.applicationCache) {
-	    applicationCache.update();
+	  } else if (appCacheIframe) {
+	    appCacheIframe.contentWindow.applicationCache.update();
 	  }
 	}
 

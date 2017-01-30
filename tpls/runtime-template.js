@@ -205,20 +205,20 @@ function applyUpdate(callback, errback) {
 }
 
 function updateOfflineService() {
-  if (navigator.serviceWorker) {
+  if (hasSW()) {
     navigator.serviceWorker.ready.then((registration) => {
       if(!registration) {
         return;
       }
       return registration.update();
     });
-  } else if (window.applicationCache) {
-    applicationCache.update();
+  } else if (appCacheIframe) {
+    appCacheIframe.contentWindow.applicationCache.update();
   }
 }
 
 <% if (typeof autoUpdate !== 'undefined' && autoUpdate === true) { %>
-  setInterval(function () { updateOfflineService(); }, <%- JSON.stringify(autoUpdateInterval) %>);
+  setInterval(function () { updateOfflineService(); }, <%- autoUpdateInterval %>);
 <% } %>
 
 exports.install = install;
