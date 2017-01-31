@@ -91,9 +91,7 @@ export default class OfflinePlugin {
     this.errors = [];
 
     this.__tests = this.options.__tests;
-    this.flags = {
-      runtimeAdded: false
-    };
+    this.flags = {};
 
     if (this.__tests.pluginVersion) {
       this.pluginVersion = this.__tests.pluginVersion;
@@ -248,7 +246,6 @@ export default class OfflinePlugin {
             '?' + JSON.stringify(data)
         );
 
-        this.flags.runtimeAdded = true;
         callback(null, result);
       });
     });
@@ -272,14 +269,18 @@ export default class OfflinePlugin {
     });
 
     compiler.plugin('emit', (compilation, callback) => {
-      if (!this.flags.runtimeAdded && !this.__tests.ignoreRuntime) {
+      const runtimeTemplatePath = path.resolve(__dirname, '../tpls/runtime-template.js')
+
+      if (
+        compilation.fileDependencies.indexOf(runtimeTemplatePath) === -1 &&
+        !this.__tests.ignoreRuntime
+      ) {
         compilation.errors.push(
           new Error(`OfflinePlugin: Plugin's runtime wasn't added to one of your bundle entries. See this https://goo.gl/YwewYp for details.`)
         );
         callback();
         return;
       }
-
 
       const stats = compilation.getStats().toJson();
 
