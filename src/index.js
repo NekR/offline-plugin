@@ -23,6 +23,8 @@ const defaultOptions = {
   // Hack to have intermediate value, e.g. default one, true and false
   relativePaths: ':relativePaths:',
   version: null,
+  autoUpdate: false,
+  autoUpdateInterval: 3600000,
 
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
@@ -232,7 +234,10 @@ export default class OfflinePlugin {
           return callback(null, result);
         }
 
-        const data = {};
+        const data = {
+          autoUpdate: this.options.autoUpdate,
+          autoUpdateInterval: this.options.autoUpdateInterval,
+        };
 
         this.useTools((tool, key) => {
           data[key] = tool.getConfig(this);

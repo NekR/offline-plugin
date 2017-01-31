@@ -67,7 +67,7 @@
 	    if (hasSW()) {
 	      var registration = navigator.serviceWorker
 	        .register(
-	          "/override/sw.js"
+	          "sw.js"
 	          
 	        );
 
@@ -79,7 +79,7 @@
 
 	  
 	    if (window.applicationCache) {
-	      var directory = "/override/appcache";
+	      var directory = "appcache/";
 	      var name = "manifest";
 
 	      var doLoad = function() {
@@ -125,6 +125,8 @@
 	  }
 	}
 
+
+	  setInterval(function () { updateOfflineService(); }, 5000);
 
 
 	exports.install = install;

@@ -112,8 +112,24 @@
 	  
 	}
 
+	function updateOfflineService() {
+	  if (hasSW()) {
+	    navigator.serviceWorker.ready.then((registration) => {
+	      if(!registration) {
+	        return;
+	      }
+	      return registration.update();
+	    });
+	  } else if (appCacheIframe) {
+	    appCacheIframe.contentWindow.applicationCache.update();
+	  }
+	}
+
+
+
 	exports.install = install;
 	exports.applyUpdate = applyUpdate;
+
 
 /***/ }
 /******/ ]);
