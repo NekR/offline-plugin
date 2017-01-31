@@ -204,22 +204,27 @@ function applyUpdate(callback, errback) {
   <% } %>
 }
 
-function updateOfflineService() {
-  if (hasSW()) {
-    navigator.serviceWorker.ready.then((registration) => {
-      if(!registration) {
-        return;
-      }
-      return registration.update();
-    });
-  } else if (appCacheIframe) {
-    appCacheIframe.contentWindow.applicationCache.update();
-  }
+function update() {
+  <% if (typeof ServiceWorker !== 'undefined') { %>
+    if (hasSW()) {
+      navigator.serviceWorker.getRegistration().then((registration) => {
+        if (!registration) return;
+        return registration.update();
+      });
+    }
+  <% } %>
+
+  <% if (typeof AppCache !== 'undefined' && AppCache.disableInstall !== true) { %>
+    if (appCacheIframe) {
+      appCacheIframe.contentWindow.applicationCache.update();
+    }
+  <% } %>
 }
 
-<% if (typeof autoUpdate !== 'undefined' && autoUpdate === true) { %>
-  setInterval(function () { updateOfflineService(); }, <%- autoUpdateInterval %>);
+<% if (typeof autoUpdate !== 'undefined') { %>
+  setInterval(update, <%- autoUpdate %>);
 <% } %>
 
 exports.install = install;
 exports.applyUpdate = applyUpdate;
+exports.update = update;

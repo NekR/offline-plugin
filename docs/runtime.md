@@ -18,6 +18,10 @@ Starts installation flow for `ServiceWorker`/`AppCache` it's safe and must be ca
 
 Used to apply update for existing installation. See `install` options below.
 
+#### `update()`
+
+Performs check for updates of new `ServiceWorker`/`AppCache`.
+
 ### `install` Options
 
 Runtime `install` accepts 1 optional argument, `options` object. Right now you can use following runtime options:

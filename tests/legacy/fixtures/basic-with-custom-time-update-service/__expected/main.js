@@ -112,25 +112,30 @@
 	  
 	}
 
-	function updateOfflineService() {
-	  if (hasSW()) {
-	    navigator.serviceWorker.ready.then((registration) => {
-	      if(!registration) {
-	        return;
-	      }
-	      return registration.update();
-	    });
-	  } else if (appCacheIframe) {
-	    appCacheIframe.contentWindow.applicationCache.update();
-	  }
+	function update() {
+	  
+	    if (hasSW()) {
+	      navigator.serviceWorker.getRegistration().then((registration) => {
+	        if (!registration) return;
+	        return registration.update();
+	      });
+	    }
+	  
+
+	  
+	    if (appCacheIframe) {
+	      appCacheIframe.contentWindow.applicationCache.update();
+	    }
+	  
 	}
 
 
-	  setInterval(function () { updateOfflineService(); }, 5000);
+	  setInterval(update, 5000);
 
 
 	exports.install = install;
 	exports.applyUpdate = applyUpdate;
+	exports.update = update;
 
 
 /***/ }

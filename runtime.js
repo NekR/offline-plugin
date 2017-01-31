@@ -10,3 +10,4 @@ if (window.console) {
 
 exports.install = function() {};
 exports.applyUpdate = function() {};
+exports.update = function() {};

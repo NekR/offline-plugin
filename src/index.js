@@ -10,6 +10,7 @@ import loaderUtils from 'loader-utils';
 import slash from 'slash';
 
 const { version: pluginVersion } = require('../package.json');
+const AUTO_UPDATE_INTERVAL = 3600000;
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
@@ -24,7 +25,6 @@ const defaultOptions = {
   relativePaths: ':relativePaths:',
   version: null,
   autoUpdate: false,
-  autoUpdateInterval: 3600000,
 
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
@@ -97,6 +97,14 @@ export default class OfflinePlugin {
 
     if (this.__tests.pluginVersion) {
       this.pluginVersion = this.__tests.pluginVersion;
+    }
+
+    const autoUpdate = this.options.autoUpdate;
+
+    if (autoUpdate === true) {
+      this.autoUpdate = AUTO_UPDATE_INTERVAL;
+    } else if (typeof autoUpdate === 'number' && autoUpdate) {
+      this.autoUpdate = autoUpdate;
     }
 
     if (
@@ -235,8 +243,7 @@ export default class OfflinePlugin {
         }
 
         const data = {
-          autoUpdate: this.options.autoUpdate,
-          autoUpdateInterval: this.options.autoUpdateInterval,
+          autoUpdate: this.autoUpdate
         };
 
         this.useTools((tool, key) => {
