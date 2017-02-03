@@ -207,7 +207,7 @@ function applyUpdate(callback, errback) {
 function update() {
   <% if (typeof ServiceWorker !== 'undefined') { %>
     if (hasSW()) {
-      navigator.serviceWorker.getRegistration().then((registration) => {
+      navigator.serviceWorker.getRegistration().then(function(registration) {
         if (!registration) return;
         return registration.update();
       });
