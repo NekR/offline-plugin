@@ -10,7 +10,7 @@
     "empty-entry.js"
   ],
   "scripts": {
-    "test": "node tests/legacy/run && node_modules/.bin/eslint -c configs/eslint.tests.json 'tests/**/**.js'",
+    "test": "node tests/legacy/run && eslint -c configs/eslint.tests.json 'tests/**/**.js'",
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
     "install:build-deps": "node build/install.js"
