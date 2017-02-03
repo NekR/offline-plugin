@@ -115,7 +115,7 @@
 	function update() {
 	  
 	    if (hasSW()) {
-	      navigator.serviceWorker.getRegistration().then((registration) => {
+	      navigator.serviceWorker.getRegistration().then(function(registration) {
 	        if (!registration) return;
 	        return registration.update();
 	      });
