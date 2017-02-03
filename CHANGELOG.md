@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 4.6.1
+
+* Fixed syntax error in `runtime-template.js`
+
 ### 4.6.0
 
 * Fixed compatibility with `hard-source-webpack-plugin` #148
