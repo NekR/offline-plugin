@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 4.6.0
+
+* Fixed compatibility with `hard-source-webpack-plugin` #148
+* Added `autoUpdate` option and `runtime.update()` method #169
+
 ### 4.5.5
 
 * Fix `request.headers` typo in `validatePrefetch` which was preventing setting custom headers for prefetch requests
