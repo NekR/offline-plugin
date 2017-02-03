@@ -204,5 +204,27 @@ function applyUpdate(callback, errback) {
   <% } %>
 }
 
+function update() {
+  <% if (typeof ServiceWorker !== 'undefined') { %>
+    if (hasSW()) {
+      navigator.serviceWorker.getRegistration().then((registration) => {
+        if (!registration) return;
+        return registration.update();
+      });
+    }
+  <% } %>
+
+  <% if (typeof AppCache !== 'undefined' && AppCache.disableInstall !== true) { %>
+    if (appCacheIframe) {
+      appCacheIframe.contentWindow.applicationCache.update();
+    }
+  <% } %>
+}
+
+<% if (typeof autoUpdate !== 'undefined') { %>
+  setInterval(update, <%- autoUpdate %>);
+<% } %>
+
 exports.install = install;
 exports.applyUpdate = applyUpdate;
+exports.update = update;

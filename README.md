@@ -111,6 +111,15 @@ Rewrite function or rewrite map (`Object`). Useful when assets are served in a d
 
 See [documentation of `cacheMaps`](docs/cache-maps.md) for syntax and usage examples
 
+#### `autoUpdate: true | number`
+
+Enables automatic updates of ServiceWorker and AppCache. If set to `true`, it uses default interval of _1 hour_. Set a `number` value to have provide custom update interval.
+
+_**Note:** Please not that if user has multiple opened tabs of your website then update may happen more often because each opened tab will have its own interval for updates._
+
+> Default: `false`  
+> **Example:** `true`  
+> **Example:** `1000 * 60 * 60 * 5` (five hours)
 
 #### `ServiceWorker: Object | null | false`
 

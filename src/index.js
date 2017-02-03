@@ -10,6 +10,7 @@ import loaderUtils from 'loader-utils';
 import slash from 'slash';
 
 const { version: pluginVersion } = require('../package.json');
+const AUTO_UPDATE_INTERVAL = 3600000;
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
@@ -23,6 +24,7 @@ const defaultOptions = {
   // Hack to have intermediate value, e.g. default one, true and false
   relativePaths: ':relativePaths:',
   version: null,
+  autoUpdate: false,
 
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
@@ -89,12 +91,18 @@ export default class OfflinePlugin {
     this.errors = [];
 
     this.__tests = this.options.__tests;
-    this.flags = {
-      runtimeAdded: false
-    };
+    this.flags = {};
 
     if (this.__tests.pluginVersion) {
       this.pluginVersion = this.__tests.pluginVersion;
+    }
+
+    const autoUpdate = this.options.autoUpdate;
+
+    if (autoUpdate === true) {
+      this.autoUpdate = AUTO_UPDATE_INTERVAL;
+    } else if (typeof autoUpdate === 'number' && autoUpdate) {
+      this.autoUpdate = autoUpdate;
     }
 
     if (
@@ -232,7 +240,9 @@ export default class OfflinePlugin {
           return callback(null, result);
         }
 
-        const data = {};
+        const data = {
+          autoUpdate: this.autoUpdate
+        };
 
         this.useTools((tool, key) => {
           data[key] = tool.getConfig(this);
@@ -243,7 +253,6 @@ export default class OfflinePlugin {
             '?' + JSON.stringify(data)
         );
 
-        this.flags.runtimeAdded = true;
         callback(null, result);
       });
     });
@@ -267,14 +276,18 @@ export default class OfflinePlugin {
     });
 
     compiler.plugin('emit', (compilation, callback) => {
-      if (!this.flags.runtimeAdded && !this.__tests.ignoreRuntime) {
+      const runtimeTemplatePath = path.resolve(__dirname, '../tpls/runtime-template.js')
+
+      if (
+        compilation.fileDependencies.indexOf(runtimeTemplatePath) === -1 &&
+        !this.__tests.ignoreRuntime
+      ) {
         compilation.errors.push(
           new Error(`OfflinePlugin: Plugin's runtime wasn't added to one of your bundle entries. See this https://goo.gl/YwewYp for details.`)
         );
         callback();
         return;
       }
-
 
       const stats = compilation.getStats().toJson();
 

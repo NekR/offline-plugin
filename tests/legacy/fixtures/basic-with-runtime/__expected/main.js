@@ -112,8 +112,29 @@
 	  
 	}
 
+	function update() {
+	  
+	    if (hasSW()) {
+	      navigator.serviceWorker.getRegistration().then((registration) => {
+	        if (!registration) return;
+	        return registration.update();
+	      });
+	    }
+	  
+
+	  
+	    if (appCacheIframe) {
+	      appCacheIframe.contentWindow.applicationCache.update();
+	    }
+	  
+	}
+
+
+
 	exports.install = install;
 	exports.applyUpdate = applyUpdate;
+	exports.update = update;
+
 
 /***/ }
 /******/ ]);
