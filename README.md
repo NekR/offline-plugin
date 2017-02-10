@@ -115,7 +115,7 @@ See [documentation of `cacheMaps`](docs/cache-maps.md) for syntax and usage exam
 
 Enables automatic updates of ServiceWorker and AppCache. If set to `true`, it uses default interval of _1 hour_. Set a `number` value to have provide custom update interval.
 
-_**Note:** Please not that if user has multiple opened tabs of your website then update may happen more often because each opened tab will have its own interval for updates._
+_**Note:** Please note that if user has multiple opened tabs of your website then update may happen more often because each opened tab will have its own interval for updates._
 
 > Default: `false`  
 > **Example:** `true`  
