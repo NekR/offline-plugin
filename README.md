@@ -212,6 +212,7 @@ _Default:_ `false`
 
 ### PWAs
 
+* [`offline-plugin` PWA](https://offline-plugin.now.sh/)
 * [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
 * [Preact](https://preactjs.com/) ([source](https://github.com/developit/preact-www))
 * [Omroep West (_Proof of Concept_)](https://omroep-west.now.sh/)
