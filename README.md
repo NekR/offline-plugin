@@ -1,10 +1,23 @@
-# `offline-plugin` for webpack
-
-[![npm](https://img.shields.io/npm/v/offline-plugin.svg?maxAge=3600&v4)](https://www.npmjs.com/package/offline-plugin)
-[![npm](https://img.shields.io/npm/dm/offline-plugin.svg?maxAge=3600)](https://www.npmjs.com/package/offline-plugin)
-[![Join the chat at https://gitter.im/NekR/offline-plugin](https://badges.gitter.im/NekR/offline-plugin.svg)](https://gitter.im/NekR/offline-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+<table>
+  <tr>
+    <td>
+      <div align="center">
+        <img src="https://rawgit.com/NekR/offline-plugin/v4/logo/logo.svg" width="120" alt="offline-plugin logo">
+      </div>
+    </td>
+    <td>
+      <h1>`offline-plugin` for webpack</h1>
+      [![npm](https://img.shields.io/npm/v/offline-plugin.svg?maxAge=3600&v4)](https://www.npmjs.com/package/offline-plugin)
+      [![npm](https://img.shields.io/npm/dm/offline-plugin.svg?maxAge=3600)](https://www.npmjs.com/package/offline-plugin)
+      [![Join the chat at https://gitter.im/NekR/offline-plugin](https://badges.gitter.im/NekR/offline-plugin.svg)](https://gitter.im/NekR/offline-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+    </td>
+  <tr>
+<table>
 
 This plugin is intended to provide an offline experience for **webpack** projects. It uses **ServiceWorker**, and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config``, and the accompanying runtime in your client script, and your project will become offline ready by caching all (or some) of the webpack output assets.
+
+
+[[Demo] Progressive Web App built with `offline-plugin`](https://offline-plugin.now.sh/)
 
 ## Install
 
@@ -42,7 +55,12 @@ require('offline-plugin/runtime').install();
 
 * [Caches](docs/caches.md)
 * [Update process](docs/updates.md)
+* [Cache Maps](docs/cache-maps.md)
 * [FAQ](FAQ.md)
+
+## Articles
+
+* [Easy Offline First Apps With Webpack's Offline Plugin](https://dev.to/kayis/easy-offline-first-apps-with-webpacks-offline-plugin)
 
 ## Options
 
@@ -194,6 +212,7 @@ _Default:_ `false`
 
 ### PWAs
 
+* [`offline-plugin` PWA](https://offline-plugin.now.sh/)
 * [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
 * [Preact](https://preactjs.com/) ([source](https://github.com/developit/preact-www))
 * [Omroep West (_Proof of Concept_)](https://omroep-west.now.sh/)
