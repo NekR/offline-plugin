@@ -2,5 +2,5 @@ The logo is not provided as a part of MIT license of `offline-plugin`[1]. All ri
 
 The logo is free to use in context of mentioning `offline-plugin` or promoting `offline-plugin`.
 
-[1] `offline-plugin` -- https://github.com/NekR/offline-plugin
+[1] `offline-plugin` -- https://github.com/NekR/offline-plugin  
 [2] Arthur Stolyar -- https://github.com/NekR
