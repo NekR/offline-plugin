@@ -2,7 +2,7 @@
   <tr>
     <td>
       <div align="center">
-        <img src="https://rawgit.com/NekR/offline-plugin/v4/logo/logo.svg" width="120" alt="offline-plugin logo">
+        <img src="https://rawgit.com/NekR/offline-plugin/master/logo/logo.svg" width="120" alt="offline-plugin logo">
       </div>
     </td>
     <td>
@@ -227,8 +227,8 @@ Support it by giving [feedback](https://github.com/NekR/offline-plugin/issues), 
 
 ## License
 
-[MIT](LICENSE.md)
-
+[MIT](LICENSE.md)  
+[Logo](logo/LICENSE.md)
 
 ## CHANGELOG
 
