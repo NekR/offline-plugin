@@ -56,7 +56,7 @@ runtime.install({
 });
 ```
 
-There is similar option for AppCache: `AppCache: { events: true }`, but I don't recommend using it unless you really need it. AppCache's events are unstable because they behave differently in different browsers and some hacks have been applied to make it work as it does now. The events are unstable because they may fail to fire, or fire twice. These problems are mostly because AppCache is loaded in an iframe and every browser behaves different in this case (regarding events).
+There is a similar option for AppCache: `AppCache: { events: true }`, but I don't recommend using it unless you really need to. AppCache's events are unstable because they behave differently in different browsers and some hacks have been applied to make it work as it does now. The events are unstable because they may fail to fire, or fire twice. These problems are mostly because AppCache is loaded in an iframe and every browser behaves different in this case (regarding events).
 
 In general, AppCache events work and should work fine. But don't expect them to be bulletproof or something like that. This is why they are marked unstable.
 
