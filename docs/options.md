@@ -1,6 +1,7 @@
 ## Options
 
-**All options are optional and `offline-plugin` can be used without specifying them.** Also see full list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L17).
+**All options are optional and `offline-plugin` can be used without specifying them.**  
+_Also see list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L17)._
 
 #### `caches: 'all' | Object`
 
