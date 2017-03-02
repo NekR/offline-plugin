@@ -54,7 +54,7 @@ declare module 'offline-plugin/runtime' {
    * 
    * @memberOf RuntimeStatic
    */
- export function install(options?: InstallOptions): void;
+  export function install(options?: InstallOptions): void;
 
   /**
    * Used to apply update for existing installation.
