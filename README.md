@@ -51,7 +51,13 @@ Then, add the [runtime](docs/runtime.md) into your entry file (typically main en
 require('offline-plugin/runtime').install();
 ```
 
-> You can find `TypeScript` instructions [here](docs/typescript.md)
+ES6/Babel/TypeScript
+```js
+import * as OfflinePluginRuntime from 'offline-plugin/runtime';
+OfflinePluginRuntime.install();
+```
+
+> For more details of usage with `TypeScript` see [here](docs/typescript.md)
 
 ## Docs
 
