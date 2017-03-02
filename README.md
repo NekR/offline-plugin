@@ -74,9 +74,9 @@ OfflinePluginRuntime.install();
 
 ## Options
 
-**All options are optional and `offline-plugin` can be used without specifying them.**
+All options are optional and `offline-plugin` can be used without specifying them.
 
-### [See all available options here.](docs/options.md)
+#### [See all available options here.](docs/options.md)
 
 ## Who is using `offline-plugin`
 
