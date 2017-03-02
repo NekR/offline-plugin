@@ -1,4 +1,4 @@
-declare namespace runtime {
+declare namespace OfflinePlugin {
   interface InstallOptions {
     /**
      * Event called exactly once when ServiceWorker or AppCache is installed.
@@ -74,9 +74,10 @@ declare namespace runtime {
   }
 }
 
-declare var Runtime: runtime.Runtime;
+declare var Runtime: OfflinePlugin.Runtime;
 
 declare module "offline-plugin" {
+  export = OfflinePlugin;
 }
 
 declare module "offline-plugin/runtime" {
