@@ -75,9 +75,7 @@ OfflinePluginRuntime.install();
 
 **All options are optional and `offline-plugin` can be used without specifying them.**
 
-[See all available options here](docs/options.md)
-
-_Also see list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L17)_.
+[See all available options here.](docs/options.md)
 
 ## Who is using `offline-plugin`
 
