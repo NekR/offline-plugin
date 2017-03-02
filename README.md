@@ -19,7 +19,7 @@ This plugin is intended to provide an offline experience for **webpack** project
 
 ## Setup
 
-First, instantiate the plugin with [options](#options) in your `webpack.config`:
+First, instantiate the plugin with [options](docs/options.md) in your `webpack.config`:
 
 ```js
 // webpack.config.js example
