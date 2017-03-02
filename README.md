@@ -51,7 +51,7 @@ Then, add the [runtime](docs/runtime.md) into your entry file (typically main en
 require('offline-plugin/runtime').install();
 ```
 
-> You can find Typescript instructions [here](docs/typescript.md)
+> You can find `TypeScript` instructions [here](docs/typescript.md)
 
 ## Docs
 
