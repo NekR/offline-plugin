@@ -51,21 +51,7 @@ Then, add the [runtime](docs/runtime.md) into your entry file (typically main en
 require('offline-plugin/runtime').install();
 ```
 
-... and for Typescript users:
-```ts
-// simple installation
-import * as Runtime from 'offline-plugin/runtime';
-Runtime.install();
-
-// use this when you want better tooling integration
-import { Runtime, InstallOptions } from 'offline-plugin';
-import * as runtime from 'offline-plugin/runtime';
-
-(runtime as Runtime).install({
-  onUpdateReady: () => runtime.applyUpdate(),
-	onUpdated: () => location.reload(),
-});
-```
+> You can find Typescript instructions [here](docs/typescript.md)
 
 ## Docs
 
