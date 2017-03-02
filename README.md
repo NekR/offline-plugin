@@ -65,6 +65,7 @@ OfflinePluginRuntime.install();
 * [Update process](docs/updates.md)
 * [Cache Maps](docs/cache-maps.md)
 * [Runtime API](docs/runtime.md)
+* [Configuration options](docs/options.md)
 * [FAQ](FAQ.md)
 
 ## Articles
@@ -83,8 +84,6 @@ OfflinePluginRuntime.install();
 
 * [React Boilerplate](https://github.com/mxstbr/react-boilerplate)
 * [Phenomic](https://phenomic.io)
-* [Gatsby](https://github.com/gatsbyjs/gatsby)
-* [Angular CLI](https://github.com/angular/angular-cli)
 * [React, Universally](https://github.com/ctrlplusb/react-universally)
 
 ### PWAs
