@@ -51,6 +51,12 @@ Then, add the [runtime](docs/runtime.md) into your entry file (typically main en
 require('offline-plugin/runtime').install();
 ```
 
+... and for Typescript users:
+```ts
+import * as Runtime from 'offline-plugin/runtime';
+Runtime.install();
+```
+
 ## Docs
 
 * [Caches](docs/caches.md)
