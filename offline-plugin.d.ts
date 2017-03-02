@@ -1,5 +1,5 @@
-declare namespace OfflinePlugin {
-  interface InstallOptions {
+declare module 'offline-plugin/runtime' {
+  export interface InstallOptions {
     /**
      * Event called exactly once when ServiceWorker or AppCache is installed.
      * Can be useful to display "App is ready for offline usage" message.
@@ -45,41 +45,29 @@ declare namespace OfflinePlugin {
     onUpdated?: () => void;
   }
 
-  interface Runtime {
-    /**
-     * Starts installation flow for ServiceWorker/AppCache
-     * it's safe and must be called each time your page loads
-     * (i.e. do not wrap it into any conditions).
-     * 
-     * @param {InstallOptions} [options] The install options.
-     * 
-     * @memberOf RuntimeStatic
-     */
-    install(options?: InstallOptions): void;
+  /**
+   * Starts installation flow for ServiceWorker/AppCache
+   * it's safe and must be called each time your page loads
+   * (i.e. do not wrap it into any conditions).
+   * 
+   * @param {InstallOptions} [options] The install options.
+   * 
+   * @memberOf RuntimeStatic
+   */
+ export function install(options?: InstallOptions): void;
 
-    /**
-     * Used to apply update for existing installation.
-     * See InstallOptions.
-     * 
-     * @memberOf RuntimeStatic
-     */
-    applyUpdate(): void;
+  /**
+   * Used to apply update for existing installation.
+   * See InstallOptions.
+   * 
+   * @memberOf RuntimeStatic
+   */
+  export function applyUpdate(): void;
 
-    /**
-     * Performs check for updates of new ServiceWorker/AppCache.
-     * 
-     * @memberOf RuntimeStatic
-     */
-    update(): void;
-  }
-}
-
-declare var Runtime: OfflinePlugin.Runtime;
-
-declare module "offline-plugin" {
-  export = OfflinePlugin;
-}
-
-declare module "offline-plugin/runtime" {
-    export = Runtime;
+  /**
+   * Performs check for updates of new ServiceWorker/AppCache.
+   * 
+   * @memberOf RuntimeStatic
+   */
+  export function update(): void;
 }
