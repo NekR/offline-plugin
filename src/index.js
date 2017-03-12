@@ -401,9 +401,11 @@ export default class OfflinePlugin {
           let magic;
 
           if (
+            typeof cacheKey === 'string' &&
             !isAbsoluteURL(cacheKey) &&
             cacheKey[0] !== '/' &&
             cacheKey.indexOf('./') !== 0 &&
+            (magic = hasMagic(cacheKey)) ||
             (magic = hasMagic(cacheKey))
           ) {
             let matched;
