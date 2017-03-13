@@ -12,7 +12,7 @@ var __wpo = {
   },
   "strategy": "changed",
   "responseStrategy": "cache-first",
-  "version": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "version": "f2435b5e97ab165cde456b61eb28bf8bc103076e",
   "name": "webpack-offline",
   "relativePaths": true
 };
