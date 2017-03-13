@@ -13,7 +13,7 @@ export default class ServiceWorker {
       );
     }
 
-    this.uglify = options.uglify;
+    this.minify = options.minify;
     this.output = options.output.replace(/^\.\/+/, '');
     this.publicPath = options.publicPath;
 
@@ -60,7 +60,7 @@ export default class ServiceWorker {
     childCompiler.context = compiler.context;
     childCompiler.apply(new SingleEntryPlugin(compiler.context, entry, name));
 
-    if (this.uglify) {
+    if (this.minify) {
       const options = {test: new RegExp(name)};
       childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
     } else {
@@ -101,7 +101,7 @@ export default class ServiceWorker {
   }
 
   apply(plugin, compilation, compiler) {
-    const minify = this.ugilify || (compiler.options.plugins || []).some((plugin) => {
+    const minify = this.minify || (compiler.options.plugins || []).some((plugin) => {
       return plugin instanceof webpack.optimize.UglifyJsPlugin;
     });
 

@@ -49,7 +49,7 @@ const defaultOptions = {
       mode: 'cors',
       cache: void 0
     },
-    uglify: null
+    minify: null
   },
 
   AppCache: {
