@@ -8,7 +8,7 @@ ___________________________________
 Tells to the plugin what to cache and how.
 
 * `'all'`: means that everything (all the webpack output assets) and URLs listed in `externals` option will be cached on install.
-* `Object`: Object with 3 possible sections (properties) of type `Array<string|RegExp>`: `main`, `additional`, `optional`. All sections are optional and by default are empty (no assets added).
+* `Object`: Object with 3 possible sections (properties) of type `Array<string | RegExp>`: `main`, `additional`, `optional`. All sections are optional and by default are empty (no assets added).
 
 > Default: `'all'`.
 
