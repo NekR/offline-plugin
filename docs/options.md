@@ -107,6 +107,8 @@ _Example:_ `'my/new/path/sw.js'`
 _Default:_ `{ credentials: 'omit', mode: 'cors' }`  
 _Example:_ `{ credentials: 'same-origin' }`  
 
+* `minify`: `boolean`. If `true` the `ServiceWorker`'s output will be minified. If not `true` the `ServiceWorker` will be minified IF the webpack config uses `webpack.optimize.UglifyJsPlugin`.
+
 #### `AppCache: Object | null | false`
 
 Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.
