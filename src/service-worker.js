@@ -61,7 +61,16 @@ export default class ServiceWorker {
     childCompiler.apply(new SingleEntryPlugin(compiler.context, entry, name));
 
     if (this.minify) {
-      const options = {test: new RegExp(name)};
+      const options = {
+        test: new RegExp(name),
+        compress: {
+          warnings: false,
+          dead_code: true,
+          drop_console: true,
+          unused: true
+        }
+      };
+
       childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
     } else {
       (compiler.options.plugins || []).some((plugin) => {

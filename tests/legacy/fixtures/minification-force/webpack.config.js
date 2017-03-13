@@ -1,4 +1,4 @@
-module.exports = __CONFIG__({
+var config = __CONFIG__({
   caches: {
     main: ['external.js', ':rest:']
   },
@@ -9,3 +9,6 @@ module.exports = __CONFIG__({
     minify: true
   }
 });
+
+config.plugins[0].__tests.swMetadataOnly = false;
+module.exports = config;
