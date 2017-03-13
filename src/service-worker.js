@@ -67,7 +67,8 @@ export default class ServiceWorker {
           warnings: false,
           dead_code: true,
           drop_console: true,
-          unused: true
+          unused: true,
+          properties: true
         }
       };
 
