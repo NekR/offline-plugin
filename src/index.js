@@ -399,15 +399,21 @@ export default class OfflinePlugin {
           }
 
           let magic;
-          
-          if (
-            (typeof cacheKey === 'string' &&
-            !isAbsoluteURL(cacheKey) &&
-            cacheKey[0] !== '/' &&
-            cacheKey.indexOf('./') !== 0 &&
-            (magic = hasMagic(cacheKey))) ||
-            (typeof cacheKey !== 'string' && (magic = hasMagic(cacheKey)))
-          ) {
+
+          if (typeof cacheKey === 'string') {
+            magic =
+              !isAbsoluteURL(cacheKey) &&
+              cacheKey[0] !== '/' &&
+              cacheKey.indexOf('./') !== 0 &&
+              hasMagic(cacheKey);
+          } else if (cacheKey instanceof RegExp) {
+            magic = hasMagic(cacheKey);
+          } else {
+            // Ignore non-string and non-RegExp keys
+            return;
+          }
+
+          if (magic) {
             let matched;
 
             for (let i = 0, len = assets.length; i < len; i++) {
