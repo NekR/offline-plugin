@@ -6,7 +6,7 @@ const isAbsolutePath = path.isAbsolute;
 // Based on https://github.com/isaacs/node-glob/blob/master/glob.js#L83
 // (glob.hasMagic)
 export function hasMagic(pattern, options) {
-  //Support RegExp as well as glob
+  // Support RegExp as well as glob
   if (pattern instanceof RegExp) {
     return {
       match: str => pattern.test(str)
