@@ -6,6 +6,14 @@ Besides plugin configuration, you also need to initialize it at runtime in your 
 require('offline-plugin/runtime').install();
 ```
 
+ES6/Babel/TypeScript
+```js
+import * as OfflinePluginRuntime from 'offline-plugin/runtime';
+OfflinePluginRuntime.install();
+```
+
+> For more details of usage with `TypeScript` see [here](typescript.md)
+
 ## Methods
 
 Runtime has following methods:
