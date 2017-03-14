@@ -1,3 +1,5 @@
+# TypeScript
+
 To simply installing the runtime you can use following snippet:
 ```ts
 import * as OfflinePluginRuntime from 'offline-plugin/runtime';
