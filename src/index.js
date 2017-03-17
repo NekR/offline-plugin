@@ -48,7 +48,8 @@ const defaultOptions = {
       headers: void 0,
       mode: 'cors',
       cache: void 0
-    }
+    },
+    minify: null
   },
 
   AppCache: {
@@ -400,12 +401,20 @@ export default class OfflinePlugin {
 
           let magic;
 
-          if (
-            !isAbsoluteURL(cacheKey) &&
-            cacheKey[0] !== '/' &&
-            cacheKey.indexOf('./') !== 0 &&
-            (magic = hasMagic(cacheKey))
-          ) {
+          if (typeof cacheKey === 'string') {
+            magic =
+              !isAbsoluteURL(cacheKey) &&
+              cacheKey[0] !== '/' &&
+              cacheKey.indexOf('./') !== 0 &&
+              hasMagic(cacheKey);
+          } else if (cacheKey instanceof RegExp) {
+            magic = hasMagic(cacheKey);
+          } else {
+            // Ignore non-string and non-RegExp keys
+            return;
+          }
+
+          if (magic) {
             let matched;
 
             for (let i = 0, len = assets.length; i < len; i++) {

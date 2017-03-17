@@ -13,6 +13,7 @@ export default class ServiceWorker {
       );
     }
 
+    this.minify = options.minify;
     this.output = options.output.replace(/^\.\/+/, '');
     this.publicPath = options.publicPath;
 
@@ -59,16 +60,30 @@ export default class ServiceWorker {
     childCompiler.context = compiler.context;
     childCompiler.apply(new SingleEntryPlugin(compiler.context, entry, name));
 
-    (compiler.options.plugins || []).some((plugin) => {
-      if (plugin instanceof webpack.optimize.UglifyJsPlugin) {
-        const options = deepExtend({}, plugin.options);
+    if (this.minify) {
+      const options = {
+        test: new RegExp(name),
+        compress: {
+          warnings: false,
+          dead_code: true,
+          drop_console: true,
+          unused: true
+        }
+      };
 
-        options.test = new RegExp(name);
-        childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
+      childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
+    } else {
+      (compiler.options.plugins || []).some((plugin) => {
+        if (plugin instanceof webpack.optimize.UglifyJsPlugin) {
+          const options = deepExtend({}, plugin.options);
 
-        return true;
-      }
-    });
+          options.test = new RegExp(name);
+          childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
+
+          return true;
+        }
+      });
+    }
 
     // Needed for HMR. offline-plugin doesn't support it,
     // but added just in case to prevent other errors
@@ -95,7 +110,7 @@ export default class ServiceWorker {
   }
 
   apply(plugin, compilation, compiler) {
-    const minify = (compiler.options.plugins || []).some((plugin) => {
+    const minify = this.minify || (compiler.options.plugins || []).some((plugin) => {
       return plugin instanceof webpack.optimize.UglifyJsPlugin;
     });
 

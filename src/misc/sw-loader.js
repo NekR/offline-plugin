@@ -2,6 +2,10 @@ const path = require('path');
 const fs = require('fs');
 const loaderUtils = require('loader-utils');
 
+const modules = [
+  'async-waituntil.js'
+];
+
 module.exports = function() {};
 module.exports.pitch = function pitch(remainingRequest, precedingRequest, data) {
   this.cacheable && this.cacheable();
@@ -56,15 +60,31 @@ module.exports.pitch = function pitch(remainingRequest, precedingRequest, data) 
     '}',
   ];
 
-  fs.readFile(templatePath, 'utf-8', function(err, template) {
-    if (err) return callback(err);
+  Promise.all([
+    ...modules.map(mod => readFile(path.join(__dirname, mod))),
+    readFile(templatePath).then(template => {
+      template = `
+        ${ template }
+        WebpackServiceWorker(${ params.data_var_name }${ helpersCode.join('\n') });
+        ${ source }
+      `;
 
-    template = `
-      ${ template }
-      WebpackServiceWorker(${ params.data_var_name }${ helpersCode.join('\n') });
-      ${ source }
-    `;
-
-    callback(null, template);
-  });
+      return template;
+    }),
+  ]).then(all => {
+    callback(null, all.join(';'));
+  }).catch(err => callback(err));
 };
+
+function readFile(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, 'utf-8', function(err, file) {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      resolve(file);
+    });
+  });
+}

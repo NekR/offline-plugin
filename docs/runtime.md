@@ -1,4 +1,4 @@
-## Runtime
+# Runtime
 
 Besides plugin configuration, you also need to initialize it at runtime in your entry file. This is how you can do it:
 
@@ -6,27 +6,39 @@ Besides plugin configuration, you also need to initialize it at runtime in your 
 require('offline-plugin/runtime').install();
 ```
 
-### Methods
+ES6/Babel/TypeScript
+```js
+import * as OfflinePluginRuntime from 'offline-plugin/runtime';
+OfflinePluginRuntime.install();
+```
+
+> For more details of usage with `TypeScript` see [here](typescript.md)
+
+## Methods
 
 Runtime has following methods:
 
-#### `install(options: Object)`
+### `install(options: Object)`
 
 Starts installation flow for `ServiceWorker`/`AppCache` it's safe and must be called each time your page loads (i.e. do not wrap it into any conditions).
 
-#### `applyUpdate()`
+### `applyUpdate()`
 
 Used to apply update for existing installation. See `install` options below.
 
-#### `update()`
+### `update()`
 
 Performs check for updates of new `ServiceWorker`/`AppCache`.
 
-### `install` Options
+## `install()` Options
 
 Runtime `install` accepts 1 optional argument, `options` object. Right now you can use following runtime options:
 
-_**Note:** Events must be explicitly enabled for each tool (`ServiceWorker`/`AppCache`) in their options._
+_(right now `install()` accepts only Events and doesn't have any runtime configuration options)_
+
+### Events
+
+_**Note:** To use events, they must be explicitly enabled for each tool (`ServiceWorker`/`AppCache`) in their options._
 
 #### `onInstalled`
 
