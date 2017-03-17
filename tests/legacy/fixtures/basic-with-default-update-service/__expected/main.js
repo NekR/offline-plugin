@@ -124,7 +124,9 @@
 
 	  
 	    if (appCacheIframe) {
-	      appCacheIframe.contentWindow.applicationCache.update();
+	      try {
+	        appCacheIframe.contentWindow.applicationCache.update();
+	      } catch (e) {}
 	    }
 	  
 	}
