@@ -15,7 +15,11 @@
     "test": "node tests/legacy/run && eslint -c configs/eslint.tests.json 'tests/**/**.js'",
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
-    "install:build-deps": "node build/install.js"
+    "install:build-deps": "node build/install.js",
+    "tag": "git push && git push --tags && npm publish",
+    "release:patch": "npm version patch && npm run tag",
+    "release:minor": "npm version minor && npm run tag",
+    "release:major": "npm version major && npm run tag"
   },
   "repository": {
     "type": "git",
