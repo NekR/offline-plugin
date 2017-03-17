@@ -216,7 +216,9 @@ function update() {
 
   <% if (typeof AppCache !== 'undefined' && AppCache.disableInstall !== true) { %>
     if (appCacheIframe) {
-      appCacheIframe.contentWindow.applicationCache.update();
+      try {
+        appCacheIframe.contentWindow.applicationCache.update();
+      } catch (e) {}
     }
   <% } %>
 }
