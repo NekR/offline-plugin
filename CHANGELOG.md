@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 4.6.2
+
+* Wrap `applicationCache.update()` with `try..catch` #189
+
 ### 4.6.1
 
 * Fixed syntax error in `runtime-template.js`
