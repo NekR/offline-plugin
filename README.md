@@ -31,7 +31,7 @@ module.exports = {
 
   plugins: [
     // ... other plugins
-    // it always better if OfflinePlugin is the last plugin added
+    // it's always better if OfflinePlugin is the last plugin added
     new OfflinePlugin()
   ]
   // ...
