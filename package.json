@@ -16,7 +16,6 @@
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
     "install:build-deps": "node build/install.js",
-    "postinstall": "./node_modules/.bin/opencollective-postinstall || exit 0",
 
     "tag": "git push && git push --tags",
     "publish:latest": "npm publish",
@@ -76,7 +75,6 @@
     "dir-compare": "^1.1.0",
     "eslint": "^3.14.1",
     "on-build-webpack": "^0.1.0",
-    "opencollective-postinstall": "^1.0.12",
     "webpack": "^1.0.0"
   },
   "buildDependencies": {
