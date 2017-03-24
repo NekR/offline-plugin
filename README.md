@@ -135,7 +135,7 @@ _If you are using `offline-plugin`, feel free to submit a PR to add your project
 
 ## Like `offline-plugin`?
 
-Support it by giving [feedback](https://github.com/NekR/offline-plugin/issues), contributing, becoming a backer/sponsor or just by 🌟 starring the project!
+Support it by giving [feedback](https://github.com/NekR/offline-plugin/issues), contributing, becoming a [backer/sponsor](https://opencollective.com/offline-plugin) or just by 🌟 starring the project!
 
 
 ## Backers
