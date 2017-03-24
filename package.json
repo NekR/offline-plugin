@@ -7,7 +7,7 @@
     "lib/",
     "tpls/",
     "runtime.js",
-    "empty-entry.js",
+    "src/empty-entry.js",
     "offline-plugin.d.ts"
   ],
   "types": "./offline-plugin.d.ts",

@@ -40,7 +40,7 @@ const defaultOptions = {
 
   ServiceWorker: {
     output: 'sw.js',
-    entry: path.join(__dirname, '../empty-entry.js'),
+    entry: path.join(__dirname, '../src/empty-entry.js'),
     scope: null,
     events: false,
     prefetchRequest: {
