@@ -13,8 +13,48 @@
 
 This plugin is intended to provide an offline experience for **webpack** projects. It uses **ServiceWorker**, and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config``, and the accompanying runtime in your client script, and your project will become offline ready by caching all (or some) of the webpack output assets.
 
+<div align="center">
+  <strong>Demo:<br><a href="https://offline-plugin.now.sh/"> Progressive Web App built with <code>offline-plugin</code></a></strong><br> 
+  <div>(<a href="https://github.com/NekR/offline-plugin-pwa"><i>source code</i></a>)</div>
+</div>
 
-[[Demo] Progressive Web App built with `offline-plugin`](https://offline-plugin.now.sh/) ([source code of the demo](https://github.com/NekR/offline-plugin-pwa))
+<div align="center">
+  <h1>Sponsors</h1>
+  
+  <a href="https://opencollective.com/offline-plugin/sponsor/0/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/0/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/1/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/1/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/2/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/2/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/3/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/3/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/4/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/4/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/5/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/5/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/6/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/6/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/7/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/7/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/8/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/8/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/9/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/9/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/10/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/10/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/11/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/11/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/12/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/12/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/13/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/13/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/14/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/14/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/15/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/15/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/16/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/16/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/17/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/17/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/18/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/18/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/19/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/19/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/20/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/20/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/21/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/21/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/22/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/22/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/23/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/23/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/24/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/24/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/25/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/25/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/26/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/26/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/27/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/27/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/28/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/28/avatar.svg"></a>
+  <a href="https://opencollective.com/offline-plugin/sponsor/29/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/29/avatar.svg"></a>
+  
+  Become a sponsor and get your logo on our README on Github with a link to your site.<br>
+  <strong><a href="https://opencollective.com/offline-plugin#sponsor">Become a sponsor</a></strong>
+</div>
 
 ## Install
 
@@ -132,43 +172,6 @@ Support us with a monthly donation and help us continue our activities. [[Become
 <a href="https://opencollective.com/offline-plugin/backer/27/website" target="_blank"><img src="https://opencollective.com/offline-plugin/backer/27/avatar.svg"></a>
 <a href="https://opencollective.com/offline-plugin/backer/28/website" target="_blank"><img src="https://opencollective.com/offline-plugin/backer/28/avatar.svg"></a>
 <a href="https://opencollective.com/offline-plugin/backer/29/website" target="_blank"><img src="https://opencollective.com/offline-plugin/backer/29/avatar.svg"></a>
-
-
-## Sponsors
-
-Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/offline-plugin#sponsor)]
-
-<a href="https://opencollective.com/offline-plugin/sponsor/0/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/1/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/2/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/3/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/4/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/5/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/6/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/7/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/8/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/9/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/9/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/10/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/10/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/11/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/11/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/12/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/12/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/13/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/13/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/14/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/14/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/15/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/15/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/16/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/16/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/17/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/17/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/18/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/18/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/19/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/19/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/20/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/20/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/21/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/21/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/22/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/22/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/23/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/23/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/24/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/24/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/25/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/25/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/26/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/26/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/27/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/27/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/28/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/28/avatar.svg"></a>
-<a href="https://opencollective.com/offline-plugin/sponsor/29/website" target="_blank"><img src="https://opencollective.com/offline-plugin/sponsor/29/avatar.svg"></a>
-
 
 ## License
 
