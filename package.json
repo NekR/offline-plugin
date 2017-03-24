@@ -13,8 +13,7 @@
   "types": "./offline-plugin.d.ts",
   "scripts": {
     "test": "node tests/legacy/run && eslint -c configs/eslint.tests.json 'tests/**/**.js'",
-    "copy": "cp ./src/empty-entry.js ./lib",
-    "build": "npm run copy && ./node_modules/.bin/babel src/ -d lib/ --ignore ./src/empty-entry.js",
+    "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
     "install:build-deps": "node build/install.js",
 
