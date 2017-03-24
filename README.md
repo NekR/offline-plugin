@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://rawgit.com/NekR/offline-plugin/master/logo/logo.svg" width="120" alt="offline-plugin logo">
+  <a href="https://offline-plugin.now.sh/"><img src="https://rawgit.com/NekR/offline-plugin/master/logo/logo.svg" width="120" alt="offline-plugin logo"></a>
 
   <h1><code>offline-plugin</code> for webpack</h1>
 
