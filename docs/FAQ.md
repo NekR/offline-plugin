@@ -23,4 +23,4 @@ new webpack.optimize.UglifyPlugin({
 This is because the [opaque request](http://stackoverflow.com/questions/36292537/what-is-an-opaque-request-and-what-it-serves-for) made doesn't give us access to the returned response code. We are therefore unable to determine the asset is valid. In this situation we avoid caching potential erroneous requests. Please ensure anything to be cached responds with valid CORS headers. 
 
 **Why isn't my SPA working in offline mode?**  
-There is probably something wrong with your configuration. See the [SPA example](examples/SPA)
+There is probably something wrong with your configuration. See the [SPA example](docs/examples/SPA)
