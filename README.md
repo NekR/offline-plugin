@@ -105,6 +105,10 @@ OfflinePluginRuntime.install();
 * [Configuration options](docs/options.md)
 * [FAQ](docs/FAQ.md)
 
+## Examples
+
+* [SPA](docs/examples/SPA.md)
+
 ## Articles
 
 * [Easy Offline First Apps With Webpack's Offline Plugin](https://dev.to/kayis/easy-offline-first-apps-with-webpacks-offline-plugin)
