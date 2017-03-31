@@ -29,7 +29,7 @@ caches: {
 
 In this example assets which ends with `.chunk.js` are added to `optional` cache, _external_ assets added to `additional` cache and _rest_ of the assets are added to `main` cache.
 
-Use special keyword `:rest:` to match all unused/uncached assets. To match multiple assets or assets with dynamic names, use [pattern matching](https://www.npmjs.com/package/minimatch). To add external assets (from outside of your webpack build), list them in `externals` option and then user `:externals:` keyword in `caches`. If you don't want to put all `externals` into the same section, you can list those assets manually (e.g. `additional: ['/external.js']`) instead of using `:externals:` keyword.
+Use special keyword `:rest:` to match all unused/uncached assets. To match multiple assets or assets with dynamic names, use [pattern matching](https://www.npmjs.com/package/minimatch). To add external assets (from outside of your webpack build), list them in `externals` option and then use `:externals:` keyword in `caches`. If you don't want to put all `externals` into the same section, you can list those assets manually (e.g. `additional: ['/external.js']`) instead of using `:externals:` keyword.
 
 ### Cache sections
 
