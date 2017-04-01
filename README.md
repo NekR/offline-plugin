@@ -139,7 +139,7 @@ _If you are using `offline-plugin`, feel free to submit a PR to add your project
 
 ## Like `offline-plugin`?
 
-Support it by giving [feedback](https://github.com/NekR/offline-plugin/issues), contributing, becoming a [backer/sponsor](https://opencollective.com/offline-plugin) or just by 🌟 starring the project!
+Support it by giving [feedback](https://github.com/NekR/offline-plugin/issues), [contributing](CONTIBUTING.md), becoming a [backer/sponsor](https://opencollective.com/offline-plugin) or just by 🌟 starring the project!
 
 
 ## Backers
@@ -176,6 +176,10 @@ Support us with a monthly donation and help us continue our activities. [[Become
 <a href="https://opencollective.com/offline-plugin/backer/27/website" target="_blank"><img src="https://opencollective.com/offline-plugin/backer/27/avatar.svg"></a>
 <a href="https://opencollective.com/offline-plugin/backer/28/website" target="_blank"><img src="https://opencollective.com/offline-plugin/backer/28/avatar.svg"></a>
 <a href="https://opencollective.com/offline-plugin/backer/29/website" target="_blank"><img src="https://opencollective.com/offline-plugin/backer/29/avatar.svg"></a>
+
+## Contribution
+
+See [CONTRIBUTING](CONTIBUTING.md)
 
 ## License
 
