@@ -107,7 +107,7 @@ OfflinePluginRuntime.install();
 
 ## Examples
 
-* [SPA](docs/examples/SPA.md)
+* [Single Page Application](docs/examples/SPA.md)
 
 ## Articles
 
