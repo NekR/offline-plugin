@@ -112,6 +112,7 @@ OfflinePluginRuntime.install();
 ## Articles
 
 * [Easy Offline First Apps With Webpack's Offline Plugin](https://dev.to/kayis/easy-offline-first-apps-with-webpacks-offline-plugin)
+* [Handling Client Side App Updates (with Service Workers)](https://zach.codes/handling-client-side-app-updates-with-service-workers/)
 
 ## Options
 
