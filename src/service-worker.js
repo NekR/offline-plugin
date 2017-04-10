@@ -26,6 +26,7 @@ export default class ServiceWorker {
     this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
     this.navigateFallbackURL = options.navigateFallbackURL;
+    this.ignoreRedirects = options.ignoreRedirects;
     this.prefetchRequest = this.validatePrefetch(options.prefetchRequest);
 
     let cacheNameQualifier = '';
@@ -176,6 +177,7 @@ export default class ServiceWorker {
 
         hashesMap: hashesMap,
         navigateFallbackURL: this.navigateFallbackURL,
+        ignoreRedirects: this.ignoreRedirects,
 
         strategy: plugin.strategy,
         responseStrategy: plugin.responseStrategy,
