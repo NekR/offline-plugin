@@ -139,6 +139,7 @@ var __wpo = {
 
 	  var allAssets = [].concat(assets.main, assets.additional, assets.optional);
 	  var navigateFallbackURL = params.navigateFallbackURL;
+	  var ignoreRedirects = params.ignoreRedirects;
 
 	  self.addEventListener('install', function (event) {
 	    console.log('[SW]:', 'Install event');
@@ -488,7 +489,11 @@ var __wpo = {
 
 	  function handleNavigateFallback(fetching) {
 	    return fetching['catch'](function () {}).then(function (response) {
-	      if (!response || !response.ok) {
+	      var isOk = response && response.ok;
+	      var isRedirect = response && response.type === 'opaqueredirect';
+	      var useCache = !isOk && !(isRedirect && ignoreRedirects);
+
+	      if (useCache) {
 	        if (false) {
 	          console.log('[SW]:', 'Loading navigation fallback [' + navigateFallbackURL + '] from cache');
 	        }
