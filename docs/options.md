@@ -96,6 +96,9 @@ _Example:_ `'my-project'`
 * `navigateFallbackURL`: `string`. The URL that should be returned from the cache when a requested navigation URL isn't available on the cache or network. Similar to the `AppCache.FALLBACK` option.  
 _Example:_ `navigateFallbackURL: '/'`
 
+* `ignoreRedirects`: `boolean`. With this flag `navigateFallbackURL` will not be used for 3xx responses. (By default it will be used for all non 2xx navigate responses).
+_Example:_ `ignoreRedirects: true`
+
 * `events`: `boolean`. Enables runtime events for the ServiceWorker. For supported events see `Runtime`'s `install()` options.
 _Default:_ `false`
 
