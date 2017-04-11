@@ -49,7 +49,8 @@ const defaultOptions = {
       mode: 'cors',
       cache: void 0
     },
-    minify: null
+    minify: null,
+    navigateFallbackForRedirects: true
   },
 
   AppCache: {
