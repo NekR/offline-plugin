@@ -6,6 +6,7 @@ var __wpo = {
   },
   "externals": [],
   "hashesMap": {},
+  "navigateFallbackForRedirects": true,
   "strategy": "changed",
   "responseStrategy": "cache-first",
   "version": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
@@ -94,6 +95,7 @@ var __wpo = {
 
 	  var allAssets = [].concat(assets.main, assets.additional, assets.optional);
 	  var navigateFallbackURL = params.navigateFallbackURL;
+	  var navigateFallbackForRedirects = params.navigateFallbackForRedirects;
 
 	  self.addEventListener('install', function (event) {
 	    console.log('[SW]:', 'Install event');
@@ -442,15 +444,18 @@ var __wpo = {
 
 	  function handleNavigateFallback(fetching) {
 	    return fetching['catch'](function () {}).then(function (response) {
-	      if (!response || !response.ok) {
-	        if (false) {
-	          console.log('[SW]:', 'Loading navigation fallback [' + navigateFallbackURL + '] from cache');
-	        }
+	      var isOk = response && response.ok;
+	      var isRedirect = response && response.type === 'opaqueredirect';
 
-	        return cachesMatch(navigateFallbackURL, CACHE_NAME);
+	      if (isOk || isRedirect && !navigateFallbackForRedirects) {
+	        return response;
 	      }
 
-	      return response;
+	      if (false) {
+	        console.log('[SW]:', 'Loading navigation fallback [' + navigateFallbackURL + '] from cache');
+	      }
+
+	      return cachesMatch(navigateFallbackURL, CACHE_NAME);
 	    });
 	  }
 
