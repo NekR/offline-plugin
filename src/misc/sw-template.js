@@ -30,7 +30,7 @@ function WebpackServiceWorker(params, helpers) {
 
   const allAssets = [].concat(assets.main, assets.additional, assets.optional);
   const navigateFallbackURL = params.navigateFallbackURL;
-  const ignoreRedirects = params.ignoreRedirects;
+  const navigateFallbackForRedirects = params.navigateFallbackForRedirects;
 
   self.addEventListener('install', (event) => {
     console.log('[SW]:', 'Install event');
@@ -401,17 +401,16 @@ function WebpackServiceWorker(params, helpers) {
       .then((response) => {
         const isOk = response && response.ok;
         const isRedirect = response && response.type === 'opaqueredirect';
-        const useCache = !isOk && !(isRedirect && ignoreRedirects);
 
-        if (useCache) {
-          if (DEBUG) {
-            console.log('[SW]:', `Loading navigation fallback [${ navigateFallbackURL }] from cache`);
-          }
-
-          return cachesMatch(navigateFallbackURL, CACHE_NAME);
+        if (isOk || (isRedirect && !navigateFallbackForRedirects)) {
+          return response;
         }
 
-        return response;
+        if (DEBUG) {
+          console.log('[SW]:', `Loading navigation fallback [${ navigateFallbackURL }] from cache`);
+        }
+
+        return cachesMatch(navigateFallbackURL, CACHE_NAME);
       });
   }
 
