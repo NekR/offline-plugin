@@ -2,7 +2,7 @@ import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import path from 'path';
 import webpack from 'webpack';
 import deepExtend from 'deep-extend';
-import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
+import { getSource, isAbsolutePath } from './misc/utils';
 
 export default class ServiceWorker {
   constructor(options) {
