@@ -17,7 +17,6 @@ var __wpo = {
   "hashesMap": {
     "4f41fc3cebe01f4fb3508db0c2bbfe65557b07d1": "/dist-new/main.js"
   },
-  "navigateFallbackForRedirects": true,
   "strategy": "changed",
   "responseStrategy": "cache-first",
   "version": "ce7b708472540d89cb6e164003a65bd8772715dd",
