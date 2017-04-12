@@ -346,10 +346,10 @@ var __wpo = {
 	    // * event.request -- original Request to perform fetch() if necessary
 	    var resource = undefined;
 
-	    if (responseStrategy === "network-first") {
+	    if (responseStrategy === 'network-first') {
 	      resource = networkFirstResponse(event, urlString, cacheUrl);
 	    }
-	    // "cache-first"
+	    // 'cache-first'
 	    // (responseStrategy has been validated before)
 	    else {
 	        resource = cacheFirstResponse(event, urlString, cacheUrl);
@@ -427,10 +427,10 @@ var __wpo = {
 	        return response;
 	      }
 
-	      // throw to reach the code in the catch below
-	      throw new Error("response is not ok");
+	      // Throw to reach the code in the catch below
+	      throw new Error('Response is not ok');
 	    })
-	    // this needs to be in a catch() and not just in the then() above
+	    // This needs to be in a catch() and not just in the then() above
 	    // cause if your network is down, the fetch() will throw
 	    ['catch'](function () {
 	      if (false) {
@@ -518,7 +518,7 @@ var __wpo = {
 	        request = applyCacheBust(request, bustValue);
 	      }
 
-	      return fetch(request, requestInit);
+	      return fetch(request, requestInit).then(fixRedirectedResponse);
 	    })).then(function (responses) {
 	      if (responses.some(function (response) {
 	        return !response.ok;
@@ -616,6 +616,19 @@ var __wpo = {
 	function cachesMatch(request, cacheName) {
 	  return caches.match(request, {
 	    cacheName: cacheName
+	  }).then(function (response) {
+	    if (!response || !response.redirected) {
+	      return response;
+	    }
+
+	    // Fix already cached redirected responses
+	    return fixRedirectedResponse(response).then(function (fixedResponse) {
+	      return caches.open(cacheName).then(function (cache) {
+	        return cache.put(request, fixedResponse);
+	      }).then(function () {
+	        return fixedResponse;
+	      });
+	    });
 	  })
 	  // Return void if error happened (cache not found)
 	  ['catch'](function () {});
@@ -655,6 +668,22 @@ var __wpo = {
 
 	function isNavigateRequest(request) {
 	  return request.mode === 'navigate' || request.headers.get('Upgrade-Insecure-Requests') || (request.headers.get('Accept') || '').indexOf('text/html') !== -1;
+	}
+
+	// Based on https://github.com/GoogleChrome/sw-precache/pull/241/files#diff-3ee9060dc7a312c6a822cac63a8c630bR85
+	function fixRedirectedResponse(response) {
+	  if (!response || !response.redirected || !response.ok || response.type === 'opaqueredirect') {
+	    return Promise.resolve(response);
+	  }
+
+	  var body = 'body' in response ? Promise.resolve(response.body) : response.blob();
+
+	  return body.then(function (data) {
+	    return new Response(data, {
+	      headers: response.headers,
+	      status: response.status
+	    });
+	  });
 	}
 
 	function copyObject(original) {

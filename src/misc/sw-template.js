@@ -297,10 +297,10 @@ function WebpackServiceWorker(params, helpers) {
     // * event.request -- original Request to perform fetch() if necessary
     let resource;
 
-    if (responseStrategy === "network-first") {
+    if (responseStrategy === 'network-first') {
       resource = networkFirstResponse(event, urlString, cacheUrl);
     }
-    // "cache-first"
+    // 'cache-first'
     // (responseStrategy has been validated before)
     else {
       resource = cacheFirstResponse(event, urlString, cacheUrl);
@@ -380,10 +380,10 @@ function WebpackServiceWorker(params, helpers) {
           return response
         }
 
-        // throw to reach the code in the catch below
-        throw new Error("response is not ok")
+        // Throw to reach the code in the catch below
+        throw new Error('Response is not ok');
       })
-      // this needs to be in a catch() and not just in the then() above
+      // This needs to be in a catch() and not just in the then() above
       // cause if your network is down, the fetch() will throw
       .catch(() => {
         if (DEBUG) {
@@ -473,7 +473,7 @@ function WebpackServiceWorker(params, helpers) {
         request = applyCacheBust(request, bustValue);
       }
 
-      return fetch(request, requestInit);
+      return fetch(request, requestInit).then(fixRedirectedResponse);
     })).then((responses) => {
       if (responses.some(response => !response.ok)) {
         return Promise.reject(new Error('Wrong response status'));
@@ -567,6 +567,17 @@ function WebpackServiceWorker(params, helpers) {
 function cachesMatch(request, cacheName) {
   return caches.match(request, {
     cacheName: cacheName
+  }).then(response => {
+    if (!response || !response.redirected) {
+      return response;
+    }
+
+    // Fix already cached redirected responses
+    return fixRedirectedResponse(response).then(fixedResponse => {
+      return caches.open(cacheName).then(cache => {
+        return cache.put(request, fixedResponse);
+      }).then(() => fixedResponse);
+    });
   })
   // Return void if error happened (cache not found)
   .catch(() => {});
@@ -608,6 +619,26 @@ function isNavigateRequest(request) {
   return request.mode === 'navigate' ||
     request.headers.get('Upgrade-Insecure-Requests') ||
     (request.headers.get('Accept') || '').indexOf('text/html') !== -1;
+}
+
+// Based on https://github.com/GoogleChrome/sw-precache/pull/241/files#diff-3ee9060dc7a312c6a822cac63a8c630bR85
+function fixRedirectedResponse(response) {
+  if (
+    !response || !response.redirected ||
+    !response.ok || response.type === 'opaqueredirect'
+  ) {
+    return Promise.resolve(response);
+  }
+
+  const body = 'body' in response ?
+    Promise.resolve(response.body) : response.blob();
+
+  return body.then(data => {
+    return new Response(data, {
+      headers: response.headers,
+      status: response.status
+    });
+  });
 }
 
 function copyObject(original) {
