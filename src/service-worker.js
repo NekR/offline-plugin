@@ -12,6 +12,13 @@ export default class ServiceWorker {
         'but an absolute path was passed'
       );
     }
+    
+    if (typeof options.navigateFallbackURL === 'undefined' && typeof options.navigateFallbackForRedirects !== 'undefined') {
+      throw new Error(
+        'OfflinePlugin: ServiceWorker.navigateFallbackForRedirects was passed without ServiceWorker.navigateFallbackURL, ' +
+        'it will have no affect.'
+      );
+    }
 
     this.minify = options.minify;
     this.output = options.output.replace(/^\.\/+/, '');
