@@ -12,7 +12,6 @@ var __wpo = {
     "https://fonts.googleapis.com/css?family=Montserrat:400,700"
   ],
   "hashesMap": {},
-  "navigateFallbackForRedirects": true,
   "strategy": "changed",
   "responseStrategy": "cache-first",
   "version": "da39a3ee5e6b4b0d3255bfef95601890afd80709",

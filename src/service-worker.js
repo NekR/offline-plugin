@@ -177,7 +177,8 @@ export default class ServiceWorker {
 
         hashesMap: hashesMap,
         navigateFallbackURL: this.navigateFallbackURL,
-        navigateFallbackForRedirects: this.navigateFallbackForRedirects,
+        navigateFallbackForRedirects: this.navigateFallbackURL ?
+          this.navigateFallbackForRedirects : void 0,
 
         strategy: plugin.strategy,
         responseStrategy: plugin.responseStrategy,
