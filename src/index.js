@@ -48,7 +48,8 @@ const defaultOptions = {
       headers: void 0,
       mode: 'cors',
       cache: void 0
-    }
+    },
+    navigateFallbackForRedirects: true
   },
 
   AppCache: {
