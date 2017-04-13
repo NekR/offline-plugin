@@ -670,7 +670,7 @@ var __wpo = {
 	  return caches.match(request, {
 	    cacheName: cacheName
 	  }).then(function (response) {
-	    if (!response || !response.redirected) {
+	    if (isNotRedirectedResponse()) {
 	      return response;
 	    }
 
@@ -723,9 +723,13 @@ var __wpo = {
 	  return request.mode === 'navigate' || request.headers.get('Upgrade-Insecure-Requests') || (request.headers.get('Accept') || '').indexOf('text/html') !== -1;
 	}
 
+	function isNotRedirectedResponse(response) {
+	  return !response || !response.redirected || !response.ok || response.type === 'opaqueredirect';
+	}
+
 	// Based on https://github.com/GoogleChrome/sw-precache/pull/241/files#diff-3ee9060dc7a312c6a822cac63a8c630bR85
 	function fixRedirectedResponse(response) {
-	  if (!response || !response.redirected || !response.ok || response.type === 'opaqueredirect') {
+	  if (isNotRedirectedResponse(response)) {
 	    return Promise.resolve(response);
 	  }
 

@@ -569,7 +569,7 @@ function cachesMatch(request, cacheName) {
   return caches.match(request, {
     cacheName: cacheName
   }).then(response => {
-    if (!response || !response.redirected) {
+    if (isNotRedirectedResponse()) {
       return response;
     }
 
@@ -622,12 +622,16 @@ function isNavigateRequest(request) {
     (request.headers.get('Accept') || '').indexOf('text/html') !== -1;
 }
 
-// Based on https://github.com/GoogleChrome/sw-precache/pull/241/files#diff-3ee9060dc7a312c6a822cac63a8c630bR85
-function fixRedirectedResponse(response) {
-  if (
+function isNotRedirectedResponse(response) {
+  return (
     !response || !response.redirected ||
     !response.ok || response.type === 'opaqueredirect'
-  ) {
+  );
+}
+
+// Based on https://github.com/GoogleChrome/sw-precache/pull/241/files#diff-3ee9060dc7a312c6a822cac63a8c630bR85
+function fixRedirectedResponse(response) {
+  if (isNotRedirectedResponse(response)) {
     return Promise.resolve(response);
   }
 
