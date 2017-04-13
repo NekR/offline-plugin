@@ -74,7 +74,7 @@
     "dir-compare": "^1.1.0",
     "eslint": "^3.14.1",
     "on-build-webpack": "^0.1.0",
-    "webpack": "^1.0.0"
+    "webpack": "1.14.0"
   },
   "buildDependencies": {
     "babel": "^5.8.23"
