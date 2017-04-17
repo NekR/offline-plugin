@@ -342,6 +342,7 @@ export default class OfflinePlugin {
     const excludes = this.options.excludes;
     let assets = Object.keys(compilation.assets);
     let externals = this.options.externals;
+    let filterPredicateFn = this.options.filterPredicate || (() => {});
 
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
@@ -354,7 +355,7 @@ export default class OfflinePlugin {
         }
 
         return true;
-      });
+      }).filter(filterPredicateFn);
     }
 
     this.externals = this.validatePaths(externals);
