@@ -120,6 +120,8 @@ All options are optional and `offline-plugin` can be used without specifying the
 
 #### [See all available options here.](docs/options.md)
 
+### Are you having problems getting `offline-plugin` working? [See the troubleshooting docs](docs/troubleshooting.md)
+
 ## Who is using `offline-plugin`
 
 ### Projects
