@@ -104,6 +104,7 @@ OfflinePluginRuntime.install();
 * [Runtime API](docs/runtime.md)
 * [Configuration options](docs/options.md)
 * [FAQ](docs/FAQ.md)
+* [Troubleshooting](docs/troubleshooting.md)
 
 ## Examples
 
@@ -119,8 +120,6 @@ OfflinePluginRuntime.install();
 All options are optional and `offline-plugin` can be used without specifying them.
 
 #### [See all available options here.](docs/options.md)
-
-### Are you having problems getting `offline-plugin` working? [See the troubleshooting docs](docs/troubleshooting.md)
 
 ## Who is using `offline-plugin`
 
