@@ -104,6 +104,7 @@ OfflinePluginRuntime.install();
 * [Runtime API](docs/runtime.md)
 * [Configuration options](docs/options.md)
 * [FAQ](docs/FAQ.md)
+* [Troubleshooting](docs/troubleshooting.md)
 
 ## Examples
 
