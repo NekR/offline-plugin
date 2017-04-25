@@ -2,11 +2,7 @@
   (function() {
     // ################################
 
-    var updateReadyInterval;
     var updatingFired;
-    var downloadingInterval;
-    var obsoleteInterval;
-    var cleanUpTimer;
 
     applicationCache.addEventListener('updateready', onUpdateReadyEvent);
     applicationCache.addEventListener('cached', onInstalledEvent);
@@ -14,6 +10,11 @@
 
     applicationCache.addEventListener('downloading', onDownloadingEvent);
     applicationCache.addEventListener('progress', onDownloadingEvent);
+
+    // Race condition is possible, because Application Cache is running in
+    // the background, so we need to check if we missed some events.
+    // See Pitfall 3 and 4 at
+    // http://labnote.beedesk.com/the-pitfalls-of-html5-applicationcache
 
     switch (applicationCache.status) {
       case applicationCache.DOWNLOADING: {
@@ -25,31 +26,7 @@
       case applicationCache.UPDATEREADY: {
         setTimeout(onUpdateReadyEvent, 1);
       } break;
-
-      default: {
-        downloadingInterval = setInterval(function() {
-          if (applicationCache.status === applicationCache.DOWNLOADING) {
-            onDownloadingEvent();
-          }
-        }, 50);
-
-        obsoleteInterval = setInterval(function() {
-          if (applicationCache.status === applicationCache.OBSOLETE) {
-            onObsoleteEvent();
-          }
-        }, 50);
-
-        updateReadyInterval = setInterval(function() {
-          if (applicationCache.status === applicationCache.UPDATEREADY) {
-            onUpdateReadyEvent();
-          }
-        }, 50);
-      }
     }
-
-    cleanUpTimer = setTimeout(function() {
-      cleanUp();
-    }, 5000);
 
     // ###############################
 
@@ -58,8 +35,6 @@
         updatingFired = true;
         onUpdating();
       }
-
-      downloadingCleanUp();
     }
 
     function onUpdateReadyEvent() {
@@ -70,52 +45,15 @@
       } else {
         onUpdateReady();
       }
-
-      cleanUp();
     }
 
     function onInstalledEvent() {
       onInstalled();
-      cleanUp();
     }
 
     function onObsoleteEvent() {
       onUpdateFailed();
       setTimeout(onUninstalled, 1);
-      cleanUp();
-    }
-
-    function downloadingCleanUp() {
-      if (downloadingInterval) {
-        clearInterval(downloadingInterval);
-        downloadingInterval = null;
-      }
-
-      applicationCache.removeEventListener('downloading', onDownloadingEvent);
-      applicationCache.removeEventListener('progress', onDownloadingEvent);
-    }
-
-    function cleanUp() {
-      if (cleanUpTimer) {
-        clearTimeout(cleanUpTimer);
-        cleanUpTimer = null;
-      }
-
-      downloadingCleanUp();
-
-      applicationCache.removeEventListener('updateready', onUpdateReadyEvent);
-      applicationCache.removeEventListener('cached', onInstalledEvent);
-      applicationCache.removeEventListener('obsolete', onObsoleteEvent);
-
-      if (updateReadyInterval) {
-        clearInterval(updateReadyInterval);
-        updateReadyInterval = null;
-      }
-
-      if (obsoleteInterval) {
-        clearInterval(obsoleteInterval);
-        obsoleteInterval = null;
-      }
     }
 
     // ################################
