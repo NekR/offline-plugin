@@ -401,7 +401,26 @@ export default class OfflinePlugin {
 
           let magic;
 
-          if (
+          if (typeof cacheKey === "function") {
+            compilation.modules.forEach((module) => {
+              // get all files and assets from the module
+              const chunkFiles = (module.chunks.length > 0 || module.assets.length > 0) &&
+                module.chunks
+                  .map((chunk) => chunk.files)
+                  .reduce((a, b) => a.concat(b))
+                  .concat(module.assets ? Object.keys(module.assets) : []);
+
+              if (chunkFiles && chunkFiles.length > 0 && cacheKey(module, chunkFiles)) {
+                chunkFiles.forEach((file) => {
+                  if (cacheResult.indexOf(file) === -1) cacheResult.push(file);
+                  if (assets.indexOf(file) > -1) assets.splice(assets.indexOf(file), 1)
+                });
+              }
+            });
+
+            return;
+          }
+          else if (
             !isAbsoluteURL(cacheKey) &&
             cacheKey[0] !== '/' &&
             cacheKey.indexOf('./') !== 0 &&
