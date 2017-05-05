@@ -5,7 +5,7 @@ function hasSW() {
     // This is how I block Chrome 40 and detect Chrome 41, because first has
     // bugs with history.pustState and/or hashchange
     (window.fetch || 'imageRendering' in document.documentElement.style) &&
-    (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname.startsWith('127.'))
 }
 
 function install(options) {
