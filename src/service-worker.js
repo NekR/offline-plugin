@@ -70,6 +70,10 @@ export default class ServiceWorker {
           dead_code: true,
           drop_console: true,
           unused: true
+        },
+
+        output: {
+          comments: false
         }
       };
 
