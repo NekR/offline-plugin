@@ -55,13 +55,14 @@ export default class ServiceWorker {
       cacheMaps: plugin.cacheMaps,
     });
 
-    const loader = '!!' + path.join(__dirname, 'misc/sw-loader.js') + '?json=' + escape(data);
+    const swLoaderPath = path.join(__dirname, 'misc/sw-loader.js');
+    const loader = '!!' + swLoaderPath + '?json=' + escape(data);
     const entry = loader + '!' + this.entry;
 
     childCompiler.context = compiler.context;
     childCompiler.apply(new SingleEntryPlugin(compiler.context, entry, name));
 
-    if (this.minify) {
+    if (this.minify === true) {
       const options = {
         test: new RegExp(name),
         compress: {
@@ -73,7 +74,7 @@ export default class ServiceWorker {
       };
 
       childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
-    } else {
+    } else if (this.minify !== false) {
       (compiler.options.plugins || []).some((plugin) => {
         if (plugin instanceof webpack.optimize.UglifyJsPlugin) {
           const options = deepExtend({}, plugin.options);
@@ -111,9 +112,15 @@ export default class ServiceWorker {
   }
 
   apply(plugin, compilation, compiler) {
-    const minify = this.minify || (compiler.options.plugins || []).some((plugin) => {
-      return plugin instanceof webpack.optimize.UglifyJsPlugin;
-    });
+    let minify;
+
+    if (typeof this.minify === 'boolean') {
+      minify = this.minify;
+    } else {
+      minify = !!(compiler.options.plugins || []).some((plugin) => {
+        return plugin instanceof webpack.optimize.UglifyJsPlugin;
+      });
+    }
 
     let source = this.getDataTemplate(plugin.caches, plugin, minify);
 
