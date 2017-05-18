@@ -15,11 +15,11 @@ var __wpo = {
     "/images/logo_grey.svg"
   ],
   "hashesMap": {
-    "4ae271f282c807b099b0320d46c65a3cacd5d469": "/dist/main.js"
+    "e9e107b7814507d31880faa8cb42a6d14878e8aa": "/dist/main.js"
   },
   "strategy": "changed",
   "responseStrategy": "cache-first",
-  "version": "766b443db86c5751310b9c86b1cc8ea9e0583a36",
+  "version": "e7d09442a67091c8b6f20c767fa74afe1e9dafdf",
   "name": "webpack-offline",
   "relativePaths": false
 };
