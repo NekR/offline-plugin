@@ -1,5 +1,14 @@
 # CHANGELOG
 
+### 4.8.0
+
+* [Internals]: Async `waitUntil` is now a thing (polyfilled)
+* Added `TypeScript` definitions
+* RegExp support in cache paths [#205](https://github.com/NekR/offline-plugin/pull/205)
+* Added `ServiceWorker.minify` option to force to minify [#204](https://github.com/NekR/offline-plugin/pull/204) &  [#206](https://github.com/NekR/offline-plugin/pull/206)
+* Allow ServiceWorker to be installed on any local IP (`127.*.*.*`) [#251](https://github.com/NekR/offline-plugin/pull/251)
+* Ship `ServiceWorker.minify` option which controls if ServiceWorker's code will be minified or not
+
 ### 4.7.0
 
 * ServiceWorker can now be registered at `127.0.0.1` [#188](https://github.com/NekR/offline-plugin/pull/188)
