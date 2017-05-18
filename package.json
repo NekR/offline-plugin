@@ -1,6 +1,6 @@
 {
   "name": "offline-plugin",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "description": "offline-plugin for webpack",
   "main": "lib/index.js",
   "files": [
@@ -15,15 +15,12 @@
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
     "install:build-deps": "node build/install.js",
-
     "tag": "git push && git push --tags",
     "publish:latest": "npm publish",
     "publish:next": "npm publish --tag=next",
-
     "release:latest:patch": "npm version patch && npm run tag && npm run publish:latest",
     "release:latest:minor": "npm version minor && npm run tag && npm run publish:latest",
     "release:latest:major": "npm version major && npm run tag && npm run publish:latest",
-
     "release:next:patch": "npm version patch && npm run tag && npm run publish:next",
     "release:next:minor": "npm version minor && npm run tag && npm run publish:next",
     "release:next:major": "npm version major && npm run tag && npm run publish:next"
