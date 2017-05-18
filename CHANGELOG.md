@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### 4.7.0
+
+* ServiceWorker can now be registered at `127.0.0.1` [#188](https://github.com/NekR/offline-plugin/pull/188)
+* New `ServiceWorker.navigateFallbackForRedirects` option which is `true` by default (compatibility reasons) [#230](https://github.com/NekR/offline-plugin/pull/230)
+* Fixed new security restriction introduced in browsers regardless navigation requests and redirects [#231](https://github.com/NekR/offline-plugin/issues/231)
+
 ### 4.6.2
 
 * Wrap `applicationCache.update()` with `try..catch` #189
