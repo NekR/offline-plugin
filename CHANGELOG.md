@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 4.8.1
+
+* Fix TypeScript typings
+
 ### 4.8.0
 
 * [Internals]: Async `waitUntil` is now a thing (polyfilled)
