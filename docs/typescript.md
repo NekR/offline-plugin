@@ -17,7 +17,7 @@ OfflinePluginRuntime.install({
 ```
 
 If you need to resolve the typescript definition file manually then
-you can add this line to your typescript file:
+you can add this line to your TypeScript file:
 ```ts
-/// <reference path="node_modules/offline-plugin/offline-plugin.d.ts" />
+/// <reference path="node_modules/offline-plugin/runtime.d.ts" />
 ```
