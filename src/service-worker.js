@@ -2,7 +2,7 @@ import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import path from 'path';
 import webpack from 'webpack';
 import deepExtend from 'deep-extend';
-import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
+import { getSource, isAbsolutePath } from './misc/utils';
 
 export default class ServiceWorker {
   constructor(options) {
@@ -10,6 +10,13 @@ export default class ServiceWorker {
       throw new Error(
         'OfflinePlugin: ServiceWorker.output option must be a relative path, ' +
         'but an absolute path was passed'
+      );
+    }
+    
+    if (typeof options.navigateFallbackURL === 'undefined' && typeof options.navigateFallbackForRedirects !== 'undefined') {
+      throw new Error(
+        'OfflinePlugin: ServiceWorker.navigateFallbackForRedirects was passed without ServiceWorker.navigateFallbackURL, ' +
+        'it will have no affect.'
       );
     }
 

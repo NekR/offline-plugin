@@ -1,4 +1,4 @@
-import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
+import { getSource, isAbsoluteURL, isAbsolutePath } from './misc/utils';
 import fs from 'fs';
 import path from 'path';
 
