@@ -450,7 +450,7 @@ export default class OfflinePlugin {
             compilation.warnings.push(
               new Error(
                 `OfflinePlugin: Cache asset [${ cacheKey }] is not found in the output assets,` +
-                `if it's an external asset, put it to the |externals| option to remove this warning`
+                `if the asset is not processed by webpack, move it to the |externals| option to remove this warning.`
               )
             );
           } else {
