@@ -49,6 +49,7 @@ function install(options) {
           sw.onstatechange = stateChangeHandler;
 
           function onUpdateStateChange() {
+            let waiting = false
             switch (sw.state) {
               case 'redundant': {
                 sendEvent('onUpdateFailed');
@@ -60,8 +61,13 @@ function install(options) {
                   sendEvent('onUpdating');
                 }
               } break;
-
+              case 'waiting': {
+                sw.skipWaiting();
+                waiting = true;
+              }
               case 'installed': {
+                if (waiting) window.location.reload()
+                
                 if (!ignoreWaiting) {
                   sendEvent('onUpdateReady');
                 }
