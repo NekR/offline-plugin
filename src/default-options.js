@@ -57,10 +57,5 @@ export default {
     swMetadataOnly: false,
     ignoreRuntime: false,
     noVersionDump: false
-  },
-
-  // Not yet used
-  alwaysRevalidate: void 0,
-  preferOnline: void 0,
-  ignoreSearch: ['**'],
+  }
 };
