@@ -106,7 +106,21 @@ export default class OfflinePlugin {
       };
     }
 
-    this.cacheMaps = this.stringifyCacheMaps(this.options.cacheMaps);
+    if (this.options.appShell && typeof this.options.appShell === 'string') {
+      this.appShell = this.options.appShell;
+    }
+
+    let cacheMaps = this.options.cacheMaps;
+
+    if (this.appShell) {
+      cacheMaps = [{
+        match: new Function('return new URL(' +
+          JSON.stringify(this.appShell) + ', location);'),
+        requestTypes: ['navigate']
+      }].concat(cacheMaps || []);
+    }
+
+    this.cacheMaps = this.stringifyCacheMaps(cacheMaps);
 
     this.REST_KEY = ':rest:';
     this.EXTERNALS_KEY = ':externals:';

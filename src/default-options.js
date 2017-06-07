@@ -12,6 +12,8 @@ export default {
   relativePaths: ':relativePaths:',
   version: null,
   autoUpdate: false,
+  cacheMaps: null,
+  appShell: null,
 
   rewrites(asset) {
     return asset.replace(/^([\s\S]*?)index.htm(l?)$/, (match, dir) => {
@@ -22,8 +24,6 @@ export default {
       return dir || './';
     });
   },
-
-  cacheMaps: null,
 
   ServiceWorker: {
     output: 'sw.js',

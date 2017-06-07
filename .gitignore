@@ -1,4 +1,5 @@
 node_modules/
 __output/
+/__*
 .DS_Store
 .idea
