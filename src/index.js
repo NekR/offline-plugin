@@ -50,7 +50,9 @@ const defaultOptions = {
       cache: void 0
     },
     minify: null,
-    navigateFallbackForRedirects: true
+
+    navigateFallbackURL: void 0,
+    navigateFallbackForRedirects: false
   },
 
   AppCache: {
