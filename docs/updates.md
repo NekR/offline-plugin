@@ -2,7 +2,7 @@
 
 Browser fetches `ServiceWorker` file each time user _navigates_ to your website. If new `ServiceWorker` is found, browser immediately runs it along side with current SW. This new SW gets only `install` event a this time, which allows it to prepare/cache assets of the new version. New SW **doesn't start controlling pages until all tabs of your website are closed**, this is by design in the `ServiceWorker`.
 
-`AppCache` has slightly simpler update mechanism: browser also downloads `manifest.appcache` on each _navigation_ to your site (_simplified_) and if new `AppCache` is avaialable, browser installs new `AppCache` and removes old one. This means that on a next page refresh browser will load files from the new `AppCache`.
+`AppCache` has slightly simpler update mechanism: browser also downloads `manifest.appcache` on each _navigation_ to your site (_simplified_) and if new `AppCache` is available, browser installs new `AppCache` and removes old one. This means that on a next page refresh browser will load files from the new `AppCache`.
 
 Sometimes, `AppCache` is the root of confusion--one may just expect SW to have the same update process as `AppCache` have. Another confusing thing could be `Cmd/Ctrl+R` combination. One may think that it _forces_ browser to update and activate SW. This is wrong, `Cmd/Ctrl+R` doesn't updates or reloads into a new SW, it just tells to browser to **bypass** currently controlling `ServiceWorker`.
 
