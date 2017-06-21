@@ -1,6 +1,6 @@
 ## `offline-plugin` isn't working!
 
-* **The ServiceWorker is not being updated.** Make sure the ServiceWorker (`sw.sj`) is not being cached by the server and that it has a deterministic name (no hashing).
+* **The ServiceWorker is not being updated.** Make sure the ServiceWorker (`sw.js`) is not being cached by the server and that it has a deterministic name (no hashing).
 * **AppCache is being used instead of ServiceWorker.** Make sure your webapp is served with HTTPS (or localhost for development).
 * **I cannot see any changes in my browser.** Make sure the browser have cached the latest resources, follow the steps outlined in the [updates](updates.md) doc.
 * **ServiceWorker isn't being updated automatically.** Automatic updates isn't the default behavior, but can be achieved using the [autoUpdate option](options.md#autoupdate-true--number)
