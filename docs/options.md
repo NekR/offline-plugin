@@ -35,7 +35,8 @@ Response strategy. Whether to use a cache or network first for responses. Specif
 responseStrategy: [
   { patterns: /^\/server/, strategy: 'network-first' },
   { patterns: /./, strategy: 'cache-first' } // Matches everything else
-]```
+]
+```
 
 > Default: `'cache-first'`.
 

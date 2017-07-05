@@ -333,9 +333,8 @@ function WebpackServiceWorker(params, helpers) {
     if (responseStrategy === 'network-first') {
       return networkFirstResponse;
     }
-    else {
-      return cacheFirstResponse;
-    }
+    
+    return cacheFirstResponse;
   }
 
   function cacheFirstResponse(event, urlString, cacheUrl) {
