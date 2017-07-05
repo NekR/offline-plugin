@@ -330,7 +330,7 @@ function WebpackServiceWorker(params, helpers) {
       return pattern.test(urlString);
     }) || { strategy: '' };
 
-    if (responseStrategy === 'network-first') {
+    if (strategy === 'network-first') {
       return networkFirstResponse;
     }
     
