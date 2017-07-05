@@ -22,8 +22,21 @@ Same as `webpack`'s `output.publicPath` option. Useful to specify or override `p
 `publicPath: '/project/'`  
 `publicPath: 'https://example.com/project'`  
 
-#### `responseStrategy: 'cache-first' | 'network-first'`
-Response strategy. Whether to use a cache or network first for responses.
+#### `responseStrategy: 'cache-first' | 'network-first' | Array<Object>`
+Response strategy. Whether to use a cache or network first for responses. Specify the object for regex support.
+
+* `'cache-first'`: Means that the cache will be checked first and will fall back to network when there is no cache.
+* `'network-first'`: Means that the network will be tried first and will fall back to cache if the network fails.
+* `Array<Object>`: Array of objects with these two required fields: `pattern` for a regular expression pattern for the url. `strategy` a strategy name with one of these values: `'cache-first' | 'network-first'`. This allows you to specify different strategies for different urls. The strategy of the first pattern that matched will be used. If nothing matched then the default will be used.
+
+> __Examples:__  
+`responseStrategy: 'network-first'`
+```
+responseStrategy: [
+  { patterns: /^\/server/, strategy: 'network-first' },
+  { patterns: /./, strategy: 'cache-first' } // Matches everything else
+]```
+
 > Default: `'cache-first'`.
 
 #### `updateStrategy: 'changed' | 'all'`

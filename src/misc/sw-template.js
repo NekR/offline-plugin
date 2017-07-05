@@ -295,17 +295,7 @@ function WebpackServiceWorker(params, helpers) {
     // Logic of caching / fetching is here
     // * urlString -- url to match from the CACHE_NAME
     // * event.request -- original Request to perform fetch() if necessary
-    let resource;
-
-    if (responseStrategy === 'network-first') {
-      resource = networkFirstResponse(event, urlString, cacheUrl);
-    }
-    // 'cache-first'
-    // (responseStrategy has been validated before)
-    else {
-      resource = cacheFirstResponse(event, urlString, cacheUrl);
-    }
-
+    let resource = resolveResponseStrategy(responseStrategy, urlString)(event, urlString, cacheUrl)
     if (navigateFallbackURL && isNavigateRequest(event.request)) {
       resource = handleNavigateFallback(resource);
     }
@@ -323,6 +313,30 @@ function WebpackServiceWorker(params, helpers) {
       } break;
     }
   });
+
+  function resolveResponseStrategy(responseStrategy, urlString) {
+    if (!Array.isArray(responseStrategy)) {
+      responseStrategy = [{
+        pattern: /./,
+        strategy: responseStrategy
+      }];
+    }
+
+    let { strategy } = responseStrategy.find(({pattern, strategy}) => {
+      if ( ! pattern instanceof RegExp) {
+        return false;
+      }
+
+      return pattern.test(urlString);
+    }) || { strategy: '' };
+
+    if (responseStrategy === 'network-first') {
+      return networkFirstResponse;
+    }
+    else {
+      return cacheFirstResponse;
+    }
+  }
 
   function cacheFirstResponse(event, urlString, cacheUrl) {
     return cachesMatch(cacheUrl, CACHE_NAME)
