@@ -236,6 +236,7 @@ var __wpo = {
 	      var lastUrls = lastKeys.map(function (req) {
 	        var url = new URL(req.url);
 	        url.search = '';
+	        url.hash = '';
 
 	        return url.toString();
 	      });
@@ -342,13 +343,14 @@ var __wpo = {
 	  }
 
 	  self.addEventListener('fetch', function (event) {
-	    var requestUrl = event.request.url;
-	    var url = new URL(requestUrl);
-	    var urlString = undefined;
+	    var url = new URL(event.request.url);
+	    url.hash = '';
 
-	    if (externals.indexOf(requestUrl) !== -1) {
-	      urlString = requestUrl;
-	    } else {
+	    var urlString = url.toString();
+
+	    // Not external, so search part of the URL should be stripped,
+	    // if it's external URL, the search part should be kept
+	    if (externals.indexOf(urlString) === -1) {
 	      url.search = '';
 	      urlString = url.toString();
 	    }
@@ -509,11 +511,10 @@ var __wpo = {
 	      assets[key] = assets[key].map(function (path) {
 	        var url = new URL(path, location);
 
+	        url.hash = '';
+
 	        if (externals.indexOf(path) === -1) {
 	          url.search = '';
-	        } else {
-	          // Remove hash from possible passed externals
-	          url.hash = '';
 	        }
 
 	        return url.toString();
@@ -524,11 +525,10 @@ var __wpo = {
 	      loadersMap[key] = loadersMap[key].map(function (path) {
 	        var url = new URL(path, location);
 
+	        url.hash = '';
+
 	        if (externals.indexOf(path) === -1) {
 	          url.search = '';
-	        } else {
-	          // Remove hash from possible passed externals
-	          url.hash = '';
 	        }
 
 	        return url.toString();
@@ -538,6 +538,7 @@ var __wpo = {
 	    hashesMap = Object.keys(hashesMap).reduce(function (result, hash) {
 	      var url = new URL(hashesMap[hash], location);
 	      url.search = '';
+	      url.hash = '';
 
 	      result[hash] = url.toString();
 	      return result;
