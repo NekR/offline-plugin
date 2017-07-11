@@ -127,6 +127,7 @@ function WebpackServiceWorker(params, helpers) {
       const lastUrls = lastKeys.map(req => {
         const url = new URL(req.url);
         url.search = '';
+        url.hash = '';
 
         return url.toString();
       });
@@ -243,13 +244,14 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   self.addEventListener('fetch', (event) => {
-    const requestUrl = event.request.url;
-    const url = new URL(requestUrl);
-    let urlString;
+    const url = new URL(event.request.url);
+    url.hash = '';
 
-    if (externals.indexOf(requestUrl) !== -1) {
-      urlString = requestUrl;
-    } else {
+    let urlString = url.toString();
+
+    // Not external, so search part of the URL should be stripped,
+    // if it's external URL, the search part should be kept
+    if (externals.indexOf(urlString) === -1) {
       url.search = '';
       urlString = url.toString();
     }
@@ -419,11 +421,10 @@ function WebpackServiceWorker(params, helpers) {
       assets[key] = assets[key].map((path) => {
         const url = new URL(path, location);
 
+        url.hash = '';
+
         if (externals.indexOf(path) === -1) {
           url.search = '';
-        } else {
-          // Remove hash from possible passed externals
-          url.hash = '';
         }
 
         return url.toString();
@@ -434,11 +435,10 @@ function WebpackServiceWorker(params, helpers) {
       loadersMap[key] = loadersMap[key].map((path) => {
         const url = new URL(path, location);
 
+        url.hash = '';
+
         if (externals.indexOf(path) === -1) {
           url.search = '';
-        } else {
-          // Remove hash from possible passed externals
-          url.hash = '';
         }
 
         return url.toString();
@@ -448,6 +448,7 @@ function WebpackServiceWorker(params, helpers) {
     hashesMap = Object.keys(hashesMap).reduce((result, hash) => {
       const url = new URL(hashesMap[hash], location);
       url.search = '';
+      url.hash = '';
 
       result[hash] = url.toString();
       return result;
