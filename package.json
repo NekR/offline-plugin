@@ -20,9 +20,10 @@
     "release:latest:patch": "npm version patch && npm run tag && npm run publish:latest",
     "release:latest:minor": "npm version minor && npm run tag && npm run publish:latest",
     "release:latest:major": "npm version major && npm run tag && npm run publish:latest",
-    "release:next:patch": "npm version patch && npm run tag && npm run publish:next",
-    "release:next:minor": "npm version minor && npm run tag && npm run publish:next",
-    "release:next:major": "npm version major && npm run tag && npm run publish:next"
+    "release:next:patch": "npm --no-git-tag-version version prepatch && npm run publish:next",
+    "release:next:minor": "npm --no-git-tag-version version preminor && npm run publish:next",
+    "release:next:major": "npm --no-git-tag-version version premajor && npm run publish:next",
+    "release:next:update": "npm --no-git-tag-version version prerelease && npm run publish:next"
   },
   "collective": {
     "type": "opencollective",
