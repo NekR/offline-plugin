@@ -30,14 +30,18 @@ export default {
     entry: path.join(__dirname, '../tpls/empty-entry.js'),
     scope: null,
     events: false,
+    minify: null,
+
     prefetchRequest: {
       credentials: 'omit',
       headers: void 0,
       mode: 'cors',
       cache: void 0
     },
-    minify: null,
 
+    navigationPreload: ':auto:',
+
+    // Deprecated features
     navigateFallbackURL: void 0,
     navigateFallbackForRedirects: false
   },
