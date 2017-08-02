@@ -56,7 +56,7 @@ Event called when `onUpdating` phase finished. All required assets are downloade
 
 #### `onUpdateFailed`
 
-Event called when `upUpdating` phase failed by some reason. Nothing is downloaded at this moment and current update process in your code should be canceled or ignored.
+Event called when `onUpdating` phase failed by some reason. Nothing is downloaded at this moment and current update process in your code should be canceled or ignored.
 
 #### `onUpdated`
 
