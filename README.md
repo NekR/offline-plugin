@@ -136,6 +136,7 @@ All options are optional and `offline-plugin` can be used without specifying the
 * [Preact](https://preactjs.com/) ([source](https://github.com/developit/preact-www))
 * [Omroep West (_Proof of Concept_)](https://omroep-west.now.sh/)
 * [Online Board](https://onlineboard.sonnywebdesign.com/) ([source](https://github.com/andreasonny83/online-board))
+* [CodePan](https://codepan.net) ([source](https://github.com/egoist/codepan))
 
 
 _If you are using `offline-plugin`, feel free to submit a PR to add your project to this list._
