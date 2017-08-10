@@ -76,6 +76,10 @@ const defaultOptions = {
   ignoreSearch: ['**'],
 };
 
+const emptyFunc = function(argvs) {
+  return argvs;
+};
+
 export default class OfflinePlugin {
   constructor(options) {
     this.options = deepExtend({}, defaultOptions, options);
@@ -87,6 +91,7 @@ export default class OfflinePlugin {
     this.strategy = this.options.updateStrategy;
     this.responseStrategy = this.options.responseStrategy;
     this.relativePaths = this.options.relativePaths;
+    this.modifyAssets = this.options.modifyAssets || emptyFunc;
     this.pluginVersion = pluginVersion;
     this.loaders = {};
     this.warnings = [];
@@ -361,7 +366,7 @@ export default class OfflinePlugin {
     this.externals = this.validatePaths(externals);
 
     if (caches === 'all') {
-      this.assets = this.validatePaths(assets).concat(this.externals);
+      this.assets = this.modifyAssets(this.validatePaths(assets).concat(this.externals));
       this.caches = {
         main: this.assets.concat()
       };
@@ -476,7 +481,7 @@ export default class OfflinePlugin {
       }
 
       this.caches = handledCaches;
-      this.assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
+      this.assets = this.modifyAssets([].concat(this.caches.main, this.caches.additional, this.caches.optional));
     }
 
     Object.keys(this.loaders).forEach((loader) => {
