@@ -1,6 +1,6 @@
 # `ServiceWorker` and `AppCache` update process
 
-Browser fetches `ServiceWorker` file each time user _navigates_ to your website. If new `ServiceWorker` is found, browser immediately runs it along side with current SW. This new SW gets only `install` event a this time, which allows it to prepare/cache assets of the new version. New SW **doesn't start controlling pages until all tabs of your website are closed**, this is by design in the `ServiceWorker`.
+Browser fetches `ServiceWorker` file each time user _navigates_ to your website. If new `ServiceWorker` is found, browser immediately runs it along side with current SW. This new SW gets only `install` event at this time, which allows it to prepare/cache assets of the new version. New SW **doesn't start controlling pages until all tabs of your website are closed**, this is by design in the `ServiceWorker`.
 
 `AppCache` has slightly simpler update mechanism: browser also downloads `manifest.appcache` on each _navigation_ to your site (_simplified_) and if new `AppCache` is available, browser installs new `AppCache` and removes old one. This means that on a next page refresh browser will load files from the new `AppCache`.
 
