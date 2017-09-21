@@ -144,6 +144,7 @@ function install(options) {
             if (e.source !== iframe.contentWindow) return;
 
             var match = (e.data + '').match(/__offline-plugin_AppCacheEvent:(\w+)/);
+            if (!match) return;
             var event = match[1];
 
             if (typeof options[event] === 'function') {
