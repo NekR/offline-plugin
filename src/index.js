@@ -113,11 +113,12 @@ export default class OfflinePlugin {
     let cacheMaps = this.options.cacheMaps;
 
     if (this.appShell) {
-      cacheMaps = [{
+      // Make appShell the latest in the chain so it could be overridden
+      cacheMaps = (cacheMaps || []).concat({
         match: new Function('return new URL(' +
           JSON.stringify(this.appShell) + ', location);'),
         requestTypes: ['navigate']
-      }].concat(cacheMaps || []);
+      });
     }
 
     this.cacheMaps = this.stringifyCacheMaps(cacheMaps);

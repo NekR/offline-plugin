@@ -82,8 +82,6 @@ export default class AppCache {
         this.NETWORK.join('\n') : this.NETWORK + '');
     }
 
-    let thisFALLBACK = this.FALLBACK;
-
     if (plugin.appShell) {
       let scope;
 
@@ -93,14 +91,16 @@ export default class AppCache {
         scope = plugin.publicPath;
       }
 
-      thisFALLBACK = deepExtend({
+      FALLBACK = deepExtend({
         [this.pathRewrite(scope)]: plugin.appShell
       }, this.FALLBACK || {});
+    } else {
+      FALLBACK = this.FALLBACK;
     }
 
-    if (thisFALLBACK) {
-      FALLBACK = 'FALLBACK:\n' + Object.keys(thisFALLBACK).map((path) => {
-        return path + ' ' + thisFALLBACK[path];
+    if (FALLBACK) {
+      FALLBACK = 'FALLBACK:\n' + Object.keys(FALLBACK).map((path) => {
+        return path + ' ' + FALLBACK[path];
       }).join('\n');
     }
 

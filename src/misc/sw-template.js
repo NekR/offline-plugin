@@ -460,7 +460,7 @@ function WebpackServiceWorker(params, helpers) {
     };
 
     const storing = preloadResponsePromise.then(res => {
-      // Return preload isn't enabled or hasn't happened
+      // Return if preload isn't enabled or hasn't happened
       if (!res) return;
 
       // If navigationPreloadStore already consumed
