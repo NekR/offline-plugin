@@ -5,13 +5,6 @@ var fs = require('fs');
 var del = require('del');
 var webpack = require('webpack');
 
-var tests = [
-  'basic',
-  'cache-externals-absolute',
-  'paths-generate-inside',
-  'paths-generate-outside',
-];
-
 var originalCWD = process.cwd();
 var fixturesPath = path.join(__dirname, 'fixtures');
 var tests = fs.readdirSync(fixturesPath).filter(function(file) {
