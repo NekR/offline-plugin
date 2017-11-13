@@ -105,7 +105,7 @@ function install(options) {
           }
         };
 
-        registration.then(function(reg) {
+        return registration.then(function(reg) {
           // WTF no reg?
           if (!reg) return;
 
@@ -120,13 +120,12 @@ function install(options) {
           reg.onupdatefound = function() {
             handleUpdating(reg);
           };
+          return reg;
         }).catch(function(err) {
           sendEvent('onError');
           return Promise.reject(err);
         });
       <% } %>
-
-      return;
     }
   <% } %>
 
