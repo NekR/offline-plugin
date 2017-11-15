@@ -4,7 +4,8 @@ import defaultOptions from './default-options';
 
 import {
   hasMagic, interpolateString,
-  isAbsoluteURL, escapeRegexp
+  isAbsoluteURL, escapeRegexp,
+  functionToString
 } from './misc/utils';
 
 import path from 'path';
@@ -581,13 +582,13 @@ export default class OfflinePlugin {
       let to;
 
       if (typeof map.to === 'function') {
-        to = map.to + '';
+        to = functionToString(map.to);
       } else {
         to = map.to ? JSON.stringify(map.to) : null;
       }
 
       return {
-        match: map.match + '',
+        match: functionToString(map.match),
         to: to,
         requestTypes: map.requestTypes || null
       };

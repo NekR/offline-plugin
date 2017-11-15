@@ -5,13 +5,13 @@ if (typeof DEBUG === 'undefined') {
 function WebpackServiceWorker(params, helpers) {
   const loaders = helpers.loaders;
   const cacheMaps = helpers.cacheMaps;
+  // navigationPreload: self, { map: (URL) => URL, test: (URL) => boolean }
+  const navigationPreload = helpers.navigationPreload;
 
   // (update)strategy: changed, all
   const strategy = params.strategy;
   // responseStrategy: cache-first, network-first
   const responseStrategy = params.responseStrategy;
-  // navigationPreload: self, { map: (URL) => URL, test: (URL) => boolean }
-  const navigationPreload = params.navigationPreload;
 
   const assets = params.assets;
   const loadersMap = params.loaders || {};
@@ -430,7 +430,7 @@ function WebpackServiceWorker(params, helpers) {
       // Use request.mode === 'navigate' instead of isNavigateRequest
       // because everything what supports navigationPreload supports
       // 'navigate' request.mode
-      event.preloadResponse && request.mode === 'navigate'
+      event.preloadResponse && event.request.mode === 'navigate'
     ) {
       const mapped = navigationPreload.map(
         new URL(event.request.url), event.request
@@ -443,20 +443,19 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   // Temporary in-memory store for faster access
-  let navigationPreloadStore;
+  let navigationPreloadStore = new Map();
 
   function storePreloadedResponse(_url, event) {
     const url = new URL(_url, location);
     const preloadResponsePromise = event.preloadResponse;
 
-    navigationPreloadStore = {
+    navigationPreloadStore.set(preloadResponsePromise, {
       url: url,
       response: preloadResponsePromise
-    };
+    });
 
     const isSamePreload = () => {
-      return navigationPreloadStore &&
-        navigationPreloadStore.response === preloadResponsePromise;
+      return navigationPreloadStore.has(preloadResponsePromise);
     };
 
     const storing = preloadResponsePromise.then(res => {
@@ -476,16 +475,11 @@ function WebpackServiceWorker(params, helpers) {
       return caches.open(PRELOAD_CACHE_NAME).then(cache => {
         if (!isSamePreload()) return;
 
-        return cache.keys().then(keys => {
-          if (!isSamePreload()) return;
-
-          return Promise.all(
-            keys.map(key => cache.delete(key))
-          );
-        }).then(() => {
-          if (!isSamePreload()) return;
-
-          return cache.put(_url, clone);
+        return cache.put(url, clone).then(() => {
+          if (!isSamePreload()) {
+            return caches.open(PRELOAD_CACHE_NAME)
+              .then(cache => cache.delete(url))
+          }
         });
       });
     });
@@ -494,11 +488,23 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   function retriveInMemoryPreloadedResponse(url) {
-    if (navigationPreloadStore && navigationPreloadStore.url.href === url.href) {
-      const response = navigationPreloadStore.response;
-      navigationPreloadStore = null;
+    if (!navigationPreloadStore) {
+      return;
+    }
 
-      return response;
+    let foundResponse;
+    let foundKey;
+
+    navigationPreloadStore.forEach((store, key) => {
+      if (store.url.href === url.href) {
+        foundResponse = store.response;
+        foundKey = key;
+      }
+    });
+
+    if (foundResponse) {
+      navigationPreloadStore.delete(foundKey);
+      return foundResponse;
     }
   }
 
@@ -514,12 +520,23 @@ function WebpackServiceWorker(params, helpers) {
     }
 
     const fromMemory = retriveInMemoryPreloadedResponse(url);
+    const request = event.request;
 
     if (fromMemory) {
+      event.waitUntil(
+        caches.open(PRELOAD_CACHE_NAME).then(cache => cache.delete(request))
+      );
+
       return fromMemory;
     }
 
-    return cachesMatch(event.request, PRELOAD_CACHE_NAME).then(response => {
+    return cachesMatch(request, PRELOAD_CACHE_NAME).then(response => {
+      if (response) {
+        event.waitUntil(
+          caches.open(PRELOAD_CACHE_NAME).then(cache => cache.delete(request))
+        );
+      }
+
       return response || fetch(event.request);
     });
   }

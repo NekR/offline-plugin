@@ -27,7 +27,27 @@ module.exports = {
     }),
     new OfflinePlugin({
       appShell: '/app-shell.html',
-      AppCache: false
+
+      ServiceWorker: {
+        navigationPreload: {
+          map: (url) => {
+            if (url.pathname === '/') {
+              return '/api/index.json';
+            }
+
+            if (url.pathname === '/not-found') {
+              return '/api/not-found.json';
+            }
+          },
+          test: (url) => {
+            if (url.pathname.indexOf('/api/') === 0) {
+              return true;
+            }
+          }
+        },
+      },
+
+      AppCache: false,
     })
   ]
 };
