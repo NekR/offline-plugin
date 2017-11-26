@@ -334,7 +334,7 @@ export default class OfflinePlugin {
         new Error(
           'OfflinePlugin: Cache sections `additional` and `optional` could be used ' +
           'only when each asset passed to it has unique name (e.g. hash or version in it) and ' +
-          'is permanently available for given URL. If you think that it\' your case, ' +
+          'is permanently available for given URL. If you think that it\'s your case, ' +
           'set `safeToUseOptionalCaches` option to `true`, to remove this warning.'
         )
       );
@@ -449,7 +449,7 @@ export default class OfflinePlugin {
 
             compilation.warnings.push(
               new Error(
-                `OfflinePlugin: Cache asset [${ cacheKey }] is not found in the output assets,` +
+                `OfflinePlugin: Cache asset [${ cacheKey }] is not found in the output assets, ` +
                 `if the asset is not processed by webpack, move it to the |externals| option to remove this warning.`
               )
             );
