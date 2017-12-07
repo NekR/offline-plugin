@@ -279,11 +279,15 @@ export default class OfflinePlugin {
 
     compiler.plugin('emit', (compilation, callback) => {
       const runtimeTemplatePath = path.resolve(__dirname, '../tpls/runtime-template.js')
+      let runtimeFound;
 
-      if (
-        compilation.fileDependencies.indexOf(runtimeTemplatePath) === -1 &&
-        !this.__tests.ignoreRuntime
-      ) {
+      if (compilation.fileDependencies.indexOf) {
+        runtimeFound = compilation.fileDependencies.indexOf(runtimeTemplatePath) === -1;
+      } else if (compilation.fileDependencies.has) {
+        runtimeFound = compilation.fileDependencies.has(runtimeTemplatePath);
+      }
+
+      if (runtimeFound && !this.__tests.ignoreRuntime) {
         compilation.errors.push(
           new Error(`OfflinePlugin: Plugin's runtime wasn't added to one of your bundle entries. See this https://goo.gl/YwewYp for details.`)
         );
