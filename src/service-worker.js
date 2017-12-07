@@ -16,7 +16,7 @@ export default class ServiceWorker {
     this.minify = options.minify;
     this.output = options.output.replace(/^\.\/+/, '');
     this.publicPath = options.publicPath;
-
+    this.shouldServeFromNetwork = options.shouldServeFromNetwork;
     this.basePath = null;
     this.location = null;
     this.pathRewrite = null;
@@ -185,7 +185,7 @@ export default class ServiceWorker {
         },
 
         externals: externals,
-
+        shouldServeFromNetwork: this.shouldServeFromNetwork,
         hashesMap: hashesMap,
         navigateFallbackURL: this.navigateFallbackURL,
         navigateFallbackForRedirects: this.navigateFallbackURL ?

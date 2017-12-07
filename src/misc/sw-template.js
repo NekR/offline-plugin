@@ -375,7 +375,7 @@ function WebpackServiceWorker(params, helpers) {
   function networkFirstResponse(event, urlString, cacheUrl) {
     return fetch(event.request)
       .then((response) => {
-        if (response.ok) {
+        if (params.shouldServeFromNetwork(response, urlString, cacheUrl)) {
           if (DEBUG) {
             console.log('[SW]:', `URL [${ urlString }] from network`);
           }
