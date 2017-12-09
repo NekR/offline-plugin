@@ -238,12 +238,16 @@ export default class OfflinePlugin {
     });
 
     compiler.plugin('emit', (compilation, callback) => {
-      const runtimeTemplatePath = path.resolve(__dirname, '../tpls/runtime-template.js')
+      const runtimeTemplatePath = path.resolve(__dirname, '../tpls/runtime-template.js');
+      let hasRuntime = true;
 
-      if (
-        compilation.fileDependencies.indexOf(runtimeTemplatePath) === -1 &&
-        !this.__tests.ignoreRuntime
-      ) {
+      if (compilation.fileDependencies.indexOf) {
+        hasRuntime = compilation.fileDependencies.indexOf(runtimeTemplatePath) !== -1;
+      } else if (compilation.fileDependencies.has) {
+        hasRuntime = compilation.fileDependencies.has(runtimeTemplatePath);
+      }
+
+      if (!hasRuntime && !this.__tests.ignoreRuntime) {
         compilation.errors.push(
           new Error(`OfflinePlugin: Plugin's runtime wasn't added to one of your bundle entries. See this https://goo.gl/YwewYp for details.`)
         );
@@ -294,7 +298,7 @@ export default class OfflinePlugin {
         new Error(
           'OfflinePlugin: Cache sections `additional` and `optional` could be used ' +
           'only when each asset passed to it has unique name (e.g. hash or version in it) and ' +
-          'is permanently available for given URL. If you think that it\' your case, ' +
+          'is permanently available for given URL. If you think that it\'s your case, ' +
           'set `safeToUseOptionalCaches` option to `true`, to remove this warning.'
         )
       );
@@ -409,7 +413,7 @@ export default class OfflinePlugin {
 
             compilation.warnings.push(
               new Error(
-                `OfflinePlugin: Cache asset [${ cacheKey }] is not found in the output assets,` +
+                `OfflinePlugin: Cache asset [${ cacheKey }] is not found in the output assets, ` +
                 `if the asset is not processed by webpack, move it to the |externals| option to remove this warning.`
               )
             );

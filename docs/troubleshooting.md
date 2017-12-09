@@ -1,6 +1,6 @@
 ## `offline-plugin` isn't working!
 
-* **The ServiceWorker is not being updated.** Make sure the ServiceWorker (`sw.js`) is not being cached by the server and that it has a deterministic name (no hashing).
+* **The ServiceWorker is not being updated.** Make sure the ServiceWorker (`sw.js`) is not being cached by the server (`Cache-Control: no-store`) and that it has a deterministic name (no hashing).
 * **AppCache is being used instead of ServiceWorker.** Make sure your webapp is served with HTTPS (or localhost for development).
 * **I cannot see any changes in my browser.** Make sure the browser have cached the latest resources, follow the steps outlined in the [updates](updates.md) doc.
 * **ServiceWorker isn't being updated automatically.** Automatic updates isn't the default behavior, but can be achieved using the [autoUpdate option](options.md#autoupdate-true--number)
@@ -13,3 +13,4 @@
 * **ServiceWorker is wrongly caching api requests.** There are multiple ways to fix this depending on your setup. One way is to set [cacheMaps.requestTypes](cache-maps.md) to `['navigate']`, caching only those requests.
 * **AppCache events are not worknig properly.** `AppCache.events` are known to be a bit buggy (see [updates](updates.md)). Try to avoid using them if possible.
 * **Resources served from a CDN are not being cached** `offline-plugin` can cache resources served from a CDN, given the correct configuration. Make sure the resources are served with the correct headers.
+* **The serviceworker is preventing redirections from taking place.** If `navigateFallbackURL` is set, it treats redirects as fails. Either set `ServiceWorker.navigateFallbackForRedirects` to `false`, or (preferred) use `cacheMaps` and remove `navigateFallbackURL`.

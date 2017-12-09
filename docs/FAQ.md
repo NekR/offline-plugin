@@ -24,3 +24,11 @@ This is because the [opaque request](http://stackoverflow.com/questions/36292537
 
 **Why isn't my SPA working in offline mode?**  
 There is probably something wrong with your configuration. See the [SPA example](examples/SPA.md)
+
+**How can I notify users that a new version of my webpage is available?**  
+In the `offline-plugin/runtime`'s `install` method, you can pass a config object with event hooks, one of which is the `onUpdateReady`, that fires when all required assets are downloaded and ready to be updated. In this callback, you can either call `runtime.applyUpdate()` to apply updates directly, or in some way prompt for user input, and then apply them. See [`install-options`](runtime.md#install-options) and the [offline-plugin.pwa example](https://github.com/NekR/offline-plugin-pwa/blob/master/src/main.js)
+```js
+onUpdateReady: function() {
+  OfflinePlugin.applyUpdate();
+}
+ ```
