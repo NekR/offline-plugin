@@ -5,7 +5,7 @@ if (typeof DEBUG === 'undefined') {
 function WebpackServiceWorker(params, helpers) {
   const loaders = helpers.loaders;
   const cacheMaps = helpers.cacheMaps;
-  // navigationPreload: self, { map: (URL) => URL, test: (URL) => boolean }
+  // navigationPreload: true, { map: (URL) => URL, test: (URL) => boolean }
   const navigationPreload = helpers.navigationPreload;
 
   // (update)strategy: changed, all
@@ -297,13 +297,22 @@ function WebpackServiceWorker(params, helpers) {
         return;
       }
 
-      const preloadedResponse = retrivePreloadedResponse(event);
-
-      if (preloadedResponse) {
-        event.respondWith(preloadedResponse);
+      if (navigationPreload === true) {
+        event.respondWith(fetchWithPreload(event));
         return;
       }
 
+      // Something else, positive, but not `true`
+      if (navigationPreload) {
+        const preloadedResponse = retrivePreloadedResponse(event);
+
+        if (preloadedResponse) {
+          event.respondWith(preloadedResponse);
+          return;
+        }
+      }
+
+      // Logic exists here if no cache match, or no preload
       return;
     }
 
@@ -708,6 +717,16 @@ function WebpackServiceWorker(params, helpers) {
       }
     }
   }
+
+  function fetchWithPreload(event) {
+    if (!event.preloadResponse || navigationPreload !== true) {
+      return fetch(event.request);
+    }
+
+    return event.preloadResponse.then(response => {
+      return response || fetch(event.request);
+    });
+  }
 }
 
 function cachesMatch(request, cacheName) {
@@ -779,14 +798,4 @@ function logGroup(title, assets) {
   });
 
   console.groupEnd();
-}
-
-function fetchWithPreload(event) {
-  if (!event.preloadResponse || navigationPreload !== 'self') {
-    return fetch(event.request);
-  }
-
-  return event.preloadResponse.then(response => {
-    return response || fetch(event.request);
-  });
 }

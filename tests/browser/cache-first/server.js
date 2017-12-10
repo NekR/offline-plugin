@@ -10,7 +10,7 @@ app.get('/', serveIndex);
 app.get('/sw.js', serveServiceWorker);
 app.use(express.static(WWW_FOLDER));
 
-app.get('/*', serveAppShell);
+app.get('/*', serveNotFound);
 
 let indexPreload = 0;
 let notFoundPreload = 0;
@@ -44,8 +44,8 @@ function serveIndex(req, res) {
   });
 }
 
-function serveAppShell(req, res) {
-  if (req.headers['service-worker-navigation-preload']) {
+function serveNotFound(req, res) {
+  if (req.url === '/not-found' && req.headers['service-worker-navigation-preload']) {
     res.send(JSON.stringify({
       page: 'not-found',
       load: 'preload' + (notFoundPreload++)
@@ -54,6 +54,11 @@ function serveAppShell(req, res) {
     return;
   }
 
+  res.end();
+}
+
+// Not used
+function serveAppShell(req, res) {
   res.sendFile(path.join(WWW_FOLDER, 'app-shell.html'), {
     cacheControl: false,
     acceptRanges: false,

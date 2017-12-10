@@ -57,7 +57,7 @@ export default class ServiceWorker {
       data_var_name: this.SW_DATA_VAR,
       loaders: Object.keys(plugin.loaders),
       cacheMaps: plugin.cacheMaps,
-      navigationPreload: this.stringifyNavigationPreload(this.navigationPreload)
+      navigationPreload: this.stringifyNavigationPreload(this.navigationPreload, plugin)
     });
 
     const swLoaderPath = path.join(__dirname, 'misc/sw-loader.js');
@@ -244,7 +244,7 @@ export default class ServiceWorker {
     };
   }
 
-  stringifyNavigationPreload(navigationPreload) {
+  stringifyNavigationPreload(navigationPreload, plugin) {
     let result;
 
     if (typeof navigationPreload === 'object') {
@@ -254,7 +254,11 @@ export default class ServiceWorker {
       }`;
     } else {
       if (typeof navigationPreload !== 'boolean') {
-        navigationPreload = false;
+        if (plugin.responseStrategy === 'network-first') {
+          navigationPreload = true;
+        } else {
+          navigationPreload = false;
+        }
       }
 
       result = JSON.stringify(navigationPreload);

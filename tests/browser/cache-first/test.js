@@ -10,7 +10,7 @@ module.exports = new Promise((resolve) => {
   });
 });
 
-describe('testing basic sw install', async () => {
+describe('testing basic `cache-first` sw install', async () => {
   let browser;
   let page;
 

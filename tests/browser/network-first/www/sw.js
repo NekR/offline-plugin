@@ -15,10 +15,10 @@ var __wpo = {
     "fbeb9625bcfa064a1cbb995bd98692f824a86786": "/app-shell.html"
   },
   "strategy": "changed",
-  "responseStrategy": "cache-first",
-  "version": "2017-11-16 02:15:36",
+  "responseStrategy": "network-first",
+  "version": "2017-12-10 16:49:24",
   "name": "webpack-offline",
-  "pluginVersion": "4.8.3",
+  "pluginVersion": "4.8.5",
   "relativePaths": false
 };
 
@@ -119,7 +119,7 @@ var __wpo = {
 	function WebpackServiceWorker(params, helpers) {
 	  var loaders = helpers.loaders;
 	  var cacheMaps = helpers.cacheMaps;
-	  // navigationPreload: self, { map: (URL) => URL, test: (URL) => boolean }
+	  // navigationPreload: true, { map: (URL) => URL, test: (URL) => boolean }
 	  var navigationPreload = helpers.navigationPreload;
 
 	  // (update)strategy: changed, all
@@ -394,13 +394,22 @@ var __wpo = {
 	        return;
 	      }
 
-	      var preloadedResponse = retrivePreloadedResponse(event);
-
-	      if (preloadedResponse) {
-	        event.respondWith(preloadedResponse);
+	      if (navigationPreload === true) {
+	        event.respondWith(fetchWithPreload(event));
 	        return;
 	      }
 
+	      // Something else, positive, but not `true`
+	      if (navigationPreload) {
+	        var preloadedResponse = retrivePreloadedResponse(event);
+
+	        if (preloadedResponse) {
+	          event.respondWith(preloadedResponse);
+	          return;
+	        }
+	      }
+
+	      // Logic exists here if no cache match, or no preload
 	      return;
 	    }
 
@@ -795,6 +804,16 @@ var __wpo = {
 	      }
 	    }
 	  }
+
+	  function fetchWithPreload(event) {
+	    if (!event.preloadResponse || navigationPreload !== true) {
+	      return fetch(event.request);
+	    }
+
+	    return event.preloadResponse.then(function (response) {
+	      return response || fetch(event.request);
+	    });
+	  }
 	}
 
 	function cachesMatch(request, cacheName) {
@@ -863,16 +882,6 @@ var __wpo = {
 
 	  console.groupEnd();
 	}
-
-	function fetchWithPreload(event) {
-	  if (!event.preloadResponse || navigationPreload !== 'self') {
-	    return fetch(event.request);
-	  }
-
-	  return event.preloadResponse.then(function (response) {
-	    return response || fetch(event.request);
-	  });
-	}
 	        WebpackServiceWorker(__wpo, {
 	loaders: {},
 	cacheMaps: [
@@ -884,22 +893,7 @@ var __wpo = {
 	      requestTypes: ["navigate"],
 	    }
 	    ],
-	navigationPreload: {
-	        map: function(url) {
-	            if (url.pathname === '/') {
-	              return '/api/index.json';
-	            }
-
-	            if (url.pathname === '/not-found') {
-	              return '/api/not-found.json';
-	            }
-	          },
-	        test: function(url) {
-	            if (url.pathname.indexOf('/api/') === 0) {
-	              return true;
-	            }
-	          }
-	      },
+	navigationPreload: true,
 	});
 	        module.exports = __webpack_require__(1)
 	      
