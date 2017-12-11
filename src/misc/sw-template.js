@@ -372,10 +372,17 @@ function WebpackServiceWorker(params, helpers) {
     });
   }
 
+  function shouldServeFromNetwork(response, urlString, cacheUrl) {
+    if (params.shouldServeFromNetwork) {
+      return params.shouldServeFromNetwork(response, urlString, cacheUrl);
+    }
+    return response.ok;
+  }
+
   function networkFirstResponse(event, urlString, cacheUrl) {
     return fetch(event.request)
       .then((response) => {
-        if (params.shouldServeFromNetwork(response, urlString, cacheUrl)) {
+        if (shouldServeFromNetwork(response, urlString, cacheUrl)) {
           if (DEBUG) {
             console.log('[SW]:', `URL [${ urlString }] from network`);
           }

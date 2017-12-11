@@ -4,6 +4,8 @@ import webpack from 'webpack';
 import deepExtend from 'deep-extend';
 import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
 
+const REGEX_MINIFY_FUNC = /(\r\n|\n|\r|\s+)/gm;
+
 export default class ServiceWorker {
   constructor(options) {
     if (isAbsolutePath(options.output)) {
@@ -176,7 +178,12 @@ export default class ServiceWorker {
     const loaders = Object.keys(plugin.loaders).length ?
       plugin.loaders : void 0;
 
-    return `
+    const shouldServeFromNetworkPlaceholder =
+      this.shouldServeFromNetwork ? '__func_should_serve_from_network__' : undefined;
+    const functionResult = this.shouldServeFromNetwork &&
+      (minify ? this.shouldServeFromNetwork.toString().replace(REGEX_MINIFY_FUNC, '') :
+      this.shouldServeFromNetwork.toString());
+    const result = `
       var ${ this.SW_DATA_VAR } = ${ JSON.stringify({
         assets: {
           main: cache('main'),
@@ -185,7 +192,7 @@ export default class ServiceWorker {
         },
 
         externals: externals,
-        shouldServeFromNetwork: this.shouldServeFromNetwork,
+        shouldServeFromNetwork: shouldServeFromNetworkPlaceholder,
         hashesMap: hashesMap,
         navigateFallbackURL: this.navigateFallbackURL,
         navigateFallbackForRedirects: this.navigateFallbackURL ?
@@ -207,6 +214,12 @@ export default class ServiceWorker {
         ignoreSearch: plugin.ignoreSearch,
       }, null, minify ? void 0 : '  ') };
     `.trim();
+
+    if (functionResult) {
+      return result.replace( `"${shouldServeFromNetworkPlaceholder}"`, functionResult.trim());
+    }
+
+    return result;
   }
 
   getConfig(plugin) {

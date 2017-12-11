@@ -472,9 +472,16 @@ var __wpo = {
 	    });
 	  }
 
+	  function shouldServeFromNetwork(response, urlString, cacheUrl) {
+	    if (params.shouldServeFromNetwork) {
+	      return params.shouldServeFromNetwork(response, urlString, cacheUrl);
+	    }
+	    return response.ok;
+	  }
+
 	  function networkFirstResponse(event, urlString, cacheUrl) {
 	    return fetch(event.request).then(function (response) {
-	      if (response.ok) {
+	      if (shouldServeFromNetwork(response, urlString, cacheUrl)) {
 	        if (false) {
 	          console.log('[SW]:', 'URL [' + urlString + '] from network');
 	        }

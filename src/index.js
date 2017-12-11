@@ -50,7 +50,6 @@ const defaultOptions = {
       cache: void 0
     },
     minify: null,
-    shouldServeFromNetwork: (response) => response.ok,
     navigateFallbackForRedirects: true
   },
 
