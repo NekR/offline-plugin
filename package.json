@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "test:browser": "node tests/run-browser-tests.js",
-    "test": "node tests/legacy/run && eslint -c configs/eslint.tests.json 'tests/**/**.js'",
+    "test": "node tests/legacy/run && eslint -c configs/eslint.tests.json 'tests/legacy/**.js'",
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
     "install:build-deps": "node build/install.js",

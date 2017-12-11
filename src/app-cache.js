@@ -94,7 +94,7 @@ export default class AppCache {
       FALLBACK = deepExtend({
         [this.pathRewrite(scope)]: plugin.appShell
       }, this.FALLBACK || {});
-    } else {
+    } else if(this.FALLBACK) {
       FALLBACK = this.FALLBACK;
     }
 

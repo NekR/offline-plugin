@@ -584,6 +584,7 @@ export default class OfflinePlugin {
       }
 
       let to;
+      let match;
 
       if (typeof map.to === 'function') {
         to = functionToString(map.to);
@@ -591,8 +592,14 @@ export default class OfflinePlugin {
         to = map.to ? JSON.stringify(map.to) : null;
       }
 
+      if (typeof map.match === 'function') {
+        match = functionToString(map.match)
+      } else {
+        match = map.match + '';
+      }
+
       return {
-        match: functionToString(map.match),
+        match: match,
         to: to,
         requestTypes: map.requestTypes || null
       };
