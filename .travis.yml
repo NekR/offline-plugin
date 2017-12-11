@@ -5,3 +5,10 @@ node_js:
   - "6"
   - "8"
   - "9"
+env:
+  - TEST_METHOD=fixtures
+matrix:
+  include:
+    - node_js: "8"
+      env: TEST_METHOD=all
+script: npm run test:"$TEST_METHOD"
