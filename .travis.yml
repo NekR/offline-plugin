@@ -6,9 +6,9 @@ node_js:
   - "8"
   - "9"
 env:
-  - TEST_METHOD=fixtures
+  - TEST_METHOD=ci_fixtures
 matrix:
   include:
     - node_js: "8"
-      env: TEST_METHOD=all
+      env: TEST_METHOD=ci_all
 script: npm run test:"$TEST_METHOD"

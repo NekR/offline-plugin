@@ -12,8 +12,9 @@
   "scripts": {
     "test": "node tests/legacy/run && eslint -c configs/eslint.tests.json 'tests/legacy/**.js'",
     "test:browser": "node tests/run-browser-tests.js",
-    "test:fixutres": "npm run test",
-    "test:all": "npm run test:fixutres && npm run test:browser",
+    "test:ci_fixutres": "npm run test",
+    "test:ci_browser": "npm install puppeteer@^0.12.0 && npm run test:browser",
+    "test:ci_all": "npm run test:ci_fixutres && npm run test:ci_browser",
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
     "install:build-deps": "node build/install.js",
@@ -78,7 +79,6 @@
     "glob": "^7.1.2",
     "mocha": "^4.0.1",
     "on-build-webpack": "^0.1.0",
-    "puppeteer": "^0.12.0",
     "webpack": "1.14.0"
   },
   "buildDependencies": {
