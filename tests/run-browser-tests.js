@@ -73,7 +73,9 @@ function runSeparately() {
 }
 
 function runAll() {
-  const mocha = new Mocha();
+  const mocha = new Mocha({
+    timeout: 10000,
+  });
 
   glob.sync(path.join(testsFolder, '**/test.js')).forEach((file) => {
     mocha.addFile(file);
