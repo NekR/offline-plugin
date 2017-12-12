@@ -115,7 +115,7 @@ export default class AppCache {
   getPageTemplate(name, content) {
     return `
       <!doctype html>
-      <html manifest="${ name }.appcache">${ content || '' }</html>
+      <html manifest="/${ name }.appcache">${ content || '' }</html>
     `.trim().replace(/^      */gm, '');
   }
 
