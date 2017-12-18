@@ -7,7 +7,7 @@ export default {
   updateStrategy: 'changed',
   responseStrategy: 'cache-first',
   externals: [],
-  excludes: ['**/.*', '**/*.map'],
+  excludes: ['**/.*', '**/*.map', '**/*.gz'],
   // Hack to have intermediate value, e.g. default one, true and false
   relativePaths: ':relativePaths:',
   version: null,
