@@ -43,7 +43,7 @@ export default {
 
     // Deprecated features
     navigateFallbackURL: void 0,
-    navigateFallbackForRedirects: false
+    navigateFallbackForRedirects: true
   },
 
   AppCache: {
