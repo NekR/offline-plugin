@@ -3,6 +3,13 @@
 **All options are optional and `offline-plugin` can be used without specifying them.**  
 _Also see list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L17)._
 
+#### `appShell: string`
+
+[See `appShell` option documentation](app-shell.md)
+
+> Default: `null`.
+> **Example:** `'/index.html'`
+
 #### `caches: 'all' | Object`
 
 Allows you to define what to cache and how.
@@ -54,7 +61,7 @@ When set to `true`, all the asset paths generated in the cache will be relative 
 
 This option is ignored when `publicPath` is set.
 `publicPath` option is ignored when this option is set **explicitly** to `true`.
-> **Default:** `true`
+> Default: `true`
 
 #### `version: string | (plugin: OfflinePlugin) => void`
 Version of the cache. Can be a function, which is useful in _watch-mode_ when you need to apply dynamic value.
@@ -154,5 +161,5 @@ _Example:_ `'my/new/path/appcache'`
 * **`disableInstall`**: `boolean`. Disable the automatic installation of the `AppCache` when calling `runtime.install()`. Useful when you want to specify `<html manifest="...">` attribute manually (to cache every page user visits).  
 _Default:_ `false`
 
-* `includeCrossOrigin`: `boolean`. Outputs cross-origin URLs into `AppCache`'s manifest file. **Cross-origin URLs aren't supported in `AppCache` when used on HTTPS.**  
+* **`includeCrossOrigin`**: `boolean`. Outputs cross-origin URLs into `AppCache`'s manifest file. **Cross-origin URLs aren't supported in `AppCache` when used on HTTPS.**  
 _Default:_ `false`
