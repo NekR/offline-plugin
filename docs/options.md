@@ -120,11 +120,15 @@ _Default:_ `false`
 _Default:_ `null`
 _Example:_ `'/my/new/path/sw.js'`
 
+* **`navigationPreload`**: `boolean | Object | ':auto:'`. [See `ServiceWorker.navigationPreload` option documentation](navigation-preload.md)
+
+_Default:_ `':auto:'`
+
 * **`prefetchRequest`**: `Object`. Provides a way to specify [request init options](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request) for pre-fetch requests (pre-cache requests on `install` event). Allowed options: `credentials`, `headers`, `mode`, `cache`.  
 _Default:_ `{ credentials: 'omit', mode: 'cors' }`  
 _Example:_ `{ credentials: 'include' }`  
 
-* **`minify`**: `boolean`. If set to `true` or `false`, the `ServiceWorker`'s output will be minified or not accordingly. If set to something else, the `ServiceWorker` output will be minified **if** you are using  `webpack.optimize.UglifyJsPlugin` in your configuration.  
+* **`minify`**: `boolean`. If set to `true` or `false`, the `ServiceWorker`'s output will be minified or not accordingly. If set to something else, the `ServiceWorker` output will be minified **if** you are using `webpack.optimize.UglifyJsPlugin` in your configuration.  
 _Default:_ `null`
 
 * **[Deprecated]** `navigateFallbackURL`: `string`. The URL that should be returned from the cache when a requested navigation URL isn't available on the cache or network. Similar to the `AppCache.FALLBACK` option.  
