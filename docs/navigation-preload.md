@@ -1,9 +1,9 @@
-# `navigationPreload: boolean | Object | ':auto:'`
+## `navigationPreload: boolean | Object | ':auto:'`
 > _Default:_ `':auto:'`
 
 [Navigation preload](https://developers.google.com/web/updates/2017/02/navigation-preload) is a ServiceWorker's feature which provides a way to make a request to the website even before ServiceWorker or a page is initialized. This can be useful for data fetching to speedup loading of the application.
 
-## Usage
+### Usage
 
 In `offline-plugin`, _Navigation preload_ behaves differently for `cache-first` and `network-first` response strategies.
 
@@ -43,7 +43,7 @@ In previous example `map` function maps navigation preload of `/` to `/api/feed`
 
 When a navigation preload request happens, it contains `Service-Worker-Navigation-Preload: true` header. Server side should use this header to detect the preload and send different content to such request.
 
-Express example:
+Express.js example:
 
 ```js
 function serveIndex(req, res) {
