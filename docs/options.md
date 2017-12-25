@@ -1,7 +1,7 @@
 ## Options
 
 **All options are optional and `offline-plugin` can be used without specifying them.**  
-_Also see list of default options [here](https://github.com/NekR/offline-plugin/blob/master/src/index.js#L17)._
+_Also see list of default options [here](../src/default-options.js)._
 
 #### `appShell: string`
 
