@@ -2,7 +2,10 @@ import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import path from 'path';
 import webpack from 'webpack';
 import deepExtend from 'deep-extend';
-import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
+import {
+  getSource, pathToBase, isAbsoluteURL,
+  isAbsolutePath, functionToString
+} from './misc/utils';
 
 export default class ServiceWorker {
   constructor(options) {
@@ -28,6 +31,7 @@ export default class ServiceWorker {
     this.navigateFallbackURL = options.navigateFallbackURL;
     this.navigateFallbackForRedirects = options.navigateFallbackForRedirects;
     this.prefetchRequest = this.validatePrefetch(options.prefetchRequest);
+    this.navigationPreload = options.navigationPreload;
 
     let cacheNameQualifier = '';
 
@@ -53,6 +57,7 @@ export default class ServiceWorker {
       data_var_name: this.SW_DATA_VAR,
       loaders: Object.keys(plugin.loaders),
       cacheMaps: plugin.cacheMaps,
+      navigationPreload: this.stringifyNavigationPreload(this.navigationPreload, plugin)
     });
 
     const swLoaderPath = path.join(__dirname, 'misc/sw-loader.js');
@@ -237,5 +242,28 @@ export default class ServiceWorker {
       mode: request.mode,
       cache: request.cache
     };
+  }
+
+  stringifyNavigationPreload(navigationPreload, plugin) {
+    let result;
+
+    if (typeof navigationPreload === 'object') {
+      result = navigationPreload = `{
+        map: ${functionToString(navigationPreload.map)},
+        test: ${functionToString(navigationPreload.test)}
+      }`;
+    } else {
+      if (typeof navigationPreload !== 'boolean') {
+        if (plugin.responseStrategy === 'network-first') {
+          navigationPreload = true;
+        } else {
+          navigationPreload = false;
+        }
+      }
+
+      result = JSON.stringify(navigationPreload);
+    }
+
+    return result;
   }
 }

@@ -56,4 +56,36 @@ export function isAbsoluteURL(url) {
   return /^(?:\w+:)?\/\//.test(url);
 }
 
-export { isAbsolutePath }
+export function functionToString(fn) {
+  if (typeof fn !== 'function') {
+    return '(void 0)';
+  }
+
+  let string = fn + '';
+
+  return arrowFnToNormalFn(string);
+}
+
+// Migrate to separate npm-package with full tests
+export function arrowFnToNormalFn(string) {
+  const match = string.match(/^([\s\S]+?)=\>(\s*{)?([\s\S]*?)(}\s*)?$/);
+
+  if (!match) {
+    return string;
+  }
+
+  let args = match[1];
+  let body = match[3];
+
+  const needsReturn = !(match[2] && match[4]);
+
+  args = args.replace(/^(\s*\(\s*)([\s\S]*?)(\s*\)\s*)$/, '$2');
+
+  if (needsReturn) {
+    body = 'return ' + body;
+  }
+
+  return `function(${args}) {${body}}`;
+}
+
+export { isAbsolutePath };

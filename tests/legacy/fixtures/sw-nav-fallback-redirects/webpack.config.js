@@ -9,6 +9,6 @@ module.exports = __CONFIG__({
 
   ServiceWorker: {
     navigateFallbackURL: '/',
-    navigateFallbackForRedirects: false
+    navigateFallbackForRedirects: true
   }
 });

@@ -1,6 +1,8 @@
 import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
+
 import fs from 'fs';
 import path from 'path';
+import deepExtend from 'deep-extend';
 
 export default class AppCache {
   constructor(options) {
@@ -80,9 +82,25 @@ export default class AppCache {
         this.NETWORK.join('\n') : this.NETWORK + '');
     }
 
-    if (this.FALLBACK) {
-      FALLBACK = 'FALLBACK:\n' + Object.keys(this.FALLBACK).map((path) => {
-        return path + ' ' + this.FALLBACK[path];
+    if (plugin.appShell) {
+      let scope;
+
+      if (plugin.relativePaths) {
+        scope = '';
+      } else {
+        scope = plugin.publicPath;
+      }
+
+      FALLBACK = deepExtend({
+        [this.pathRewrite(scope)]: plugin.appShell
+      }, this.FALLBACK || {});
+    } else if(this.FALLBACK) {
+      FALLBACK = this.FALLBACK;
+    }
+
+    if (FALLBACK) {
+      FALLBACK = 'FALLBACK:\n' + Object.keys(FALLBACK).map((path) => {
+        return path + ' ' + FALLBACK[path];
       }).join('\n');
     }
 
