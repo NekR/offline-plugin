@@ -14,3 +14,4 @@
 * **AppCache events are not worknig properly.** `AppCache.events` are known to be a bit buggy (see [updates](updates.md)). Try to avoid using them if possible.
 * **Resources served from a CDN are not being cached** `offline-plugin` can cache resources served from a CDN, given the correct configuration. Make sure the resources are served with the correct headers.
 * **The serviceworker is preventing redirections from taking place.** If `navigateFallbackURL` is set, it treats redirects as fails. Either set `ServiceWorker.navigateFallbackForRedirects` to `false`, or (preferred) use `cacheMaps` and remove `navigateFallbackURL`.
+* **DOMException: Failed to register a ServiceWorker: The script has an unsupported MIME type ('text/html') Error.** Make sure your webserver is serving your assets (including `serviceworker.js`) with the correct mime type. Also, make sure you are using relative / absolute paths correctly (see the [`FAQ`](FAQ.md) regarding this).
