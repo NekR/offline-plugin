@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
   <a href="https://offline-plugin.now.sh/"><img src="https://rawgit.com/NekR/offline-plugin/master/logo/logo.svg" width="120" alt="offline-plugin logo"></a>
 
   <h1><code>offline-plugin</code> for webpack</h1>
@@ -182,7 +182,7 @@ Support us with a monthly donation and help us continue our activities. [[Become
 
 ## Contribution
 
-See [CONTRIBUTING](CONTIBUTING.md)
+See [CONTRIBUTING](CONTRIBUTING.md)
 
 ## License
 
