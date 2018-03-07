@@ -5,6 +5,7 @@ var fs = require('fs');
 var diff = require('diff');
 var chalk = require('chalk');
 var highlight = require('cli-highlight').highlight
+var webpackVersion = require('webpack/package.json').version;
 var log = console.log;
 
 var options = {
@@ -22,7 +23,7 @@ module.exports = function(testDir) {
   log('');
 
   var res = dircompare.compareSync(
-    path.join(testDir, '__expected'),
+    path.join(testDir, '__expected', 'webpack' + webpackVersion.split('.')[0]),
     path.join(testDir, '__output'),
     options
   );

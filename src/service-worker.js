@@ -1,6 +1,6 @@
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
+import UglifyJsPlugin from 'uglifyjs-webpack-plugin';
 import path from 'path';
-import webpack from 'webpack';
 import deepExtend from 'deep-extend';
 import {
   getSource, pathToBase, isAbsoluteURL,
@@ -70,26 +70,28 @@ export default class ServiceWorker {
     if (this.minify === true) {
       const options = {
         test: new RegExp(name),
-        compress: {
-          warnings: false,
-          dead_code: true,
-          drop_console: true,
-          unused: true
-        },
+        uglifyOptions: {
+          compress: {
+            warnings: false,
+            dead_code: true,
+            drop_console: true,
+            unused: true
+          },
 
-        output: {
-          comments: false
+          output: {
+            comments: false
+          }
         }
       };
 
-      childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
+      childCompiler.apply(new UglifyJsPlugin(options));
     } else if (this.minify !== false) {
       (compiler.options.plugins || []).some((plugin) => {
-        if (plugin instanceof webpack.optimize.UglifyJsPlugin) {
+        if (plugin instanceof UglifyJsPlugin) {
           const options = deepExtend({}, plugin.options);
 
           options.test = new RegExp(name);
-          childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
+          childCompiler.apply(new UglifyJsPlugin(options));
 
           return true;
         }
@@ -127,7 +129,7 @@ export default class ServiceWorker {
       minify = this.minify;
     } else {
       minify = !!(compiler.options.plugins || []).some((plugin) => {
-        return plugin instanceof webpack.optimize.UglifyJsPlugin;
+        return plugin instanceof UglifyJsPlugin;
       });
     }
 

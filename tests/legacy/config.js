@@ -1,9 +1,11 @@
 var OfflinePlugin = require(__ROOT__);
 var path = require('path');
-var webpack = require('webpack');
 
 var OnBuildPlugin = require('on-build-webpack');
+var DefinePlugin = require('webpack/lib/DefinePlugin');
 var compare = require('./compare');
+
+var webpackMajorVersion = require('webpack/package.json').version.split('.')[0];
 
 module.exports = function(OfflinePluginOptions) {
   var testDir = process.cwd();
@@ -16,7 +18,7 @@ module.exports = function(OfflinePluginOptions) {
     pluginVersion: '999.999.999'
   };
 
-  return {
+  var config = {
     bail: true,
     entry: {
       main: 'main.js'
@@ -32,14 +34,23 @@ module.exports = function(OfflinePluginOptions) {
       new OnBuildPlugin(function(stats) {
         compare(testDir);
       }),
-      new webpack.DefinePlugin({
+      new DefinePlugin({
         RUNTIME_PATH: JSON.stringify(path.join(__ROOT__, 'runtime'))
       }),
     ],
 
     resolve: {
-      root: path.join(testDir),
-      extensions: ['', '.js']
+      modules: [
+        path.join(testDir),
+        'node_modules'
+      ],
+      extensions: ['.js']
     }
+  };
+
+  if (webpackMajorVersion === '4') {
+    config.mode = 'none';
   }
+
+  return config;
 };

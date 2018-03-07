@@ -19,7 +19,8 @@ describe('testing basic `network-first` sw install', async () => {
     await webpack;
 
     browser = await puppeteer.launch({
-      headless: true
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     page = await browser.newPage();
   });
