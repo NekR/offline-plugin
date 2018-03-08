@@ -11,9 +11,7 @@ env:
 matrix:
   include:
     - node_js: "8"
-      env: TEST_METHOD=ci_all TEST_BROWSER=true
+      env: TEST_METHOD=ci_browser
 before_script:
   - if [ "$WEBPACK_VERSION" ]; then npm i webpack@$WEBPACK_VERSION; fi
 script: npm run test:"$TEST_METHOD"
-before_install:
-  - if $TEST_BROWSER; then npm run install-browser-tests; fi
