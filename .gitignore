@@ -4,3 +4,4 @@ __output/
 .DS_Store
 .idea
 npm-debug.log
+/tests/browser/**/www
