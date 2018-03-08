@@ -232,8 +232,8 @@ export default class OfflinePlugin {
         return tool.addEntry(this, compilation, compiler);
       }).then(() => {
         callback();
-      }, () => {
-        throw new Error('Something went wrong');
+      }).catch((e) => {
+        throw (e || new Error('Something went wrong'));
       });
     });
 

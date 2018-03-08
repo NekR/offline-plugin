@@ -1,4 +1,5 @@
-var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+var UglifyJsPlugin = require(__ROOT__ + '/lib/misc/get-uglify-plugin');
+
 var config = __CONFIG__({
   caches: {
     main: ['external.js', ':rest:']

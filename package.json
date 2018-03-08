@@ -17,7 +17,8 @@
     "test:ci_all": "npm run test:ci_fixtures && npm run test:ci_browser",
     "build": "./node_modules/.bin/babel src/ -d lib/",
     "watch": "npm run build -- --watch",
-    "install:build-deps": "node build/install.js",
+    "install:build-deps": "node build/install-build-deps.js",
+    "install-browser-tests": "node build/install-browser-tests.js",
     "tag": "git push && git push --tags",
     "publish:latest": "npm publish",
     "publish:next": "npm publish --tag=next",
@@ -45,9 +46,7 @@
     "ejs": "^2.3.4",
     "loader-utils": "0.2.x",
     "minimatch": "^3.0.3",
-    "puppeteer": "^0.12.0",
-    "slash": "^1.0.0",
-    "uglifyjs-webpack-plugin": "^1.2.2"
+    "slash": "^1.0.0"
   },
   "bugs": {
     "url": "https://github.com/NekR/offline-plugin/issues"
@@ -85,5 +84,8 @@
   },
   "buildDependencies": {
     "babel": "^5.8.23"
+  },
+  "testsBrowserDependencies": {
+    "puppeteer": "^1.1.1"
   }
 }

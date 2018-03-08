@@ -1,5 +1,5 @@
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
-import UglifyJsPlugin from 'uglifyjs-webpack-plugin';
+import UglifyJsPlugin from './misc/get-uglify-plugin';
 import path from 'path';
 import deepExtend from 'deep-extend';
 import {
@@ -68,6 +68,10 @@ export default class ServiceWorker {
     childCompiler.apply(new SingleEntryPlugin(compiler.context, entry, name));
 
     if (this.minify === true) {
+      if (!UglifyJsPlugin) {
+        throw new Error('OfflinePlugin: uglifyjs-webpack-plugin is required to preform minification')
+      }
+
       const options = {
         test: new RegExp(name),
         uglifyOptions: {
@@ -85,7 +89,9 @@ export default class ServiceWorker {
       };
 
       childCompiler.apply(new UglifyJsPlugin(options));
-    } else if (this.minify !== false) {
+    } else if (this.minify !== false && UglifyJsPlugin) {
+      // Do not perform auto-minification if UglifyJsPlugin isn't installed
+
       (compiler.options.plugins || []).some((plugin) => {
         if (plugin instanceof UglifyJsPlugin) {
           const options = deepExtend({}, plugin.options);
@@ -128,9 +134,10 @@ export default class ServiceWorker {
     if (typeof this.minify === 'boolean') {
       minify = this.minify;
     } else {
-      minify = !!(compiler.options.plugins || []).some((plugin) => {
-        return plugin instanceof UglifyJsPlugin;
-      });
+      minify = !!UglifyJsPlugin &&
+        !!(compiler.options.plugins || []).some((plugin) => {
+          return plugin instanceof UglifyJsPlugin;
+        });
     }
 
     let source = this.getDataTemplate(plugin.caches, plugin, minify);
