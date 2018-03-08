@@ -1,4 +1,4 @@
-var UglifyJsPlugin = require('webpack').optimize.UglifyJsPlugin;
+var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 var config = __CONFIG__({
   caches: {
     main: ['external.js', ':rest:']
@@ -13,15 +13,17 @@ var config = __CONFIG__({
 
 config.plugins[0].__tests.swMetadataOnly = false;
 config.plugins.push(new UglifyJsPlugin({
-  compress: {
-    warnings: false,
-    dead_code: true,
-    drop_console: true,
-    unused: true
-  },
+  uglifyOptions: {
+    compress: {
+      warnings: false,
+      dead_code: true,
+      drop_console: true,
+      unused: true
+    },
 
-  output: {
-    comments: false
+    output: {
+      comments: false
+    }
   }
 }));
 module.exports = config;

@@ -45,7 +45,9 @@
     "ejs": "^2.3.4",
     "loader-utils": "0.2.x",
     "minimatch": "^3.0.3",
-    "slash": "^1.0.0"
+    "puppeteer": "^0.12.0",
+    "slash": "^1.0.0",
+    "uglifyjs-webpack-plugin": "^1.2.2"
   },
   "bugs": {
     "url": "https://github.com/NekR/offline-plugin/issues"
@@ -79,7 +81,7 @@
     "glob": "^7.1.2",
     "mocha": "^4.0.1",
     "on-build-webpack": "^0.1.0",
-    "webpack": "1.14.0"
+    "webpack": "4.1.0"
   },
   "buildDependencies": {
     "babel": "^5.8.23"
