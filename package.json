@@ -79,7 +79,6 @@
     "express": "^4.16.2",
     "glob": "^7.1.2",
     "mocha": "^4.0.1",
-    "on-build-webpack": "^0.1.0",
     "webpack": "4.1.0"
   },
   "buildDependencies": {

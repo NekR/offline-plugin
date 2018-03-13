@@ -2,7 +2,6 @@ var OfflinePlugin = require(__ROOT__);
 var path = require('path');
 
 var deepExtend = require('deep-extend');
-var OnBuildPlugin = require('on-build-webpack');
 var DefinePlugin = require('webpack/lib/DefinePlugin');
 var compare = require('./compare');
 
@@ -33,9 +32,6 @@ module.exports = function(OfflinePluginOptions, testFlags) {
 
     plugins: [
       new OfflinePlugin(OfflinePluginOptions),
-      /*new OnBuildPlugin(function(stats) {
-        compare(testDir);
-      }),*/
       new DefinePlugin({
         RUNTIME_PATH: JSON.stringify(path.join(__ROOT__, 'runtime'))
       }),
