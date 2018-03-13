@@ -2,12 +2,13 @@ module.exports = __CONFIG__({
   caches: {
     main: ['external.js', ':rest:']
   },
+
+  AppCache: null,
+
   externals: ['external.js'],
   excludes: ['main.js'],
-  version: '[hash]',
-  ServiceWorker: {
-    minify: true
-  }
+  version: '[hash]'
 }, {
-  swMetadataOnly: false
+  // Disable forced AppCache by __tests flags
+  appCacheEnabled: false
 });

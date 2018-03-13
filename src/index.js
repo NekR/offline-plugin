@@ -1,6 +1,7 @@
 import AppCache from './app-cache';
 import ServiceWorker from './service-worker';
-import defaultOptions from './default-options';
+import defaultOptions,
+  { AppCacheOptions as defaultAppCacheOptions } from './default-options';
 
 import {
   hasMagic, interpolateString,
@@ -23,7 +24,12 @@ const updateStrategies = ['all', 'hash', 'changed'];
 
 export default class OfflinePlugin {
   constructor(options) {
-    this.options = deepExtend({}, defaultOptions, options);
+    const AppCacheOptions = options.AppCache;
+
+    this.options = deepExtend({}, defaultOptions, options, {
+      AppCache: false
+    });
+
     this.hash = null;
     this.assets = null;
     this.hashesMap = null;
@@ -39,6 +45,12 @@ export default class OfflinePlugin {
 
     this.__tests = this.options.__tests;
     this.flags = {};
+
+    const appCacheEnabled = !!(AppCacheOptions || this.__tests.appCacheEnabled);
+
+    if (appCacheEnabled) {
+      this.options.AppCache = deepExtend({}, defaultAppCacheOptions, AppCacheOptions);
+    }
 
     if (this.__tests.pluginVersion) {
       this.pluginVersion = this.__tests.pluginVersion;

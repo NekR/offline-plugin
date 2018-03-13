@@ -10,9 +10,10 @@ var config = __CONFIG__({
   ServiceWorker: {
     minify: false
   }
+}, {
+  swMetadataOnly: false
 });
 
-config.plugins[0].__tests.swMetadataOnly = false;
 config.plugins.push(new UglifyJsPlugin({
   uglifyOptions: {
     compress: {

@@ -1,6 +1,16 @@
 import path from 'path';
 import { isAbsoluteURL } from './misc/utils';
 
+export const AppCacheOptions = {
+  NETWORK: '*',
+  FALLBACK: null,
+  directory: 'appcache/',
+  caches: ['main'],
+  events: false,
+  disableInstall: false,
+  includeCrossOrigin: false
+};
+
 export default {
   caches: 'all',
   publicPath: void 0,
@@ -46,20 +56,14 @@ export default {
     navigateFallbackForRedirects: true
   },
 
-  AppCache: {
-    NETWORK: '*',
-    FALLBACK: null,
-    directory: 'appcache/',
-    caches: ['main'],
-    events: false,
-    disableInstall: false,
-    includeCrossOrigin: false
-  },
+  // Disable AppCache by default
+  AppCache: false,
 
   // Needed for testing
   __tests: {
     swMetadataOnly: false,
     ignoreRuntime: false,
-    noVersionDump: false
+    noVersionDump: false,
+    appCacheEnabled: false
   }
 };

@@ -1,22 +1,24 @@
 var OfflinePlugin = require(__ROOT__);
 var path = require('path');
 
+var deepExtend = require('deep-extend');
 var OnBuildPlugin = require('on-build-webpack');
 var DefinePlugin = require('webpack/lib/DefinePlugin');
 var compare = require('./compare');
 
 var webpackMajorVersion = require('webpack/package.json').version.split('.')[0];
 
-module.exports = function(OfflinePluginOptions) {
+module.exports = function(OfflinePluginOptions, testFlags) {
   var testDir = process.cwd();
   var outputPath = path.join(testDir, '__output');
 
-  OfflinePluginOptions.__tests = {
+  OfflinePluginOptions.__tests = deepExtend({
     swMetadataOnly: true,
     ignoreRuntime: true,
     noVersionDump: true,
+    appCacheEnabled: true,
     pluginVersion: '999.999.999'
-  };
+  }, testFlags || {});
 
   var config = {
     bail: true,
