@@ -24,6 +24,10 @@ tests.reduce(function(last, testName) {
     stdio: 'inherit'
   });*/
 
+  if (testName.indexOf('__') === 0) {
+    return Promise.resolve();
+  }
+
   var testDir = path.join(fixturesPath, testName);
 
   return last.then(function() {
