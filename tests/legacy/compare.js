@@ -67,8 +67,8 @@ module.exports = function(testDir) {
   });
 
   if (!res.same) {
-    setTimeout(function() {
-      process.exit(1);
-    }, 1);
+    return Promise.reject();
   }
+
+  return Promise.resolve();
 }

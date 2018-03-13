@@ -19,6 +19,11 @@ function WebpackServiceWorker(params, helpers) {
   let hashesMap = params.hashesMap;
   let externals = params.externals;
 
+  const prefetchRequest = params.prefetchRequest || {
+    credentials: 'same-origin',
+    mode: 'cors'
+  };
+
   const CACHE_PREFIX = params.name;
   const CACHE_TAG = params.version;
   const CACHE_NAME = CACHE_PREFIX + ':' + CACHE_TAG;
@@ -103,7 +108,7 @@ function WebpackServiceWorker(params, helpers) {
     return caches.open(CACHE_NAME).then((cache) => {
       return addAllNormalized(cache, batch, {
         bust: params.version,
-        request: params.prefetchRequest
+        request: prefetchRequest
       });
     }).then(() => {
       logGroup('Cached assets: ' + section, batch);
@@ -194,7 +199,7 @@ function WebpackServiceWorker(params, helpers) {
           move,
           addAllNormalized(cache, changed, {
             bust: params.version,
-            request: params.prefetchRequest
+            request: prefetchRequest
           })
         ]);
       });

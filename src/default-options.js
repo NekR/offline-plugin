@@ -43,7 +43,7 @@ export default {
     minify: null,
 
     prefetchRequest: {
-      credentials: 'omit',
+      credentials: 'same-origin',
       headers: void 0,
       mode: 'cors',
       cache: void 0

@@ -33,9 +33,9 @@ module.exports = function(OfflinePluginOptions, testFlags) {
 
     plugins: [
       new OfflinePlugin(OfflinePluginOptions),
-      new OnBuildPlugin(function(stats) {
+      /*new OnBuildPlugin(function(stats) {
         compare(testDir);
-      }),
+      }),*/
       new DefinePlugin({
         RUNTIME_PATH: JSON.stringify(path.join(__ROOT__, 'runtime'))
       }),

@@ -5,6 +5,8 @@ var fs = require('fs');
 var del = require('del');
 var webpack = require('webpack');
 
+var compare = require('./compare');
+
 var originalCWD = process.cwd();
 var fixturesPath = path.join(__dirname, 'fixtures');
 var tests = fs.readdirSync(fixturesPath).filter(function(file) {
@@ -17,6 +19,8 @@ var tests = fs.readdirSync(fixturesPath).filter(function(file) {
 
 global.__ROOT__ = originalCWD;
 global.__CONFIG__ = require('./config');
+
+var allTests = [];
 
 tests.reduce(function(last, testName) {
   /*return exec(path.join(__dirname, '../../node_modules/.bin/webpack'), {
@@ -33,32 +37,39 @@ tests.reduce(function(last, testName) {
   return last.then(function() {
     cleanOutput(testDir);
   }).then(function() {
-    return new Promise(function(resolve, reject) {
+    var test = new Promise(function(resolve, reject) {
       // var config = fs.readFileSync(path.join(testDir, 'webpack.config.js'), 'utf-8');
       process.chdir(testDir);
       var config = require(path.join(testDir, 'webpack.config.js'));
 
       webpack(config, function(err, stats) {
-        if (err) {
-          reject(err);
-          return;
-        }
+        compare(testDir).then(function() {
+          if (err) {
+            reject();
+            return;
+          }
 
-        if (stats.compilation.warnings.length) {
-          reject(stats.compilation.warnings);
-          return;
-        }
+          if (stats.compilation.warnings.length) {
+            reject();
+            return;
+          }
 
-        if (stats.compilation.errors.length) {
-          reject(stats.compilation.errors);
-          return;
-        }
+          if (stats.compilation.errors.length) {
+            reject();
+            return;
+          }
 
-        resolve();
+          resolve();
+        }).catch(reject);
       });
     });
+
+    allTests.push(test);
+    return test.catch(function() {});
   });
 }, Promise.resolve()).then(function() {
+  return Promise.all(allTests);
+}).then(function() {
   process.chdir(originalCWD);
 }).catch(function(error) {
   /*if (!_execSync) {
@@ -66,7 +77,10 @@ tests.reduce(function(last, testName) {
     process.stderr.write(data.stderr);
   }*/
 
-  console.error(error);
+  if (error) {
+    console.error(error);
+  }
+
   process.exit(error && isFinite(error.code) ? error.code : 1);
 });
 
