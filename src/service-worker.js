@@ -65,7 +65,7 @@ export default class ServiceWorker {
     const entry = loader + '!' + this.entry;
 
     childCompiler.context = compiler.context;
-    childCompiler.apply(new SingleEntryPlugin(compiler.context, entry, name));
+    new SingleEntryPlugin(compiler.context, entry, name).apply(childCompiler);
 
     if (this.minify === true) {
       if (!UglifyJsPlugin) {
@@ -88,7 +88,7 @@ export default class ServiceWorker {
         }
       };
 
-      childCompiler.apply(new UglifyJsPlugin(options));
+      new UglifyJsPlugin(options).apply(childCompiler);
     } else if (this.minify !== false && UglifyJsPlugin) {
       // Do not perform auto-minification if UglifyJsPlugin isn't installed
 
@@ -97,7 +97,7 @@ export default class ServiceWorker {
           const options = deepExtend({}, plugin.options);
 
           options.test = new RegExp(name);
-          childCompiler.apply(new UglifyJsPlugin(options));
+          new UglifyJsPlugin(options).apply(childCompiler);
 
           return true;
         }
@@ -106,7 +106,7 @@ export default class ServiceWorker {
 
     // Needed for HMR. offline-plugin doesn't support it,
     // but added just in case to prevent other errors
-    childCompiler.plugin('compilation', function (compilation) {
+    const compilationFn = (compilation) => {
       if (compilation.cache) {
         if (!compilation.cache[name]) {
           compilation.cache[name] = {};
@@ -114,7 +114,14 @@ export default class ServiceWorker {
 
         compilation.cache = compilation.cache[name];
       }
-    });
+    };
+
+    if (childCompiler.hooks) {
+      const plugin = { name: 'OfflinePlugin' };
+      childCompiler.hooks.compilation.tap(plugin, compilationFn);
+    } else {
+      childCompiler.plugin('compilation', compilationFn);
+    }
 
     return new Promise((resolve, reject) => {
       childCompiler.runAsChild((err, entries, childCompilation) => {
