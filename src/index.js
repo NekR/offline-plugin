@@ -206,32 +206,31 @@ export default class OfflinePlugin {
       this.resolveToolPaths(tool, key, compiler);
     });
 
-    compiler.plugin('normal-module-factory', (nmf) => {
-      nmf.plugin('after-resolve', (result, callback) => {
-        const resource = path.resolve(compiler.context, result.resource);
+    const afterResolveFn = (result, callback) => {
+      const resource = path.resolve(compiler.context, result.resource);
 
-        if (resource !== runtimePath) {
-          return callback(null, result);
-        }
-
-        const data = {
-          autoUpdate: this.autoUpdate
-        };
-
-        this.useTools((tool, key) => {
-          data[key] = tool.getConfig(this);
-        });
-
-        result.loaders.push(
-          path.join(__dirname, 'misc/runtime-loader.js') +
-            '?' + JSON.stringify(data)
-        );
-
+      if (resource !== runtimePath) {
         callback(null, result);
-      });
-    });
+        return;
+      }
 
-    compiler.plugin('make', (compilation, callback) => {
+      const data = {
+        autoUpdate: this.autoUpdate
+      };
+
+      this.useTools((tool, key) => {
+        data[key] = tool.getConfig(this);
+      });
+
+      result.loaders.push(
+        path.join(__dirname, 'misc/runtime-loader.js') +
+          '?' + JSON.stringify(data)
+      );
+
+      callback(null, result);
+    };
+
+    const makeFn = (compilation, callback) => {
       if (this.warnings.length) {
         [].push.apply(compilation.warnings, this.warnings);
       }
@@ -247,9 +246,9 @@ export default class OfflinePlugin {
       }).catch((e) => {
         throw (e || new Error('Something went wrong'));
       });
-    });
+    };
 
-    compiler.plugin('emit', (compilation, callback) => {
+    const emitFn = (compilation, callback) => {
       const runtimeTemplatePath = path.resolve(__dirname, '../tpls/runtime-template.js');
       let hasRuntime = true;
 
@@ -294,7 +293,25 @@ export default class OfflinePlugin {
       }, () => {
         callback(new Error('Something went wrong'));
       });
-    });
+    };
+
+    if (compiler.hooks) {
+      const plugin = { name: 'OfflinePlugin' };
+
+      compiler.hooks.normalModuleFactory.tap(plugin, (nmf) => {
+        nmf.hooks.afterResolve.tapAsync(plugin, afterResolveFn);
+      });
+
+      compiler.hooks.make.tapAsync(plugin, makeFn);
+      compiler.hooks.emit.tapAsync(plugin, emitFn);
+    } else {
+      compiler.plugin('normal-module-factory', (nmf) => {
+        nmf.plugin('after-resolve', afterResolveFn);
+      });
+
+      compiler.plugin('make', makeFn);
+      compiler.plugin('emit', emitFn);
+    }
   }
 
   setAssets(compilation) {
