@@ -44,6 +44,7 @@ export default {
     events: false,
     minify: null,
     forceInstall: false,
+    plugins: [],
 
     updateViaCache: 'imports',
 

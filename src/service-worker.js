@@ -26,6 +26,7 @@ export default class ServiceWorker {
 
     // Tool specific properties
     this.entry = options.entry;
+    this.plugins = options.plugins;
     this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
     this.prefetchRequest = this.validatePrefetch(options.prefetchRequest);
@@ -103,6 +104,8 @@ export default class ServiceWorker {
         }
       });
     }
+
+    this.plugins.forEach((plugin) => plugin.apply(childCompiler));
 
     // Needed for HMR. offline-plugin doesn't support it,
     // but added just in case to prevent other errors

@@ -32,6 +32,11 @@ export default class OfflinePlugin {
       AppCache: false
     });
 
+    if (options.ServiceWorker && options.ServiceWorker.plugins) {
+      // plugins are class instances and should not be modified.
+      this.options.ServiceWorker.plugins = options.ServiceWorker.plugins;
+    }
+
     this.hash = null;
     this.assets = null;
     this.hashesMap = null;

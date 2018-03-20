@@ -131,6 +131,10 @@ _Example:_ `{ credentials: 'include' }`
 * **`minify`**: `boolean`. If set to `true` or `false`, the `ServiceWorker`'s output will be minified or not accordingly. If set to something else, the `ServiceWorker` output will be minified **if** you are using `webpack.optimize.UglifyJsPlugin` in your configuration.  
 _Default:_ `null`
 
+* **`plugins`**: `Array`. The plugins which will be applied when compling the `ServiceWorker`'s script.
+_Default:_ `[]`
+_Example:_ `[new require('webpack').DefinePlugin({ CAT: 'MEOW' })]`
+
 #### `AppCache: Object | null | false`
 
 Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.
