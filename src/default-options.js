@@ -1,6 +1,8 @@
 import path from 'path';
 import { isAbsoluteURL } from './misc/utils';
 
+export const DEFAULT_AUTO_UPDATE_INTERVAL = 3600000;
+
 export const AppCacheOptions = {
   NETWORK: '*',
   FALLBACK: null,
@@ -41,6 +43,9 @@ export default {
     scope: null,
     events: false,
     minify: null,
+    forceInstall: false,
+
+    updateViaCache: 'imports',
 
     prefetchRequest: {
       credentials: 'same-origin',

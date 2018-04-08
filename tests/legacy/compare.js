@@ -10,7 +10,7 @@ var log = console.log;
 
 var options = {
   compareContent: true,
-  excludeFilter: '.DS_Store'
+  excludeFilter: '.DS_Store,manifest.html'
 };
 
 function logFile(file, state) {

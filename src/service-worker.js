@@ -31,7 +31,9 @@ export default class ServiceWorker {
     this.navigateFallbackURL = options.navigateFallbackURL;
     this.navigateFallbackForRedirects = options.navigateFallbackForRedirects;
     this.prefetchRequest = this.validatePrefetch(options.prefetchRequest);
+    this.updateViaCache = (options.updateViaCache || '') + '';
     this.navigationPreload = options.navigationPreload;
+    this.forceInstall = !!options.forceInstall;
 
     let cacheNameQualifier = '';
 
@@ -234,7 +236,9 @@ export default class ServiceWorker {
     return {
       location: this.location,
       scope: this.scope,
-      events: this.events
+      updateViaCache: this.updateViaCache,
+      events: this.events,
+      force: this.forceInstall
     };
   }
 

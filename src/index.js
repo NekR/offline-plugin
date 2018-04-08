@@ -1,7 +1,10 @@
 import AppCache from './app-cache';
 import ServiceWorker from './service-worker';
 import defaultOptions,
-  { AppCacheOptions as defaultAppCacheOptions } from './default-options';
+  {
+    AppCacheOptions as defaultAppCacheOptions,
+    DEFAULT_AUTO_UPDATE_INTERVAL
+  } from './default-options';
 
 import {
   hasMagic, interpolateString,
@@ -17,7 +20,6 @@ import loaderUtils from 'loader-utils';
 import slash from 'slash';
 
 const { version: pluginVersion } = require('../package.json');
-const AUTO_UPDATE_INTERVAL = 3600000;
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
@@ -59,7 +61,7 @@ export default class OfflinePlugin {
     const autoUpdate = this.options.autoUpdate;
 
     if (autoUpdate === true) {
-      this.autoUpdate = AUTO_UPDATE_INTERVAL;
+      this.autoUpdate = DEFAULT_AUTO_UPDATE_INTERVAL;
     } else if (typeof autoUpdate === 'number' && autoUpdate) {
       this.autoUpdate = autoUpdate;
     }

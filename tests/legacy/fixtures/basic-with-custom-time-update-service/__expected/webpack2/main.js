@@ -73,11 +73,13 @@
 var appCacheIframe;
 
 function hasSW() {
-  return 'serviceWorker' in navigator &&
-    // This is how I block Chrome 40 and detect Chrome 41, because first has
-    // bugs with history.pustState and/or hashchange
-    (window.fetch || 'imageRendering' in document.documentElement.style) &&
-    (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname.indexOf('127.') === 0)
+  
+    return 'serviceWorker' in navigator && (
+      window.location.protocol === 'https:' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname.indexOf('127.') === 0
+    );
+  
 }
 
 function install(options) {
@@ -87,8 +89,10 @@ function install(options) {
     if (hasSW()) {
       var registration = navigator.serviceWorker
         .register(
-          "sw.js"
-          
+          "sw.js", {
+            
+            
+          }
         );
 
       
