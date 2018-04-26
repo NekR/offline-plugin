@@ -142,7 +142,6 @@ if (typeof DEBUG === 'undefined') {
 }
 
 function WebpackServiceWorker(params, helpers) {
-  var loaders = helpers.loaders;
   var cacheMaps = helpers.cacheMaps;
   // navigationPreload: true, { map: (URL) => URL, test: (URL) => boolean }
   var navigationPreload = helpers.navigationPreload;
@@ -153,7 +152,6 @@ function WebpackServiceWorker(params, helpers) {
   var responseStrategy = params.responseStrategy;
 
   var assets = params.assets;
-  var loadersMap = params.loaders || {};
 
   var hashesMap = params.hashesMap;
   var externals = params.externals;
@@ -239,7 +237,8 @@ function WebpackServiceWorker(params, helpers) {
     return caches.open(CACHE_NAME).then(function (cache) {
       return addAllNormalized(cache, batch, {
         bust: params.version,
-        request: prefetchRequest
+        request: prefetchRequest,
+        failAll: section === 'main'
       });
     }).then(function () {
       logGroup('Cached assets: ' + section, batch);
@@ -321,7 +320,9 @@ function WebpackServiceWorker(params, helpers) {
 
         return Promise.all([move, addAllNormalized(cache, changed, {
           bust: params.version,
-          request: prefetchRequest
+          request: prefetchRequest,
+          failAll: section === 'main',
+          deleteFirst: section !== 'main'
         })]);
       });
     });
@@ -521,16 +522,28 @@ function WebpackServiceWorker(params, helpers) {
       }
 
       // Throw to reach the code in the catch below
-      throw new Error('Response is not ok');
+      throw response;
     })
     // This needs to be in a catch() and not just in the then() above
     // cause if your network is down, the fetch() will throw
-    ['catch'](function () {
+    ['catch'](function (erroredResponse) {
       if (DEBUG) {
         console.log('[SW]:', 'URL [' + urlString + '] from cache if possible');
       }
 
-      return cachesMatch(cacheUrl, CACHE_NAME);
+      return cachesMatch(cacheUrl, CACHE_NAME).then(function (response) {
+        if (response) {
+          return response;
+        }
+
+        if (erroredResponse instanceof Response) {
+          return erroredResponse;
+        }
+
+        // Not a response at this point, some other error
+        throw erroredResponse;
+        // return Response.error();
+      });
     });
   }
 
@@ -659,20 +672,6 @@ function WebpackServiceWorker(params, helpers) {
       });
     });
 
-    Object.keys(loadersMap).forEach(function (key) {
-      loadersMap[key] = loadersMap[key].map(function (path) {
-        var url = new URL(path, location);
-
-        url.hash = '';
-
-        if (externals.indexOf(path) === -1) {
-          url.search = '';
-        }
-
-        return url.toString();
-      });
-    });
-
     hashesMap = Object.keys(hashesMap).reduce(function (result, hash) {
       var url = new URL(hashesMap[hash], location);
       url.search = '';
@@ -691,73 +690,58 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   function addAllNormalized(cache, requests, options) {
-    var allowLoaders = options.allowLoaders !== false;
-    var bustValue = options && options.bust;
+    var bustValue = options.bust;
+    var failAll = options.failAll !== false;
+    var deleteFirst = options.deleteFirst === true;
     var requestInit = options.request || {
       credentials: 'omit',
       mode: 'cors'
     };
+
+    var deleting = Promise.resolve();
+
+    if (deleteFirst) {
+      deleting = Promise.all(requests.map(function (request) {
+        return cache['delete'](request)['catch'](function () {});
+      }));
+    }
 
     return Promise.all(requests.map(function (request) {
       if (bustValue) {
         request = applyCacheBust(request, bustValue);
       }
 
-      return fetch(request, requestInit).then(fixRedirectedResponse);
+      return fetch(request, requestInit).then(fixRedirectedResponse).then(function (response) {
+        if (!response.ok) {
+          return { error: true };
+        }
+
+        return { response: response };
+      }, function () {
+        return { error: true };
+      });
     })).then(function (responses) {
-      if (responses.some(function (response) {
-        return !response.ok;
+      if (failAll && responses.some(function (data) {
+        return data.error;
       })) {
         return Promise.reject(new Error('Wrong response status'));
       }
 
-      var extracted = [];
-      var addAll = responses.map(function (response, i) {
-        if (allowLoaders) {
-          extracted.push(extractAssetsWithLoaders(requests[i], response));
-        }
+      if (!failAll) {
+        responses = responses.filter(function (data) {
+          return !data.error;
+        });
+      }
 
-        return cache.put(requests[i], response);
+      return deleting.then(function () {
+        var addAll = responses.map(function (_ref, i) {
+          var response = _ref.response;
+
+          return cache.put(requests[i], response);
+        });
+
+        return Promise.all(addAll);
       });
-
-      if (extracted.length) {
-        (function () {
-          var newOptions = copyObject(options);
-          newOptions.allowLoaders = false;
-
-          var waitAll = addAll;
-
-          addAll = Promise.all(extracted).then(function (all) {
-            var extractedRequests = [].concat.apply([], all);
-
-            if (requests.length) {
-              waitAll = waitAll.concat(addAllNormalized(cache, extractedRequests, newOptions));
-            }
-
-            return Promise.all(waitAll);
-          });
-        })();
-      } else {
-        addAll = Promise.all(addAll);
-      }
-
-      return addAll;
-    });
-  }
-
-  function extractAssetsWithLoaders(request, response) {
-    var all = Object.keys(loadersMap).map(function (key) {
-      var loader = loadersMap[key];
-
-      if (loader.indexOf(request) !== -1 && loaders[key]) {
-        return loaders[key](response.clone());
-      }
-    }).filter(function (a) {
-      return !!a;
-    });
-
-    return Promise.all(all).then(function (all) {
-      return [].concat.apply([], all);
     });
   }
 

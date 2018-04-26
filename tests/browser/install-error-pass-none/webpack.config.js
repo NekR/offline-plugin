@@ -31,6 +31,13 @@ const config = {
       appShell: '/app-shell.html',
       responseStrategy: 'network-first',
 
+      externals: ['/not-existent'],
+      caches: {
+        main: [':rest:', '/not-existent'],
+        additional: ['index.html'],
+      },
+      safeToUseOptionalCaches: true,
+
       ServiceWorker: {
         navigationPreload: true
       },

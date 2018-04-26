@@ -3,7 +3,6 @@ if (typeof DEBUG === 'undefined') {
 }
 
 function WebpackServiceWorker(params, helpers) {
-  const loaders = helpers.loaders;
   const cacheMaps = helpers.cacheMaps;
   // navigationPreload: true, { map: (URL) => URL, test: (URL) => boolean }
   const navigationPreload = helpers.navigationPreload;
@@ -14,7 +13,6 @@ function WebpackServiceWorker(params, helpers) {
   const responseStrategy = params.responseStrategy;
 
   const assets = params.assets;
-  const loadersMap = params.loaders || {};
 
   let hashesMap = params.hashesMap;
   let externals = params.externals;
@@ -103,7 +101,8 @@ function WebpackServiceWorker(params, helpers) {
     return caches.open(CACHE_NAME).then((cache) => {
       return addAllNormalized(cache, batch, {
         bust: params.version,
-        request: prefetchRequest
+        request: prefetchRequest,
+        failAll: section === 'main'
       });
     }).then(() => {
       logGroup('Cached assets: ' + section, batch);
@@ -194,7 +193,9 @@ function WebpackServiceWorker(params, helpers) {
           move,
           addAllNormalized(cache, changed, {
             bust: params.version,
-            request: prefetchRequest
+            request: prefetchRequest,
+            failAll: section === 'main',
+            deleteFirst: section !== 'main'
           })
         ]);
       });
@@ -397,16 +398,28 @@ function WebpackServiceWorker(params, helpers) {
         }
 
         // Throw to reach the code in the catch below
-        throw new Error('Response is not ok');
+        throw response;
       })
       // This needs to be in a catch() and not just in the then() above
       // cause if your network is down, the fetch() will throw
-      .catch(() => {
+      .catch((erroredResponse) => {
         if (DEBUG) {
           console.log('[SW]:', `URL [${ urlString }] from cache if possible`);
         }
 
-        return cachesMatch(cacheUrl, CACHE_NAME);
+        return cachesMatch(cacheUrl, CACHE_NAME).then(response => {
+          if (response) {
+            return response;
+          }
+
+          if (erroredResponse instanceof Response) {
+            return erroredResponse;
+          }
+
+          // Not a response at this point, some other error
+          throw erroredResponse;
+          // return Response.error();
+        });
       });
   }
 
@@ -542,20 +555,6 @@ function WebpackServiceWorker(params, helpers) {
       });
     });
 
-    Object.keys(loadersMap).forEach((key) => {
-      loadersMap[key] = loadersMap[key].map((path) => {
-        const url = new URL(path, location);
-
-        url.hash = '';
-
-        if (externals.indexOf(path) === -1) {
-          url.search = '';
-        }
-
-        return url.toString();
-      });
-    });
-
     hashesMap = Object.keys(hashesMap).reduce((result, hash) => {
       const url = new URL(hashesMap[hash], location);
       url.search = '';
@@ -574,69 +573,51 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   function addAllNormalized(cache, requests, options) {
-    const allowLoaders = options.allowLoaders !== false;
-    const bustValue = options && options.bust;
+    const bustValue = options.bust;
+    const failAll = options.failAll !== false;
+    const deleteFirst = options.deleteFirst === true;
     const requestInit = options.request || {
       credentials: 'omit',
       mode: 'cors'
     };
+
+    let deleting = Promise.resolve();
+
+    if (deleteFirst) {
+      deleting = Promise.all(requests.map((request) => {
+        return cache.delete(request).catch(() => {});
+      }));
+    }
 
     return Promise.all(requests.map((request) => {
       if (bustValue) {
         request = applyCacheBust(request, bustValue);
       }
 
-      return fetch(request, requestInit).then(fixRedirectedResponse);
+      return fetch(request, requestInit)
+        .then(fixRedirectedResponse).then((response) => {
+          if (!response.ok) {
+            return { error: true };
+          }
+
+          return { response };
+        }, () => ({ error: true }));
     })).then((responses) => {
-      if (responses.some(response => !response.ok)) {
+      if (failAll && responses.some(data => data.error)) {
         return Promise.reject(new Error('Wrong response status'));
       }
 
-      let extracted = [];
-      let addAll = responses.map((response, i) => {
-        if (allowLoaders) {
-          extracted.push(extractAssetsWithLoaders(requests[i], response));
-        }
+      if (!failAll) {
+        responses = responses.filter(data => !data.error);
+      }
 
-        return cache.put(requests[i], response);
-      });
-
-      if (extracted.length) {
-        const newOptions = copyObject(options);
-        newOptions.allowLoaders = false;
-
-        let waitAll = addAll;
-
-        addAll = Promise.all(extracted).then((all) => {
-          const extractedRequests = [].concat.apply([], all);
-
-          if (requests.length) {
-            waitAll = waitAll.concat(
-              addAllNormalized(cache, extractedRequests, newOptions)
-            );
-          }
-
-          return Promise.all(waitAll);
+      return deleting.then(() => {
+        let addAll = responses.map(({ response }, i) => {
+          return cache.put(requests[i], response);
         });
-      } else {
-        addAll = Promise.all(addAll);
-      }
 
-      return addAll;
-    });
-  }
-
-  function extractAssetsWithLoaders(request, response) {
-    const all = Object.keys(loadersMap).map((key) => {
-      const loader = loadersMap[key];
-
-      if (loader.indexOf(request) !== -1 && loaders[key]) {
-        return loaders[key](response.clone());
-      }
-    }).filter(a => !!a);
-
-    return Promise.all(all).then((all) => {
-      return [].concat.apply([], all);
+        return Promise.all(addAll);
+      });
     });
   }
 

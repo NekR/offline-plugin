@@ -5,7 +5,7 @@ const OfflinePlugin = require(process.env.OFFLINE_PLUGIN_ROOT);
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 
-var webpackMajorVersion = require('webpack/package.json').version.split('.')[0];
+const webpackMajorVersion = require('webpack/package.json').version.split('.')[0];
 
 const config = {
   entry: {
