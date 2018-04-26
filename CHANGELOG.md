@@ -1,5 +1,7 @@
 # CHANGELOG
 
+:information_source: For all later changes, please see https://github.com/NekR/offline-plugin/releases
+
 ### 4.8.1
 
 * Fix TypeScript typings
