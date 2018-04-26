@@ -28,8 +28,6 @@ export default class ServiceWorker {
     this.entry = options.entry;
     this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
-    this.navigateFallbackURL = options.navigateFallbackURL;
-    this.navigateFallbackForRedirects = options.navigateFallbackForRedirects;
     this.prefetchRequest = this.validatePrefetch(options.prefetchRequest);
     this.updateViaCache = (options.updateViaCache || '') + '';
     this.navigationPreload = options.navigationPreload;
@@ -210,9 +208,6 @@ export default class ServiceWorker {
         externals: externals,
 
         hashesMap: hashesMap,
-        navigateFallbackURL: this.navigateFallbackURL,
-        navigateFallbackForRedirects: this.navigateFallbackURL ?
-          this.navigateFallbackForRedirects : void 0,
 
         strategy: plugin.strategy,
         responseStrategy: plugin.responseStrategy,

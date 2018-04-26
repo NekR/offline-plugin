@@ -54,11 +54,7 @@ export default {
       cache: void 0
     },
 
-    navigationPreload: ':auto:',
-
-    // Deprecated features
-    navigateFallbackURL: void 0,
-    navigateFallbackForRedirects: true
+    navigationPreload: ':auto:'
   },
 
   // Disable AppCache by default

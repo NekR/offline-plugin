@@ -10,9 +10,11 @@
     "runtime.d.ts"
   ],
   "scripts": {
-    "test": "node tests/legacy/run && eslint -c configs/eslint.tests.json 'tests/legacy/**.js'",
+    "test": "npm run test:fixtures",
     "test:browser": "node tests/run-browser-tests.js",
-    "test:ci_fixtures": "npm run test",
+    "test:fixtures": "node tests/legacy/run && eslint -c configs/eslint.tests.json 'tests/legacy/fixtures/**/**.js'",
+    "text:fixtures:fix": "node tests/legacy/run --fix",
+    "test:ci_fixtures": "npm run test:fixtures",
     "test:ci_browser": "npm run install:browser-tests && npm run test:browser",
     "test:ci_all": "npm run test:ci_fixtures && npm run test:ci_browser",
     "build": "./node_modules/.bin/babel src/ -d lib/",
@@ -77,6 +79,7 @@
     "dir-compare": "^1.1.0",
     "eslint": "^3.14.1",
     "express": "^4.16.2",
+    "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
     "mocha": "^4.0.1",
     "webpack": "4.1.0"

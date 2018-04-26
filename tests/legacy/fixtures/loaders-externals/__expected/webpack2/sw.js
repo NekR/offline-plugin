@@ -295,11 +295,6 @@ function WebpackServiceWorker(params, helpers) {
 
   var allAssets = [].concat(assets.main, assets.additional, assets.optional);
 
-  // Deprecated {
-  var navigateFallbackURL = params.navigateFallbackURL;
-  var navigateFallbackForRedirects = params.navigateFallbackForRedirects;
-  // }
-
   self.addEventListener('install', function (event) {
     console.log('[SW]:', 'Install event');
 
@@ -506,6 +501,11 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   self.addEventListener('fetch', function (event) {
+    // Handle only GET requests
+    if (event.request.method !== 'GET') {
+      return;
+    }
+
     var url = new URL(event.request.url);
     url.hash = '';
 
@@ -518,8 +518,6 @@ function WebpackServiceWorker(params, helpers) {
       urlString = url.toString();
     }
 
-    // Handle only GET requests
-    var isGET = event.request.method === 'GET';
     var assetMatches = allAssets.indexOf(urlString) !== -1;
     var cacheUrl = urlString;
 
@@ -532,22 +530,18 @@ function WebpackServiceWorker(params, helpers) {
       }
     }
 
-    if (!assetMatches && isGET) {
-      // If isn't a cached asset and is a navigation request,
-      // perform network request and fallback to navigateFallbackURL if available.
-      //
-      // Requesting with fetchWithPreload().
-      // Preload is used only if navigationPreload is enabled and
-      // navigationPreload mapping is not used.
-      if (navigateFallbackURL && isNavigateRequest(event.request)) {
-        event.respondWith(handleNavigateFallback(fetchWithPreload(event)));
-
-        return;
-      }
-
-      if (navigationPreload === true) {
-        event.respondWith(fetchWithPreload(event));
-        return;
+    if (!assetMatches) {
+      // Use request.mode === 'navigate' instead of isNavigateRequest
+      // because everything what supports navigationPreload supports
+      // 'navigate' request.mode
+      if (event.request.mode === 'navigate') {
+        // Requesting with fetchWithPreload().
+        // Preload is used only if navigationPreload is enabled and
+        // navigationPreload mapping is not used.
+        if (navigationPreload === true) {
+          event.respondWith(fetchWithPreload(event));
+          return;
+        }
       }
 
       // Something else, positive, but not `true`
@@ -560,22 +554,11 @@ function WebpackServiceWorker(params, helpers) {
         }
       }
 
-      // Logic exists here if no cache match, or no preload
-      return;
-    }
-
-    if (!assetMatches || !isGET) {
-      // Fix for https://twitter.com/wanderview/status/696819243262873600
-      if (url.origin !== location.origin && navigator.userAgent.indexOf('Firefox/44.') !== -1) {
-        event.respondWith(fetch(event.request));
-      }
-
       // Logic exists here if no cache match
       return;
     }
 
     // Cache handling/storing/fetching starts here
-
     var resource = undefined;
 
     if (responseStrategy === 'network-first') {
@@ -586,10 +569,6 @@ function WebpackServiceWorker(params, helpers) {
     else {
         resource = cacheFirstResponse(event, urlString, cacheUrl);
       }
-
-    if (navigateFallbackURL && isNavigateRequest(event.request)) {
-      resource = handleNavigateFallback(resource);
-    }
 
     event.respondWith(resource);
   });
@@ -783,23 +762,6 @@ function WebpackServiceWorker(params, helpers) {
       }
 
       return response || fetch(event.request);
-    });
-  }
-
-  function handleNavigateFallback(fetching) {
-    return fetching['catch'](function () {}).then(function (response) {
-      var isOk = response && response.ok;
-      var isRedirect = response && response.type === 'opaqueredirect';
-
-      if (isOk || isRedirect && !navigateFallbackForRedirects) {
-        return response;
-      }
-
-      if (DEBUG) {
-        console.log('[SW]:', 'Loading navigation fallback [' + navigateFallbackURL + '] from cache');
-      }
-
-      return cachesMatch(navigateFallbackURL, CACHE_NAME);
     });
   }
 
