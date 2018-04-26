@@ -41,7 +41,6 @@ export default class OfflinePlugin {
     this.responseStrategy = this.options.responseStrategy;
     this.relativePaths = this.options.relativePaths;
     this.pluginVersion = pluginVersion;
-    this.loaders = {};
     this.warnings = [];
     this.errors = [];
 
@@ -169,8 +168,6 @@ export default class OfflinePlugin {
   apply(compiler) {
     const runtimePath = path.resolve(__dirname, '../runtime.js');
     const compilerOptions = compiler.options;
-
-    this.options.externals = this.extractLoaders(this.options.externals);
 
     if (this.relativePaths === true) {
       this.publicPath = null;
@@ -473,10 +470,6 @@ export default class OfflinePlugin {
       this.caches = handledCaches;
       this.assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
     }
-
-    Object.keys(this.loaders).forEach((loader) => {
-      this.loaders[loader] = this.validatePaths(this.loaders[loader]);
-    });
   }
 
   setHashesMap(compilation) {
@@ -561,29 +554,6 @@ export default class OfflinePlugin {
         this.preferOnline = preferOnline;
       }
     }
-  }
-
-  extractLoaders(assets) {
-    const R_LOADER = /^([^\s]+?):(\/\/)?/;
-
-    return assets.map((asset) => {
-      const loaderMatch = asset.match(R_LOADER);
-
-      if (loaderMatch && !loaderMatch[2]) {
-        asset = asset.slice(loaderMatch[0].length);
-
-        const loaderName = loaderMatch[1];
-        let loader = this.loaders[loaderName];
-
-        if (!loader) {
-          loader = this.loaders[loaderName] = [];
-        }
-
-        loader.push(asset);
-      }
-
-      return asset;
-    });
   }
 
   stringifyCacheMaps(cacheMaps) {
