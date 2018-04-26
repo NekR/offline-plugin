@@ -95,9 +95,9 @@ OfflinePluginRuntime.install();
 
 > For more details of usage with `TypeScript` see [here](docs/typescript.md)
 
-#### `offline-plugin` isn't working?
+### `offline-plugin` isn't working?
 
-**[Troubleshooting](docs/troubleshooting.md)** | **[FAQ](docs/FAQ.md)**
+:information_source: **[Troubleshooting](docs/troubleshooting.md)** | **[FAQ](docs/FAQ.md)**
 
 ## Docs
 
