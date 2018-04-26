@@ -16,9 +16,9 @@ var __wpo = {
   },
   "strategy": "changed",
   "responseStrategy": "network-first",
-  "version": "2017-12-12 01:59:53",
+  "version": "2018-4-26 08:11:52",
   "name": "webpack-offline",
-  "pluginVersion": "4.8.5",
+  "pluginVersion": "4.9.0",
   "relativePaths": false
 };
 
@@ -820,7 +820,7 @@ var __wpo = {
 	  return caches.match(request, {
 	    cacheName: cacheName
 	  }).then(function (response) {
-	    if (isNotRedirectedResponse()) {
+	    if (isNotRedirectedResponse(response)) {
 	      return response;
 	    }
 
