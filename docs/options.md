@@ -131,13 +131,6 @@ _Example:_ `{ credentials: 'include' }`
 * **`minify`**: `boolean`. If set to `true` or `false`, the `ServiceWorker`'s output will be minified or not accordingly. If set to something else, the `ServiceWorker` output will be minified **if** you are using `webpack.optimize.UglifyJsPlugin` in your configuration.  
 _Default:_ `null`
 
-* **[Deprecated]** `navigateFallbackURL`: `string`. The URL that should be returned from the cache when a requested navigation URL isn't available on the cache or network. Similar to the `AppCache.FALLBACK` option.  
-_Example:_ `navigateFallbackURL: '/'`
-
-* **[Deprecated]** `navigateFallbackForRedirects`: `boolean`. If this flag is false `navigateFallbackURL` will not be used for 3xx responses. (By default it will be used for all non 2xx navigate responses).
-_Example:_ `navigateFallbackForRedirects: false`
-_Default:_ `true`
-
 #### `AppCache: Object | null | false`
 
 Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.

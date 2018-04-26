@@ -13,6 +13,4 @@ When using Server Side Rendering with AppShell model, make sure that you do not 
 
 ### Advanced
 
-Previously, to achieve the same effect, `ServiceWorker.navigateFallbackURL` and `AppCache.FALLBACK` option had to be used. `ServiceWorker.navigateFallbackURL` is now deprecated and shouldn't be used at all. Instead, `appShell` should be used.
-
 `appShell` is baked by `cacheMaps` option for `ServiceWorker` and `AppCache.FALLBACK` option for `AppCache`.

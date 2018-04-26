@@ -9,8 +9,7 @@
 * **The ServiceWorker gets overridden by another app on the same domain.** Specify a unique [`ServiceWorker.cacheName`](options.md#serviceworker-object--null--false) to avoid it being overridden.
 * **`offline-plugin` isn't working in dev mode.** `webpack-dev-server` compatibility is unknown for the moment, so if you are using hot reloading, ServiceWorker might not work as it's supposed to.
 * **cookies are not included in the ServiceWorker pre-fetch request.** Make sure you are using the correct [prefetchRequest.credentials](options.md#serviceworker-object--null--false) to allow for cookies.
-* **ServiceWorker doesn't work for subpages.** `offline-plugin` is probably not configured to handle these routes. See the [cacheMaps](cache-maps.md) or [ServiceWorker.navigateFallbackURL](options.md#serviceworker-object--null--false) options.
+* **ServiceWorker doesn't work for subpages.** `offline-plugin` is probably not configured to handle these routes. See the [`appShell`](app-shell.md) option.
 * **ServiceWorker is wrongly caching api requests.** There are multiple ways to fix this depending on your setup. One way is to set [cacheMaps.requestTypes](cache-maps.md) to `['navigate']`, caching only those requests.
 * **AppCache events are not working properly.** `AppCache.events` are known to be a bit buggy (see [updates](updates.md)). Try to avoid using them if possible.
 * **Resources served from a CDN are not being cached** `offline-plugin` can cache resources served from a CDN, given the correct configuration. Make sure the resources are served with the correct headers.
-* **The serviceworker is preventing redirections from taking place.** If `navigateFallbackURL` is set, it treats redirects as fails. Either set `ServiceWorker.navigateFallbackForRedirects` to `false`, or (preferred) use `cacheMaps` and remove `navigateFallbackURL`.

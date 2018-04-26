@@ -95,15 +95,18 @@ OfflinePluginRuntime.install();
 
 > For more details of usage with `TypeScript` see [here](docs/typescript.md)
 
+#### `offline-plugin` isn't working?
+
+**[Troubleshooting](docs/troubleshooting.md)** | **[FAQ](docs/FAQ.md)**
+
 ## Docs
 
+* [Options](docs/options.md)
 * [Caches](docs/caches.md)
 * [Update process](docs/updates.md)
 * [Cache Maps](docs/cache-maps.md)
 * [Runtime API](docs/runtime.md)
 * [Configuration options](docs/options.md)
-* [FAQ](docs/FAQ.md)
-* [Troubleshooting](docs/troubleshooting.md)
 
 ## Examples
 
@@ -131,11 +134,11 @@ All options are optional and `offline-plugin` can be used without specifying the
 ### PWAs
 
 * [`offline-plugin` PWA](https://offline-plugin.now.sh/)
-* [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
+* [Omroep West](https://m.omroepwest.nl/)
 * [Preact](https://preactjs.com/) ([source](https://github.com/developit/preact-www))
-* [Omroep West (_Proof of Concept_)](https://omroep-west.now.sh/)
-* [Online Board](https://onlineboard.sonnywebdesign.com/) ([source](https://github.com/andreasonny83/online-board))
 * [CodePan](https://codepan.net) ([source](https://github.com/egoist/codepan))
+* [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
+* [Online Board](https://onlineboard.sonnywebdesign.com/) ([source](https://github.com/andreasonny83/online-board))
 
 
 _If you are using `offline-plugin`, feel free to submit a PR to add your project to this list._
