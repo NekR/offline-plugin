@@ -98,7 +98,7 @@ module.exports = function(testDir) {
     });
   }
 
-  if (!res.same) {
+  if (!res.same && !isFix) {
     return Promise.reject();
   }
 

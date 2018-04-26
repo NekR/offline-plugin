@@ -13,7 +13,7 @@
     "test": "npm run test:fixtures",
     "test:browser": "node tests/run-browser-tests.js",
     "test:fixtures": "node tests/legacy/run && eslint -c configs/eslint.tests.json 'tests/legacy/fixtures/**/**.js'",
-    "text:fixtures:fix": "node tests/legacy/run --fix",
+    "test:fixtures:fix": "node tests/legacy/run --fix",
     "test:ci_fixtures": "npm run test:fixtures",
     "test:ci_browser": "npm run install:browser-tests && npm run test:browser",
     "test:ci_all": "npm run test:ci_fixtures && npm run test:ci_browser",
