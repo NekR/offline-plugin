@@ -26,7 +26,7 @@ const updateStrategies = ['all', 'hash', 'changed'];
 
 export default class OfflinePlugin {
   constructor(options) {
-    const AppCacheOptions = options.AppCache;
+    const AppCacheOptions = options ? options.AppCache : void 0;
 
     this.options = deepExtend({}, defaultOptions, options, {
       AppCache: false
