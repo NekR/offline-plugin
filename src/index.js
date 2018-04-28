@@ -221,10 +221,10 @@ export default class OfflinePlugin {
         data[key] = tool.getConfig(this);
       });
 
-      result.loaders.push(
-        path.join(__dirname, 'misc/runtime-loader.js') +
-          '?' + JSON.stringify(data)
-      );
+      result.loaders.push({
+        loader: path.join(__dirname, 'misc/runtime-loader.js'),
+        options: JSON.stringify(data)
+      });
 
       callback(null, result);
     };
