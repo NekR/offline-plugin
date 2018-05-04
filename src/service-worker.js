@@ -66,32 +66,39 @@ export default class ServiceWorker {
     childCompiler.context = compiler.context;
     new SingleEntryPlugin(compiler.context, entry, name).apply(childCompiler);
 
+    const optimization = compiler.options.optimization || {};
+
+    const uglifyOptions = {
+      compress: {
+        warnings: false,
+        dead_code: true,
+        drop_console: true,
+        unused: true
+      },
+
+      output: {
+        comments: false
+      }
+    };
+
     if (this.minify === true) {
       if (!UglifyJsPlugin) {
-        throw new Error('OfflinePlugin: uglifyjs-webpack-plugin is required to preform minification')
+        throw new Error('OfflinePlugin: uglifyjs-webpack-plugin is required to preform a minification')
       }
 
       const options = {
         test: new RegExp(name),
-        uglifyOptions: {
-          compress: {
-            warnings: false,
-            dead_code: true,
-            drop_console: true,
-            unused: true
-          },
-
-          output: {
-            comments: false
-          }
-        }
+        uglifyOptions: uglifyOptions
       };
 
       new UglifyJsPlugin(options).apply(childCompiler);
-    } else if (this.minify !== false && UglifyJsPlugin) {
+    } else if (
+      (this.minify !== false || optimization.minimize) && UglifyJsPlugin
+    ) {
       // Do not perform auto-minification if UglifyJsPlugin isn't installed
 
-      (compiler.options.plugins || []).some((plugin) => {
+      const added = ((optimization.minimize && optimization.minimizer) || [])
+      .concat(compiler.options.plugins || []).some((plugin) => {
         if (plugin instanceof UglifyJsPlugin) {
           const options = deepExtend({}, plugin.options);
 
@@ -101,6 +108,15 @@ export default class ServiceWorker {
           return true;
         }
       });
+
+      if (!added && optimization.minimize) {
+        const options = {
+          test: new RegExp(name),
+          uglifyOptions: uglifyOptions
+        };
+
+        new UglifyJsPlugin(options).apply(childCompiler);
+      }
     }
 
     // Needed for HMR. offline-plugin doesn't support it,
@@ -140,10 +156,16 @@ export default class ServiceWorker {
     if (typeof this.minify === 'boolean') {
       minify = this.minify;
     } else {
-      minify = !!UglifyJsPlugin &&
-        !!(compiler.options.plugins || []).some((plugin) => {
-          return plugin instanceof UglifyJsPlugin;
-        });
+      minify = !!UglifyJsPlugin && (
+        !!(
+          compiler.options.optimization &&
+          compiler.options.optimization.minimize
+        ) || !!(
+          (compiler.options.plugins || []).some((plugin) => {
+            return plugin instanceof UglifyJsPlugin;
+          })
+        )
+      );
     }
 
     let source = this.getDataTemplate(plugin.caches, plugin, minify);

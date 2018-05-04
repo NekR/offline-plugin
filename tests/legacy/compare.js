@@ -35,6 +35,12 @@ module.exports = function(testDir) {
   var expectedFolder = path.join(testDir, '__expected', 'webpack' + webpackVersion.split('.')[0]);
   var outputFolder = path.join(testDir, '__output');
 
+  try {
+    fs.accessSync(expectedFolder);
+  } catch (e) {
+    return Promise.resolve();
+  }
+
   var res = dircompare.compareSync(
     expectedFolder,
     outputFolder,
