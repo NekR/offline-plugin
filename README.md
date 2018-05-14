@@ -12,11 +12,6 @@
 
 This plugin is intended to provide an offline experience for **webpack** projects. It uses **ServiceWorker**, and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config``, and the accompanying runtime in your client script, and your project will become offline ready by caching all (or some) of the webpack output assets.
 
-<!-- <div align="center">
-  <strong>Demo:<br><a href="https://offline-plugin.now.sh/"> Progressive Web App built with <code>offline-plugin</code></a></strong><br>
-  <div>(<a href="https://github.com/NekR/offline-plugin-pwa"><i>source code</i></a>)</div>
-</div> -->
-
 <div align="center">
   <h1>Sponsors</h1>
   
@@ -61,7 +56,7 @@ This plugin is intended to provide an offline experience for **webpack** project
 
 ## Setup
 
-First, instantiate the plugin with [options](docs/options.md) in your `webpack.config`:
+First, instantiate the plugin in your `webpack.config`:
 
 ```js
 // webpack.config.js example
@@ -78,8 +73,8 @@ module.exports = {
   ]
   // ...
 }
-
 ```
+_(and optionally configure with options [options](docs/options.md))_  
 
 Then, add the [runtime](docs/runtime.md) into your entry file (typically main entry):
 
@@ -124,6 +119,11 @@ All options are optional and `offline-plugin` can be used without specifying the
 #### [See all available options here.](docs/options.md)
 
 ## Who is using `offline-plugin`
+
+<div align="center">
+  <strong>Demo:<br><a href="https://offline-plugin.now.sh/"> Progressive Web App built with <code>offline-plugin</code></a></strong><br>
+  <div>(<a href="https://github.com/NekR/offline-plugin-pwa"><i>source code</i></a>)</div>
+</div>
 
 ### Projects
 
