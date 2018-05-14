@@ -74,7 +74,7 @@ module.exports = {
   // ...
 }
 ```
-_(and optionally configure with options [options](docs/options.md))_  
+_(and optionally configure with [options](docs/options.md))_  
 
 Then, add the [runtime](docs/runtime.md) into your entry file (typically main entry):
 
