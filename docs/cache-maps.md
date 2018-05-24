@@ -15,6 +15,8 @@ new OfflinePlugin({
 })
 ```
 
+Note that this functionality is implemented by the [appShell](./app-shell.md) option, so you should prefer it if you don't have more complicated needs.
+
 Available properties on a map object:
 
 * `match`: _string | RegExp | function_ -- matches an URL to map to a cache. If _function_ is specified it accepts 2 arguments: `URL` object of a request and `Request` itself as the second argument. Return value of the specified function is used as the new URL. It must be a `URL` object.
