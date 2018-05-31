@@ -44,11 +44,14 @@
   "author": "Arthur Stolyar <nekr.fabula@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "babel": "^5.8.38",
     "deep-extend": "^0.5.1",
     "ejs": "^2.3.4",
     "loader-utils": "0.2.x",
     "minimatch": "^3.0.3",
-    "slash": "^1.0.0"
+    "puppeteer": "^1.4.0",
+    "slash": "^1.0.0",
+    "webpack": "^4.10.2"
   },
   "bugs": {
     "url": "https://github.com/NekR/offline-plugin/issues"
@@ -81,8 +84,7 @@
     "express": "^4.16.2",
     "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
-    "mocha": "^4.0.1",
-    "webpack": "4.1.0"
+    "mocha": "^4.0.1"
   },
   "buildDependencies": {
     "babel": "^5.8.23"
