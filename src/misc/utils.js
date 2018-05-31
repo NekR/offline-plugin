@@ -61,7 +61,13 @@ export function functionToString(fn) {
     return '(void 0)';
   }
 
-  let string = fn + '';
+  let string = (fn + '').trim();
+
+  const match = string.match(/^\s*function\s*(?:[a-zA-Z$_\d]+)?\s*\(([\s\S]*?)\)\s*\{([\s\S]*?)\}\s*$/);
+
+  if (match) {
+    return `function (${match[1].trim()}) {${match[2]}}`;
+  }
 
   return arrowFnToNormalFn(string);
 }

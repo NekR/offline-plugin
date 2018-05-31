@@ -82,6 +82,6 @@ function runAll() {
   });
 
   const r = mocha.run((failures) => {
-    process.exit(failures);
+    // process.exit(failures);
   });
 }
