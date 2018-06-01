@@ -873,15 +873,13 @@ function logGroup(title, assets) {
 loaders: {},
 cacheMaps: [
       {
-      match: function (url) {
-
+      match: function(url) {
           if (url.pathname === location.pathname) {
             return;
           }
 
           return new URL("/app-shell.html", location);
-        
-},
+        },
       to: null,
       requestTypes: ["navigate"],
     }

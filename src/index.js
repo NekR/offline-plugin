@@ -129,13 +129,13 @@ export default class OfflinePlugin {
     if (this.appShell) {
       // Make appShell the latest in the chain so it could be overridden
       cacheMaps = (cacheMaps || []).concat({
-        match: new Function('url', `
+        match: `function(url) {
           if (url.pathname === location.pathname) {
             return;
           }
 
           return new URL(${JSON.stringify(this.appShell)}, location);
-        `),
+        }`,
         requestTypes: ['navigate']
       });
     }
