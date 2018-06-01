@@ -36,6 +36,20 @@ describe('testing basic `cache-first` sw install', async () => {
     });
   });
 
+  it('should go to generated sw file location and get its contents', async () => {
+    const swScriptPage = await browser.newPage();
+
+    await swScriptPage.goto(`${__SERVER__}/sw.js`);
+
+    await swScriptPage.evaluate(function() {
+      const contents = document.body.textContent.trim();
+
+      if (contents.indexOf('var __wpo = {') !== 0) {
+        throw new Error('Incorrect page contents');
+      }
+    });
+  });
+
   it('should perform 2 preloads concurrently', async () => {
     const [ index, notFound ] = await Promise.all([
       browser.newPage(), browser.newPage()
