@@ -50,8 +50,7 @@
     "loader-utils": "0.2.x",
     "minimatch": "^3.0.3",
     "puppeteer": "^1.4.0",
-    "slash": "^1.0.0",
-    "webpack": "^4.10.2"
+    "slash": "^1.0.0"
   },
   "bugs": {
     "url": "https://github.com/NekR/offline-plugin/issues"
@@ -84,7 +83,11 @@
     "express": "^4.16.2",
     "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "webpack": "^4.10.2"
+  },
+  "peerDependencies": {
+    "webpack": "^3.0.0 || ^4.0.0"
   },
   "buildDependencies": {
     "babel": "^5.8.23"
