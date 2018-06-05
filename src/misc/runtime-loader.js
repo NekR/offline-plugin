@@ -8,7 +8,7 @@ module.exports.pitch = function(remainingRequest, precedingRequest, data) {
 
   const callback = this.async();
   const params = JSON.parse(this.query.slice(1));
-  const templatePath = path.join(__dirname, '../../tpls/runtime-template.js');
+  const templatePath = path.join(__dirname, '../../tpls/runtime-template.ejs');
 
   this.addDependency(templatePath);
 

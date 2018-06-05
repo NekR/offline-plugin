@@ -139,7 +139,7 @@ export default class AppCache {
 
   getPageContent() {
     if (this.events) {
-      return fs.readFileSync(path.join(__dirname, '../tpls/appcache-frame.tpl'), 'utf-8');
+      return fs.readFileSync(path.join(__dirname, '../tpls/appcache-frame.html'), 'utf-8');
     } else {
       return '';
     }
