@@ -39,7 +39,7 @@ export default {
 
   ServiceWorker: {
     output: 'sw.js',
-    entry: path.join(__dirname, '../tpls/empty-entry.js'),
+    entry: path.join(__dirname, '../tpls/empty-entry.ejs'),
     scope: null,
     events: false,
     minify: null,

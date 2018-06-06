@@ -253,7 +253,7 @@ export default class OfflinePlugin {
     };
 
     const emitFn = (compilation, callback) => {
-      const runtimeTemplatePath = path.resolve(__dirname, '../tpls/runtime-template.js');
+      const runtimeTemplatePath = path.resolve(__dirname, '../tpls/runtime-template.ejs');
       let hasRuntime = true;
 
       if (compilation.fileDependencies.indexOf) {
