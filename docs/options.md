@@ -69,7 +69,9 @@ Version of the cache. Can be a function, which is useful in _watch-mode_ when yo
 * `Function` is called with the plugin instance as the first argument
 * `string` which can be interpolated with `[hash]` token
 
-> Default: _Current date_
+> Default: _Current date_  
+> **Example:** `2018-6-20 09:53:56`  
+> Please note that if you use the default value (date and time), the version of service worker will change on each build of your project.
 
 #### `rewrites: Function | Object`
 
