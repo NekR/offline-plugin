@@ -1,7 +1,7 @@
 var appCacheIframe;
 
 function hasSW() {
-  <% if (ServiceWorker.force) { %>
+  <% if (typeof ServiceWorker === 'object' && ServiceWorker.force) { %>
     // Forced install
     return 'serviceWorker' in navigator;
   <% } else { %>
