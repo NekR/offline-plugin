@@ -23,7 +23,7 @@ export default {
   // Hack to have intermediate value, e.g. default one, true and false
   relativePaths: ':relativePaths:',
   version: null,
-  autoUpdate: false,
+  autoUpdate: true,
   cacheMaps: null,
   appShell: null,
 
