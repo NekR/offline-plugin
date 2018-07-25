@@ -1,4 +1,6 @@
-## Options
+# Options
+
+___________________________________
 
 All options are optional, see the defaults [here](../src/default-options.js).
 
