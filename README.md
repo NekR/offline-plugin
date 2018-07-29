@@ -139,7 +139,7 @@ All options are optional and `offline-plugin` can be used without specifying the
 * [CodePan](https://codepan.net) ([source](https://github.com/egoist/codepan))
 * [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
 * [Online Board](https://onlineboard.sonnywebdesign.com/) ([source](https://github.com/andreasonny83/online-board))
-
+* [Fluid Outliner](https://fluid-notion.github.io/fluid-outliner/) ([source](https://github.com/fluid-notion/fluid-outliner))
 
 _If you are using `offline-plugin`, feel free to submit a PR to add your project to this list._
 
