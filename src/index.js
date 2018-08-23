@@ -488,8 +488,15 @@ export default class OfflinePlugin {
         this.assets.indexOf(validatedPath) === -1
       ) return;
 
+      let source = compilation.assets[key].source();
+      if (source instanceof ArrayBuffer) {
+        // This is the case for WebAssembly modules.
+        // getHashDigest does not accept ArrayBuffers, so wrap source
+        // in something that getHashDigest does accept.
+        source = new Uint8Array(source);
+      }
       const hash = loaderUtils.getHashDigest(
-        compilation.assets[key].source(), 'sha1'
+        source, 'sha1'
       );
 
       this.hashesMap[hash] = validatedPath;
