@@ -56,6 +56,7 @@ module.exports = function(OfflinePluginOptions, testFlags) {
 
   if (webpackMajorVersion === '4') {
     config.mode = 'none';
+    config.resolve.extensions.push('.wasm');
   }
 
   return config;
