@@ -45,7 +45,7 @@ tests.reduce(function(last, testName) {
       webpack(config, function(err, stats) {
         compare(testDir).then(function() {
           if (err) {
-            reject();
+            reject(err);
             return;
           }
 
