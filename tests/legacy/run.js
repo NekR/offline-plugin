@@ -50,12 +50,20 @@ tests.reduce(function(last, testName) {
           }
 
           if (stats.compilation.warnings.length) {
-            reject();
+            console.warn('Warnings:');
+            stats.compilation.warnings.forEach(function (warning) {
+              console.warn(warning);
+            });
+            reject(new Error('encountered at least one warning'));
             return;
           }
 
           if (stats.compilation.errors.length) {
-            reject();
+            console.error('Errors:');
+            stats.compilation.errors.forEach(function (error) {
+              console.error(error);
+            });
+            reject(new Error('encountered at least one error'));
             return;
           }
 
