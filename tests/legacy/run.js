@@ -70,6 +70,13 @@ tests.reduce(function(last, testName) {
           resolve();
         }).catch(reject);
       });
+    }).catch(function (err) {
+      if (err instanceof Error && err.message === 'unsupported webpack version') {
+        var testName = path.basename(testDir);
+        console.log('Skipping: ' + testName + '\n  because of unsupported webpack version');
+        return;
+      }
+      throw err;
     });
 
     allTests.push(test);
