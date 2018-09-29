@@ -624,7 +624,7 @@ function WebpackServiceWorker(params, helpers) {
 
       return deleting.then(() => {
         let addAll = responses.map(({ response }, i) => {
-          return cache.put(requests[i], response);
+          return cache.put(response.url, response);
         });
 
         return Promise.all(addAll);
