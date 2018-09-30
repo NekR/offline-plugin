@@ -79,7 +79,9 @@ _(and optionally configure with [options](docs/options.md))_
 Then, add the [runtime](docs/runtime.md) into your entry file (typically main entry):
 
 ```js
-require('offline-plugin/runtime').install();
+if ('serviceWorker' in navigator) {
+  require("offline-plugin/runtime").install();
+}
 ```
 
 ES6/Babel/TypeScript
