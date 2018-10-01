@@ -53,13 +53,3 @@ There are multiple ways to fix this depending on your setup. One way is to set [
 #### Resources served from a CDN are not being cached
 
 `offline-plugin` can cache resources served from a CDN, given the correct configuration. Make sure the resources are served with the correct headers.
-
-#### `ofline-plugin` is causing an infinite reloading
-
-wrap the `install` in a feature check. [See MDN docs for more information](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/serviceWorker).
-
-```javascript
-if ('serviceWorker' in navigator) {
-    require("offline-plugin/runtime").install();
-}
-```
