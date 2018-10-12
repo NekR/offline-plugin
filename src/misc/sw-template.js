@@ -2,6 +2,9 @@ if (typeof DEBUG === 'undefined') {
   var DEBUG = false;
 }
 
+const idbKeyval = require('idb-keyval');
+const idbStore = new idbKeyval.Store('offline-plugin-db', 'offline-plugin-store');
+
 function WebpackServiceWorker(params, helpers) {
   const cacheMaps = helpers.cacheMaps;
   // navigationPreload: true, { map: (URL) => URL, test: (URL) => boolean }
@@ -11,11 +14,6 @@ function WebpackServiceWorker(params, helpers) {
   const strategy = params.strategy;
   // responseStrategy: cache-first, network-first
   const responseStrategy = params.responseStrategy;
-
-  const assets = params.assets;
-
-  let hashesMap = params.hashesMap;
-  let externals = params.externals;
 
   const prefetchRequest = params.prefetchRequest || {
     credentials: 'same-origin',
@@ -29,9 +27,54 @@ function WebpackServiceWorker(params, helpers) {
   const PRELOAD_CACHE_NAME = CACHE_PREFIX + '$preload';
   const STORED_DATA_KEY = '__offline_webpack__data';
 
-  mapAssets();
+  function makeCachedAsyncFunc(func) {
+    let cachedValue;
+    let onGoingPromise = null;
 
-  const allAssets = [].concat(assets.main, assets.additional, assets.optional);
+    return () => {
+      if (typeof cachedValue !== 'undefined') {
+        return Promise.resolve(cachedValue);
+      } else if (onGoingPromise) {
+        return onGoingPromise;
+      } else {
+        return onGoingPromise = func().then(value => {
+          onGoingPromise = null;
+          return cachedValue = value;
+        }).catch(err => {
+          // don't cache promise when there is an exception
+          onGoingPromise = null;
+          throw err;
+        });
+      }
+    };
+  }
+
+  function getPublicPathImp() {
+    return idbKeyval.get('publicPath', idbStore)
+      .catch(err => {
+        console.error('[SW] exception getting publicPath in indexedDB: ', err);
+
+        return null;
+      });
+  }
+  const getPublicPath = makeCachedAsyncFunc(getPublicPathImp);
+
+  function getMetadataImp() {
+    return getPublicPath().then(publicPath => {
+      return mapAssets({
+        assets: params.assets,
+        hashesMap: params.hashesMap,
+        externals: params.externals,
+        publicPath,
+      });
+    });
+  }
+  const getMetadata = makeCachedAsyncFunc(getMetadataImp);
+  const getAssets = () => getMetadata().then(({ assets }) => assets);
+  const getHashesMap = () => getMetadata().then(({ hashesMap }) => hashesMap);
+  const getExternals = () => getMetadata().then(({ externals }) => externals);
+  const getAllAssetsImp = () => getAssets().then(assets => [].concat(assets.main, assets.additional, assets.optional));
+  const getAllAssets = makeCachedAsyncFunc(getAllAssetsImp);
 
   self.addEventListener('install', (event) => {
     console.log('[SW]:', 'Install event');
@@ -73,47 +116,52 @@ function WebpackServiceWorker(params, helpers) {
   });
 
   function cacheAdditional() {
-    if (!assets.additional.length) {
-      return Promise.resolve();
-    }
+    return getAssets().then(assets => {
+      if (!assets.additional.length) {
+        return Promise.resolve();
+      }
 
-    if (DEBUG) {
-      console.log('[SW]:', 'Caching additional');
-    }
+      if (DEBUG) {
+        console.log('[SW]:', 'Caching additional');
+      }
 
-    let operation;
+      let operation;
 
-    if (strategy === 'changed') {
-      operation = cacheChanged('additional');
-    } else {
-      operation = cacheAssets('additional');
-    }
+      if (strategy === 'changed') {
+        operation = cacheChanged('additional');
+      } else {
+        operation = cacheAssets('additional');
+      }
 
-    // Ignore fail of `additional` cache section
-    return operation.catch((e) => {
-      console.error('[SW]:', 'Cache section `additional` failed to load');
-    });
+      // Ignore fail of `additional` cache section
+      return operation.catch((e) => {
+        console.error('[SW]:', 'Cache section `additional` failed to load');
+      });
+    })
   }
 
   function cacheAssets(section) {
-    const batch = assets[section];
-
-    return caches.open(CACHE_NAME).then((cache) => {
-      return addAllNormalized(cache, batch, {
-        bust: params.version,
-        request: prefetchRequest,
-        failAll: section === 'main'
+    return getAssets().then(assets => {
+      const batch = assets[section];
+      
+      return caches.open(CACHE_NAME).then((cache) => {
+        return addAllNormalized(cache, batch, {
+          bust: params.version,
+          request: prefetchRequest,
+          failAll: section === 'main'
+        });
+      }).then(() => {
+        logGroup('Cached assets: ' + section, batch);
+      }).catch(e => {
+        console.error(e)
+        throw e;
       });
-    }).then(() => {
-      logGroup('Cached assets: ' + section, batch);
-    }).catch(e => {
-      console.error(e)
-      throw e;
     });
   }
 
   function cacheChanged(section) {
-    return getLastCache().then(args => {
+    return Promise.all([getHashesMap(), getAssets(), getLastCache()])
+    .then(([ hashesMap, assets, args ]) => {
       if (!args) {
         return cacheAssets(section);
       }
@@ -244,7 +292,8 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   function storeCacheData() {
-    return caches.open(CACHE_NAME).then(cache => {
+    return Promise.all([ getHashesMap(), caches.open(CACHE_NAME)])
+    .then(([ hashesMap, cache ]) => {
       const data = new Response(JSON.stringify({
         version: params.version,
         hashmap: hashesMap
@@ -276,66 +325,69 @@ function WebpackServiceWorker(params, helpers) {
 
     let urlString = url.toString();
 
-    // Not external, so search part of the URL should be stripped,
-    // if it's external URL, the search part should be kept
-    if (externals.indexOf(urlString) === -1) {
-      url.search = '';
-      urlString = url.toString();
-    }
-
-    let assetMatches = allAssets.indexOf(urlString) !== -1;
-    let cacheUrl = urlString;
-
-    if (!assetMatches) {
-      let cacheRewrite = matchCacheMap(event.request);
-
-      if (cacheRewrite) {
-        cacheUrl = cacheRewrite;
-        assetMatches = true;
+    event.waitUntil(Promise.all([getExternals(), getAllAssets()])
+    .then(([ externals, allAssets ]) => {
+      // Not external, so search part of the URL should be stripped,
+      // if it's external URL, the search part should be kept
+      if (externals.indexOf(urlString) === -1) {
+        url.search = '';
+        urlString = url.toString();
       }
-    }
 
-    if (!assetMatches) {
-      // Use request.mode === 'navigate' instead of isNavigateRequest
-      // because everything what supports navigationPreload supports
-      // 'navigate' request.mode
-      if (event.request.mode === 'navigate') {
-        // Requesting with fetchWithPreload().
-        // Preload is used only if navigationPreload is enabled and
-        // navigationPreload mapping is not used.
-        if (navigationPreload === true) {
-          event.respondWith(fetchWithPreload(event));
-          return;
+      let assetMatches = allAssets.indexOf(urlString) !== -1;
+      let cacheUrl = urlString;
+
+      if (!assetMatches) {
+        let cacheRewrite = matchCacheMap(event.request);
+
+        if (cacheRewrite) {
+          cacheUrl = cacheRewrite;
+          assetMatches = true;
         }
       }
 
-      // Something else, positive, but not `true`
-      if (navigationPreload) {
-        const preloadedResponse = retrivePreloadedResponse(event);
-
-        if (preloadedResponse) {
-          event.respondWith(preloadedResponse);
-          return;
+      if (!assetMatches) {
+        // Use request.mode === 'navigate' instead of isNavigateRequest
+        // because everything what supports navigationPreload supports
+        // 'navigate' request.mode
+        if (event.request.mode === 'navigate') {
+          // Requesting with fetchWithPreload().
+          // Preload is used only if navigationPreload is enabled and
+          // navigationPreload mapping is not used.
+          if (navigationPreload === true) {
+            event.respondWith(fetchWithPreload(event));
+            return;
+          }
         }
+
+        // Something else, positive, but not `true`
+        if (navigationPreload) {
+          const preloadedResponse = retrivePreloadedResponse(event);
+
+          if (preloadedResponse) {
+            event.respondWith(preloadedResponse);
+            return;
+          }
+        }
+
+        // Logic exists here if no cache match
+        return;
       }
 
-      // Logic exists here if no cache match
-      return;
-    }
+      // Cache handling/storing/fetching starts here
+      let resource;
 
-    // Cache handling/storing/fetching starts here
-    let resource;
+      if (responseStrategy === 'network-first') {
+        resource = networkFirstResponse(event, urlString, cacheUrl);
+      }
+      // 'cache-first' otherwise
+      // (responseStrategy has been validated before)
+      else {
+        resource = cacheFirstResponse(event, urlString, cacheUrl);
+      }
 
-    if (responseStrategy === 'network-first') {
-      resource = networkFirstResponse(event, urlString, cacheUrl);
-    }
-    // 'cache-first' otherwise
-    // (responseStrategy has been validated before)
-    else {
-      resource = cacheFirstResponse(event, urlString, cacheUrl);
-    }
-
-    event.respondWith(resource);
+      event.respondWith(resource);
+    }))
   });
 
   self.addEventListener('message', (e) => {
@@ -551,10 +603,23 @@ function WebpackServiceWorker(params, helpers) {
     });
   }
 
-  function mapAssets() {
-    Object.keys(assets).forEach((key) => {
-      assets[key] = assets[key].map((path) => {
-        const url = new URL(path, location);
+  function pathToURL(path, publicPath) {
+    if (publicPath) {
+      return new URL(publicPath + path);
+    } else {
+      return new URL(path, location);
+    }
+  }
+
+  function mapAssets({
+    assets,
+    hashesMap,
+    externals,
+    publicPath,
+  }) {
+    const finalAssets = Object.entries(assets).reduce((result, [key, asset]) => {
+      result[key] = asset.map((path) => {
+        const url = pathToURL(path, publicPath);
 
         url.hash = '';
 
@@ -564,10 +629,12 @@ function WebpackServiceWorker(params, helpers) {
 
         return url.toString();
       });
-    });
 
-    hashesMap = Object.keys(hashesMap).reduce((result, hash) => {
-      const url = new URL(hashesMap[hash], location);
+      return result;
+    }, {});
+
+    const finalHashesMap = Object.entries(hashesMap).reduce((result, [hash, path]) => {
+      const url = pathToURL(path, publicPath);
       url.search = '';
       url.hash = '';
 
@@ -575,12 +642,18 @@ function WebpackServiceWorker(params, helpers) {
       return result;
     }, {});
 
-    externals = externals.map((path) => {
-      const url = new URL(path, location);
+    const finalExternals = externals.map((path) => {
+      const url = pathToURL(path, publicPath);
       url.hash = '';
 
       return url.toString();
     });
+
+    return {
+      assets: finalAssets,
+      hashesMap: finalHashesMap,
+      externals: finalExternals,
+    };
   }
 
   function addAllNormalized(cache, requests, options) {
