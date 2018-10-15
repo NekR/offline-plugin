@@ -233,6 +233,7 @@ export default class ServiceWorker {
         name: this.CACHE_NAME,
         pluginVersion: pluginVersion,
         relativePaths: plugin.relativePaths,
+        staticPublicPath: plugin.publicPath,
 
         prefetchRequest: this.prefetchRequest,
 

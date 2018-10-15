@@ -37,6 +37,7 @@ export default class OfflinePlugin {
     this.hashesMap = null;
     this.externals = null;
     this.publicPath = this.options.publicPath;
+    this.enableRuntimePublicPath = this.options.enableRuntimePublicPath;
     this.strategy = this.options.updateStrategy;
     this.responseStrategy = this.options.responseStrategy;
     this.relativePaths = this.options.relativePaths;
@@ -703,7 +704,11 @@ export default class OfflinePlugin {
           return key;
         }
 
-        return this.publicPath + key.replace(/^\.?\//, '');
+        if (this.enableRuntimePublicPath) {
+          return key.replace(/^\.?\//, '');
+        } else {
+          return this.publicPath + key.replace(/^\.?\//, '');
+        }
       });
   }
 

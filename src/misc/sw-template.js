@@ -2,10 +2,13 @@ if (typeof DEBUG === 'undefined') {
   var DEBUG = false;
 }
 
-const idbKeyval = require('idb-keyval');
-const idbStore = new idbKeyval.Store('offline-plugin-db', 'offline-plugin-store');
-
 function WebpackServiceWorker(params, helpers) {
+  // TODO: make IDB_NAME and IDB_STORE_NAME configurable from params
+  const idbKeyval = require('idb-keyval');
+  const IDB_NAME = '__offline_plugin__idb';
+  const IDB_STORE_NAME = '__offline_plugin__store';
+  const idbStore = new idbKeyval.Store(IDB_NAME, IDB_STORE_NAME);
+
   const cacheMaps = helpers.cacheMaps;
   // navigationPreload: true, { map: (URL) => URL, test: (URL) => boolean }
   const navigationPreload = helpers.navigationPreload;
@@ -14,6 +17,7 @@ function WebpackServiceWorker(params, helpers) {
   const strategy = params.strategy;
   // responseStrategy: cache-first, network-first
   const responseStrategy = params.responseStrategy;
+  const staticPublicPath = params.staticPublicPath;
 
   const prefetchRequest = params.prefetchRequest || {
     credentials: 'same-origin',
@@ -51,10 +55,11 @@ function WebpackServiceWorker(params, helpers) {
 
   function getPublicPathImp() {
     return idbKeyval.get('publicPath', idbStore)
+      .then(runtimePublicPath => runtimePublicPath || staticPublicPath)
       .catch(err => {
-        console.error('[SW] exception getting publicPath in indexedDB: ', err);
+        console.error('[SW] exception getting publicPath in indexedDB, use static instead: ', err);
 
-        return null;
+        return staticPublicPath;
       });
   }
   const getPublicPath = makeCachedAsyncFunc(getPublicPathImp);
@@ -605,7 +610,7 @@ function WebpackServiceWorker(params, helpers) {
 
   function pathToURL(path, publicPath) {
     if (publicPath) {
-      return new URL(publicPath + path);
+      return new URL(publicPath + path, location);
     } else {
       return new URL(path, location);
     }

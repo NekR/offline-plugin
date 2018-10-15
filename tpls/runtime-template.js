@@ -142,7 +142,9 @@ function install(options) {
       };
 
       if (typeof options.publicPath !== 'undefined') {
-        var idbStore = new idbKeyval.Store('offline-plugin-db', 'offline-plugin-store');
+        var IDB_NAME = '__offline_plugin__idb';
+        var IDB_STORE_NAME = '__offline_plugin__store';
+        var idbStore = new idbKeyval.Store(IDB_NAME, IDB_STORE_NAME);
         idbKeyval.set('publicPath', options.publicPath, idbStore)
           .then(registerSW); // TODO: shall we add some error message here?
       } else {
