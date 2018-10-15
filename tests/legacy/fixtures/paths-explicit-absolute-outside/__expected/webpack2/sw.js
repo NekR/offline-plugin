@@ -21,5 +21,6 @@ var __wpo = {
   "responseStrategy": "cache-first",
   "version": "92d77d77ce0328cd391285991811fb19826ee21e",
   "name": "webpack-offline",
-  "relativePaths": false
+  "relativePaths": false,
+  "staticPublicPath": "/dist/"
 };

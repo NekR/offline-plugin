@@ -14,7 +14,8 @@ var __wpo = {
   "responseStrategy": "cache-first",
   "version": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
   "name": "webpack-offline",
-  "relativePaths": false
+  "relativePaths": false,
+  "staticPublicPath": "/path/"
 };
 
 /******/ (function(modules) { // webpackBootstrap
@@ -158,10 +159,13 @@ if (typeof DEBUG === 'undefined') {
   var DEBUG = false;
 }
 
-var idbKeyval = __webpack_require__(1);
-var idbStore = new idbKeyval.Store('offline-plugin-db', 'offline-plugin-store');
-
 function WebpackServiceWorker(params, helpers) {
+  // TODO: make IDB_NAME and IDB_STORE_NAME configurable from params
+  var idbKeyval = __webpack_require__(1);
+  var IDB_NAME = '__offline_plugin__idb';
+  var IDB_STORE_NAME = '__offline_plugin__store';
+  var idbStore = new idbKeyval.Store(IDB_NAME, IDB_STORE_NAME);
+
   var cacheMaps = helpers.cacheMaps;
   // navigationPreload: true, { map: (URL) => URL, test: (URL) => boolean }
   var navigationPreload = helpers.navigationPreload;
@@ -170,6 +174,7 @@ function WebpackServiceWorker(params, helpers) {
   var strategy = params.strategy;
   // responseStrategy: cache-first, network-first
   var responseStrategy = params.responseStrategy;
+  var staticPublicPath = params.staticPublicPath;
 
   var prefetchRequest = params.prefetchRequest || {
     credentials: 'same-origin',
@@ -206,10 +211,12 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   function getPublicPathImp() {
-    return idbKeyval.get('publicPath', idbStore)['catch'](function (err) {
-      console.error('[SW] exception getting publicPath in indexedDB: ', err);
+    return idbKeyval.get('publicPath', idbStore).then(function (runtimePublicPath) {
+      return runtimePublicPath || staticPublicPath;
+    })['catch'](function (err) {
+      console.error('[SW] exception getting publicPath in indexedDB, use static instead: ', err);
 
-      return null;
+      return staticPublicPath;
     });
   }
   var getPublicPath = makeCachedAsyncFunc(getPublicPathImp);
@@ -767,7 +774,7 @@ function WebpackServiceWorker(params, helpers) {
 
   function pathToURL(path, publicPath) {
     if (publicPath) {
-      return new URL(publicPath + path);
+      return new URL(publicPath + path, location);
     } else {
       return new URL(path, location);
     }
