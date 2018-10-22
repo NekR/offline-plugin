@@ -101,7 +101,6 @@ OfflinePluginRuntime.install();
 * [Update process](docs/updates.md)
 * [Cache Maps](docs/cache-maps.md)
 * [Runtime API](docs/runtime.md)
-* [Configuration options](docs/options.md)
 
 ## Examples
 
