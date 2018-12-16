@@ -1,8 +1,6 @@
 # Options
 
-___________________________________
-
-All options are optional, see the defaults [here](../src/default-options.js).
+All options are optional, see the defaults [here](https://github.com/NekR/offline-plugin/blob/master/src/default-options.js).
 
 #### `appShell: string`
 

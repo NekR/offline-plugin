@@ -1,4 +1,6 @@
-## Using offline-plugin in a Single Page Application (SPA)
+# Using offline-plugin in a Single Page Application (SPA)
+
+---
 
 In a simple SPA, the server serves the same `index.html` page for all routes. When the page is loaded, the client decides what to render given the current route. So how should we configure `offline-plugin` to handle this?
 
