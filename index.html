@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Offline Plugin for Webpack</title>
+  <link rel="stylesheet" href="https://unpkg.com/docute/dist/docute.css">
+</head>
+<body>
+  <div id="docute"></div>
+  <script src="https://unpkg.com/docute/dist/docute.js"></script>
+  <script>
+  new Docute({
+    target: '#docute',
+    nav: [
+      {
+        title: 'Home',
+        link: '/'
+      },
+      {
+        title: 'GitHub',
+        link: 'https://github.com/NekR/offline-plugin'
+      }
+    ],
+    sidebar: [
+      {
+        title: 'Guide',
+        links: [
+          {
+            title: 'Options',
+            link: '/docs/options'
+          },
+          {
+            title: 'Caches',
+            link: '/docs/caches'
+          },
+          {
+            title: 'Update Process',
+            link: '/docs/updates',
+          },
+          {
+            title: 'Runtime API',
+            link: '/docs/runtime',
+          },
+          {
+            title: 'TypeScript',
+            link: '/docs/typescript',
+          },
+        ]
+      },
+      {
+        title: 'Examples',
+        links: [
+          {
+            title: 'SPA',
+            link: '/docs/examples/SPA'
+          }
+        ]
+      },
+      {
+        title: 'Misc',
+        links: [
+          {
+            title: 'Troubleshooting',
+            link: '/docs/troubleshooting'
+          },
+          {
+            title: 'FAQ',
+            link: '/docs/faq'
+          }
+        ]
+      }
+    ]
+  })
+  </script>
+</body>
+</html>
