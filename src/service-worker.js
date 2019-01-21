@@ -88,7 +88,7 @@ export default class ServiceWorker {
 
       const options = {
         test: new RegExp(name),
-        uglifyOptions: uglifyOptions
+        [UglifyJsPlugin.isTerser ? 'terserOptions' : 'uglifyOptions']: uglifyOptions
       };
 
       new UglifyJsPlugin(options).apply(childCompiler);
@@ -112,7 +112,7 @@ export default class ServiceWorker {
       if (!added && optimization.minimize) {
         const options = {
           test: new RegExp(name),
-          uglifyOptions: uglifyOptions
+          [UglifyJsPlugin.isTerser ? 'terserOptions' : 'uglifyOptions']: uglifyOptions
         };
 
         new UglifyJsPlugin(options).apply(childCompiler);
