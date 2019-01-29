@@ -1,4 +1,4 @@
-var UglifyJsPlugin = require(__ROOT__ + '/lib/misc/get-uglify-plugin');
+const { makeUglifyJsPlugin } = require(__ROOT__ + '/lib/misc/get-uglify-plugin');
 
 var config = __CONFIG__({
   caches: {
@@ -14,7 +14,7 @@ var config = __CONFIG__({
   swMetadataOnly: false
 });
 
-config.plugins.push(new UglifyJsPlugin({
+config.plugins.push(makeUglifyJsPlugin({
   uglifyOptions: {
     compress: {
       warnings: false,
