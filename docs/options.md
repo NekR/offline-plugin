@@ -100,7 +100,7 @@ _Default:_ `null`
 
 #### `publicPath: string`
 
-Similar to `webpack`'s `output.publicPath` option. Useful to specify or override `publicPath` specifically for `offline-plugin`. When not specified, `webpack`'s `output.publicPath` value is used. When `publicPath` value isn't spsecified at all (either by this option or by `webpack`'s `output.publicPath` option), relative paths are used (see `relativePaths` option).
+Similar to `webpack`'s `output.publicPath` option. Useful to specify or override `publicPath` specifically for `offline-plugin`. When not specified, `webpack`'s `output.publicPath` value is used. When `publicPath` value isn't specified at all (either by this option or by `webpack`'s `output.publicPath` option), relative paths are used (see `relativePaths` option).
 
 > __Examples:__  
 `publicPath: '/project/'`  
