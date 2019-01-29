@@ -1,4 +1,5 @@
-const { makeUglifyJsPlugin } = require(__ROOT__ + '/lib/misc/get-uglify-plugin');
+var UglifyUtils = require(__ROOT__ + '/lib/misc/get-uglify-plugin');
+var makeUglifyJsPlugin = UglifyUtils.makeUglifyJsPlugin;
 
 var config = __CONFIG__({
   caches: {
