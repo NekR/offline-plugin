@@ -1,5 +1,4 @@
-var UglifyUtils = require(__ROOT__ + '/lib/misc/get-uglify-plugin');
-var makeUglifyJsPlugin = UglifyUtils.makeUglifyJsPlugin;
+var makeUglifyJsPlugin = require(__ROOT__ + '/lib/misc/get-uglify-plugin').makeUglifyJsPlugin;
 
 var config = __CONFIG__({
   caches: {

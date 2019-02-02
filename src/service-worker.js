@@ -82,7 +82,7 @@ export default class ServiceWorker {
     };
 
     if (this.minify === true) {
-      if (!makeUglifyJsPlugin) {
+      if (makeUglifyJsPlugin == null) {
         throw new Error('OfflinePlugin: uglifyjs-webpack-plugin or terser-webpack-plugin is required to preform a minification')
       }
 
