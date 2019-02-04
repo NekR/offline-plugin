@@ -1,6 +1,18 @@
 import path from 'path';
 import { isAbsoluteURL } from './misc/utils';
 
+export const DEFAULT_AUTO_UPDATE_INTERVAL = 3600000;
+
+export const AppCacheOptions = {
+  NETWORK: '*',
+  FALLBACK: null,
+  directory: 'appcache/',
+  caches: ['main'],
+  events: false,
+  disableInstall: false,
+  includeCrossOrigin: false
+};
+
 export default {
   caches: 'all',
   publicPath: void 0,
@@ -31,35 +43,28 @@ export default {
     scope: null,
     events: false,
     minify: null,
+    forceInstall: false,
+
+    updateViaCache: 'imports',
 
     prefetchRequest: {
-      credentials: 'omit',
+      credentials: 'same-origin',
       headers: void 0,
       mode: 'cors',
       cache: void 0
     },
 
-    navigationPreload: ':auto:',
-
-    // Deprecated features
-    navigateFallbackURL: void 0,
-    navigateFallbackForRedirects: true
+    navigationPreload: ':auto:'
   },
 
-  AppCache: {
-    NETWORK: '*',
-    FALLBACK: null,
-    directory: 'appcache/',
-    caches: ['main'],
-    events: false,
-    disableInstall: false,
-    includeCrossOrigin: false
-  },
+  // Disable AppCache by default
+  AppCache: false,
 
   // Needed for testing
   __tests: {
     swMetadataOnly: false,
     ignoreRuntime: false,
-    noVersionDump: false
+    noVersionDump: false,
+    appCacheEnabled: false
   }
 };

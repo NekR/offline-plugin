@@ -3,7 +3,6 @@ if (typeof DEBUG === 'undefined') {
 }
 
 function WebpackServiceWorker(params, helpers) {
-  const loaders = helpers.loaders;
   const cacheMaps = helpers.cacheMaps;
   // navigationPreload: true, { map: (URL) => URL, test: (URL) => boolean }
   const navigationPreload = helpers.navigationPreload;
@@ -14,10 +13,14 @@ function WebpackServiceWorker(params, helpers) {
   const responseStrategy = params.responseStrategy;
 
   const assets = params.assets;
-  const loadersMap = params.loaders || {};
 
   let hashesMap = params.hashesMap;
   let externals = params.externals;
+
+  const prefetchRequest = params.prefetchRequest || {
+    credentials: 'same-origin',
+    mode: 'cors'
+  };
 
   const CACHE_PREFIX = params.name;
   const CACHE_TAG = params.version;
@@ -29,11 +32,6 @@ function WebpackServiceWorker(params, helpers) {
   mapAssets();
 
   const allAssets = [].concat(assets.main, assets.additional, assets.optional);
-
-  // Deprecated {
-    const navigateFallbackURL = params.navigateFallbackURL;
-    const navigateFallbackForRedirects = params.navigateFallbackForRedirects;
-  // }
 
   self.addEventListener('install', (event) => {
     console.log('[SW]:', 'Install event');
@@ -103,7 +101,8 @@ function WebpackServiceWorker(params, helpers) {
     return caches.open(CACHE_NAME).then((cache) => {
       return addAllNormalized(cache, batch, {
         bust: params.version,
-        request: params.prefetchRequest
+        request: prefetchRequest,
+        failAll: section === 'main'
       });
     }).then(() => {
       logGroup('Cached assets: ' + section, batch);
@@ -194,7 +193,9 @@ function WebpackServiceWorker(params, helpers) {
           move,
           addAllNormalized(cache, changed, {
             bust: params.version,
-            request: params.prefetchRequest
+            request: prefetchRequest,
+            failAll: section === 'main',
+            deleteFirst: section !== 'main'
           })
         ]);
       });
@@ -254,6 +255,22 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   self.addEventListener('fetch', (event) => {
+    // Handle only GET requests
+    if (event.request.method !== 'GET') {
+      return;
+    }
+
+    // This prevents some weird issue with Chrome DevTools and 'only-if-cached'
+    // Fixes issue #385, also ref to:
+    // - https://github.com/paulirish/caltrainschedule.io/issues/49
+    // - https://bugs.chromium.org/p/chromium/issues/detail?id=823392
+    if (
+      event.request.cache === 'only-if-cached' &&
+      event.request.mode !== 'same-origin'
+    ) {
+      return;
+    }
+
     const url = new URL(event.request.url);
     url.hash = '';
 
@@ -266,8 +283,6 @@ function WebpackServiceWorker(params, helpers) {
       urlString = url.toString();
     }
 
-    // Handle only GET requests
-    const isGET = event.request.method === 'GET';
     let assetMatches = allAssets.indexOf(urlString) !== -1;
     let cacheUrl = urlString;
 
@@ -280,26 +295,18 @@ function WebpackServiceWorker(params, helpers) {
       }
     }
 
-    if (!assetMatches && isGET) {
-      // If isn't a cached asset and is a navigation request,
-      // perform network request and fallback to navigateFallbackURL if available.
-      //
-      // Requesting with fetchWithPreload().
-      // Preload is used only if navigationPreload is enabled and
-      // navigationPreload mapping is not used.
-      if (navigateFallbackURL && isNavigateRequest(event.request)) {
-        event.respondWith(
-          handleNavigateFallback(
-            fetchWithPreload(event)
-          )
-        );
-
-        return;
-      }
-
-      if (navigationPreload === true) {
-        event.respondWith(fetchWithPreload(event));
-        return;
+    if (!assetMatches) {
+      // Use request.mode === 'navigate' instead of isNavigateRequest
+      // because everything what supports navigationPreload supports
+      // 'navigate' request.mode
+      if (event.request.mode === 'navigate') {
+        // Requesting with fetchWithPreload().
+        // Preload is used only if navigationPreload is enabled and
+        // navigationPreload mapping is not used.
+        if (navigationPreload === true) {
+          event.respondWith(fetchWithPreload(event));
+          return;
+        }
       }
 
       // Something else, positive, but not `true`
@@ -312,25 +319,11 @@ function WebpackServiceWorker(params, helpers) {
         }
       }
 
-      // Logic exists here if no cache match, or no preload
-      return;
-    }
-
-    if (!assetMatches || !isGET) {
-      // Fix for https://twitter.com/wanderview/status/696819243262873600
-      if (
-        url.origin !== location.origin &&
-        navigator.userAgent.indexOf('Firefox/44.') !== -1
-      ) {
-        event.respondWith(fetch(event.request));
-      }
-
       // Logic exists here if no cache match
       return;
     }
 
     // Cache handling/storing/fetching starts here
-
     let resource;
 
     if (responseStrategy === 'network-first') {
@@ -340,10 +333,6 @@ function WebpackServiceWorker(params, helpers) {
     // (responseStrategy has been validated before)
     else {
       resource = cacheFirstResponse(event, urlString, cacheUrl);
-    }
-
-    if (navigateFallbackURL && isNavigateRequest(event.request)) {
-      resource = handleNavigateFallback(resource);
     }
 
     event.respondWith(resource);
@@ -420,16 +409,28 @@ function WebpackServiceWorker(params, helpers) {
         }
 
         // Throw to reach the code in the catch below
-        throw new Error('Response is not ok');
+        throw response;
       })
       // This needs to be in a catch() and not just in the then() above
       // cause if your network is down, the fetch() will throw
-      .catch(() => {
+      .catch((erroredResponse) => {
         if (DEBUG) {
           console.log('[SW]:', `URL [${ urlString }] from cache if possible`);
         }
 
-        return cachesMatch(cacheUrl, CACHE_NAME);
+        return cachesMatch(cacheUrl, CACHE_NAME).then(response => {
+          if (response) {
+            return response;
+          }
+
+          if (erroredResponse instanceof Response) {
+            return erroredResponse;
+          }
+
+          // Not a response at this point, some other error
+          throw erroredResponse;
+          // return Response.error();
+        });
       });
   }
 
@@ -550,42 +551,9 @@ function WebpackServiceWorker(params, helpers) {
     });
   }
 
-  function handleNavigateFallback(fetching) {
-    return fetching
-      .catch(() => {})
-      .then((response) => {
-        const isOk = response && response.ok;
-        const isRedirect = response && response.type === 'opaqueredirect';
-
-        if (isOk || (isRedirect && !navigateFallbackForRedirects)) {
-          return response;
-        }
-
-        if (DEBUG) {
-          console.log('[SW]:', `Loading navigation fallback [${ navigateFallbackURL }] from cache`);
-        }
-
-        return cachesMatch(navigateFallbackURL, CACHE_NAME);
-      });
-  }
-
   function mapAssets() {
     Object.keys(assets).forEach((key) => {
       assets[key] = assets[key].map((path) => {
-        const url = new URL(path, location);
-
-        url.hash = '';
-
-        if (externals.indexOf(path) === -1) {
-          url.search = '';
-        }
-
-        return url.toString();
-      });
-    });
-
-    Object.keys(loadersMap).forEach((key) => {
-      loadersMap[key] = loadersMap[key].map((path) => {
         const url = new URL(path, location);
 
         url.hash = '';
@@ -616,69 +584,51 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   function addAllNormalized(cache, requests, options) {
-    const allowLoaders = options.allowLoaders !== false;
-    const bustValue = options && options.bust;
+    const bustValue = options.bust;
+    const failAll = options.failAll !== false;
+    const deleteFirst = options.deleteFirst === true;
     const requestInit = options.request || {
       credentials: 'omit',
       mode: 'cors'
     };
+
+    let deleting = Promise.resolve();
+
+    if (deleteFirst) {
+      deleting = Promise.all(requests.map((request) => {
+        return cache.delete(request).catch(() => {});
+      }));
+    }
 
     return Promise.all(requests.map((request) => {
       if (bustValue) {
         request = applyCacheBust(request, bustValue);
       }
 
-      return fetch(request, requestInit).then(fixRedirectedResponse);
+      return fetch(request, requestInit)
+        .then(fixRedirectedResponse).then((response) => {
+          if (!response.ok) {
+            return { error: true };
+          }
+
+          return { response };
+        }, () => ({ error: true }));
     })).then((responses) => {
-      if (responses.some(response => !response.ok)) {
+      if (failAll && responses.some(data => data.error)) {
         return Promise.reject(new Error('Wrong response status'));
       }
 
-      let extracted = [];
-      let addAll = responses.map((response, i) => {
-        if (allowLoaders) {
-          extracted.push(extractAssetsWithLoaders(requests[i], response));
-        }
+      if (!failAll) {
+        responses = responses.filter(data => !data.error);
+      }
 
-        return cache.put(requests[i], response);
-      });
-
-      if (extracted.length) {
-        const newOptions = copyObject(options);
-        newOptions.allowLoaders = false;
-
-        let waitAll = addAll;
-
-        addAll = Promise.all(extracted).then((all) => {
-          const extractedRequests = [].concat.apply([], all);
-
-          if (requests.length) {
-            waitAll = waitAll.concat(
-              addAllNormalized(cache, extractedRequests, newOptions)
-            );
-          }
-
-          return Promise.all(waitAll);
+      return deleting.then(() => {
+        let addAll = responses.map(({ response }, i) => {
+          return cache.put(requests[i], response);
         });
-      } else {
-        addAll = Promise.all(addAll);
-      }
 
-      return addAll;
-    });
-  }
-
-  function extractAssetsWithLoaders(request, response) {
-    const all = Object.keys(loadersMap).map((key) => {
-      const loader = loadersMap[key];
-
-      if (loader.indexOf(request) !== -1 && loaders[key]) {
-        return loaders[key](response.clone());
-      }
-    }).filter(a => !!a);
-
-    return Promise.all(all).then((all) => {
-      return [].concat.apply([], all);
+        return Promise.all(addAll);
+      });
     });
   }
 
@@ -733,7 +683,7 @@ function cachesMatch(request, cacheName) {
   return caches.match(request, {
     cacheName: cacheName
   }).then(response => {
-    if (isNotRedirectedResponse()) {
+    if (isNotRedirectedResponse(response)) {
       return response;
     }
 

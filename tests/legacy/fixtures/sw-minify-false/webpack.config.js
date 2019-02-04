@@ -1,4 +1,5 @@
-var UglifyJsPlugin = require('webpack').optimize.UglifyJsPlugin;
+var UglifyJsPlugin = require(__ROOT__ + '/lib/misc/get-uglify-plugin');
+
 var config = __CONFIG__({
   caches: {
     main: ['external.js', ':rest:']
@@ -9,19 +10,22 @@ var config = __CONFIG__({
   ServiceWorker: {
     minify: false
   }
+}, {
+  swMetadataOnly: false
 });
 
-config.plugins[0].__tests.swMetadataOnly = false;
 config.plugins.push(new UglifyJsPlugin({
-  compress: {
-    warnings: false,
-    dead_code: true,
-    drop_console: true,
-    unused: true
-  },
+  uglifyOptions: {
+    compress: {
+      warnings: false,
+      dead_code: true,
+      drop_console: true,
+      unused: true
+    },
 
-  output: {
-    comments: false
+    output: {
+      comments: false
+    }
   }
 }));
 module.exports = config;

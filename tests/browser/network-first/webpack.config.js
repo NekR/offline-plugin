@@ -3,9 +3,11 @@ const { resolve, join } = path;
 
 const OfflinePlugin = require(process.env.OFFLINE_PLUGIN_ROOT);
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const DefinePlugin = require('webpack').DefinePlugin;
+const DefinePlugin = require('webpack/lib/DefinePlugin');
 
-module.exports = {
+const webpackMajorVersion = require('webpack/package.json').version.split('.')[0];
+
+const config = {
   entry: {
     main: join(__dirname, 'src/main.js'),
   },
@@ -37,3 +39,9 @@ module.exports = {
     })
   ]
 };
+
+if (webpackMajorVersion === '4') {
+  config.mode = 'none';
+}
+
+module.exports = config;

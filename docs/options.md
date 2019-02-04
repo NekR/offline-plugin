@@ -1,98 +1,65 @@
-## Options
+# Options
 
-**All options are optional and `offline-plugin` can be used without specifying them.**  
-_Also see list of default options [here](../src/default-options.js)._
+All options are optional, see the defaults [here](https://github.com/NekR/offline-plugin/blob/master/src/default-options.js).
 
 #### `appShell: string`
 
-[See `appShell` option documentation](app-shell.md)
+Enables your application to work with the [app shell model](https://developers.google.com/web/fundamentals/architecture/app-shell). Set to the HTML file you want to return for all navigation requests.
+
+*[More information about `appShell`](app-shell.md)*
 
 > Default: `null`.
-> **Example:** `'/index.html'`
-
-#### `caches: 'all' | Object`
-
-Allows you to define what to cache and how.
-
-* `'all'`: means that everything (all the webpack output assets) and URLs listed in `externals` option will be cached on install.
-* `Object`: Object with 3 possible `Array<string | RegExp>` sections (properties): `main`, `additional`, `optional`. All sections are optional and by default are empty (no assets added).
-
-[More details about `caches`](caches.md)
-
-> Default: `'all'`.
-
-#### `publicPath: string`
-
-Similar to `webpack`'s `output.publicPath` option. Useful to specify or override `publicPath` specifically for `offline-plugin`. When not specified, `webpack`'s `output.publicPath` value is used. When `publicPath` value isn't spsecified at all (either by this option or by `webpack`'s `output.publicPath` option), relative paths are used (see `relativePaths` option).
-
-> __Examples:__  
-`publicPath: '/project/'`  
-`publicPath: 'https://example.com/project'`  
+> **Example:** `'/app-shell.html'`
 
 #### `responseStrategy: 'cache-first' | 'network-first'`
-Response strategy. Whether to use a cache or network first for responses.
 
-With `'cache-first'` all request are sent to consult the cache first and if the cache is empty, request is sent to the network.  
+With `'cache-first'` all request are sent to consult the cache first and if the cache is empty, request is sent to the network.  With `'network-first'` all request are sent to the network first and if network request fails consult the cache as a fallback.
 
-With `'network-first'` all request are sent to the network first and if network request fails consult the cache as a fallback.
 > Default: `'cache-first'`.
-
-#### `updateStrategy: 'changed' | 'all'`
-Cache update strategy. [More details about `updateStrategy`](update-strategies.md)  
-**Please, do not change this option unless you're sure you know what you're doing.**
-> Default: `'changed'`.
 
 #### `externals: Array<string>`
 
-Allows you to specify additional (external to the build process) URLs to be cached. 
+Specify additional (external to the build process) URLs to be cached. 
 
 > Default: `null`  
-> **Example:** `['/static/file-on-the-server.json', 'https://fonts.googleapis.com/css?family=Roboto']`
+> **Example:** `['/static/img/media.png', 'https://fonts.googleapis.com/css?family=Roboto']`
 
 #### `excludes: Array<string | globs_pattern>`
-Excludes matched assets from being added to the [caches](https://github.com/NekR/offline-plugin#caches-all--object). Exclusion is performed before [_rewrites_](https://github.com/NekR/offline-plugin/blob/master/docs/options.md#rewrites-function--object) happens.  
-[Learn more about assets _rewrite_](rewrites.md)
+
+Excludes assets from being cached. Note: Exclusion is performed before [rewrites](https://github.com/NekR/offline-plugin/blob/master/docs/options.md#rewrites-function--object).
 
 > Default: `['**/.*', '**/*.map', '**/*.gz']`  
 > _Excludes all files which start with `.` or end with `.map` or `.gz`_
 
-#### `relativePaths: boolean`
-When set to `true`, all the asset paths generated in the cache will be relative to the `ServiceWorker` file or the `AppCache` folder location respectively.  
-
-This option is ignored when `publicPath` is set.
-`publicPath` option is ignored when this option is set **explicitly** to `true`.
-> Default: `true`
-
-#### `version: string | (plugin: OfflinePlugin) => void`
-Version of the cache. Can be a function, which is useful in _watch-mode_ when you need to apply dynamic value.
-
-* `Function` is called with the plugin instance as the first argument
-* `string` which can be interpolated with `[hash]` token
-
-> Default: _Current date_
-
-#### `rewrites: Function | Object`
-
-Provides a way to rewrite final representation of the file on the server.  
-Useful when assets are served in a different way from the client perspective, e.g. usually `/index.html` is served as `/`.
-
-Can be either a function or an `Object`.
-
-[See more about `rewrites` option and default function](rewrites.md)
-
-#### `cacheMaps: Array<Object>`
-
-See [documentation of `cacheMaps`](cache-maps.md) for syntax and usage examples
-
 #### `autoUpdate: true | number`
 
-Enables automatic updates of ServiceWorker and AppCache. If set to `true`, it uses default interval of _1 hour_. Set a `number` value to provide custom update interval.
+Enable automatic updates of the ServiceWorker and AppCache. If set to `true`, it uses default interval of _1 hour_. Set a `number` value to provide custom update interval.
 
 _**Note:** Please note that if user has multiple opened tabs of your website then update may happen more often because each opened tab will have its own interval for updates._
 
 > Default: `false`  
 > **Example:** `true`  
 > **Example:** `1000 * 60 * 60 * 5` (five hours)
+
+#### `relativePaths: boolean`
+
+When set to `true`, all the asset paths generated in the cache will be relative to the `ServiceWorker` file or the `AppCache` folder location respectively.
+
+This option is ignored when `publicPath` is set. `publicPath` option is ignored when this option is set **explicitly** to `true`.
+
+> Default: `true`
+
+#### `rewrites: Function | Object`
+
+Provides a way to change the URL an asset is loaded from. This is useful when assets are served differently than the client expects, e.g. if you have them on a CDN.
+
+[Read more about `rewrites` option and default function](rewrites.md)
+
+> Default: Rewrite `/index.html` to `/`
+
+#### `cacheMaps: Array<Object>`
+
+See [documentation of `cacheMaps`](cache-maps.md) for syntax and usage examples
 
 #### `ServiceWorker: Object | null | false`
 
@@ -131,12 +98,36 @@ _Example:_ `{ credentials: 'include' }`
 * **`minify`**: `boolean`. If set to `true` or `false`, the `ServiceWorker`'s output will be minified or not accordingly. If set to something else, the `ServiceWorker` output will be minified **if** you are using `webpack.optimize.UglifyJsPlugin` in your configuration.  
 _Default:_ `null`
 
-* **[Deprecated]** `navigateFallbackURL`: `string`. The URL that should be returned from the cache when a requested navigation URL isn't available on the cache or network. Similar to the `AppCache.FALLBACK` option.  
-_Example:_ `navigateFallbackURL: '/'`
+#### `publicPath: string`
 
-* **[Deprecated]** `navigateFallbackForRedirects`: `boolean`. If this flag is false `navigateFallbackURL` will not be used for 3xx responses. (By default it will be used for all non 2xx navigate responses).
-_Example:_ `navigateFallbackForRedirects: false`
-_Default:_ `true`
+Similar to `webpack`'s `output.publicPath` option. Useful to specify or override `publicPath` specifically for `offline-plugin`. When not specified, `webpack`'s `output.publicPath` value is used. When `publicPath` value isn't specified at all (either by this option or by `webpack`'s `output.publicPath` option), relative paths are used (see `relativePaths` option).
+
+> __Examples:__  
+`publicPath: '/project/'`  
+`publicPath: 'https://example.com/project'`
+
+#### `version: string | (plugin: OfflinePlugin) => void`
+
+Version of the cache. Can be a function, which is useful in _watch-mode_ when you need to apply dynamic value.
+
+* `Function` is called with the plugin instance as the first argument
+* `string` which can be interpolated with `[hash]` token
+
+> Default: _Current date and time_  
+> **Example:** `2018-6-20 09:53:56`  
+> Please note that if you use the default value (date and time), the version of service worker will change on each build of your project.
+
+#### `caches: 'all' | Object`
+
+Allows you to adjust what and how to cache the assets.
+
+* `'all'`: means that everything (all the webpack output assets) and URLs listed in `externals` option will be cached on install.
+* `Object`: Object with 3 possible `Array<string | RegExp>` sections (properties): `main`, `additional`, `optional`. All sections are optional and by default are empty (no assets added).
+
+*[More information about `caches`](caches.md)*
+
+> Default: `'all'`.
+
 
 #### `AppCache: Object | null | false`
 
@@ -167,3 +158,9 @@ _Default:_ `false`
 
 * **`includeCrossOrigin`**: `boolean`. Outputs cross-origin URLs into `AppCache`'s manifest file. **Cross-origin URLs aren't supported in `AppCache` when used on HTTPS.**  
 _Default:_ `false`
+
+#### `updateStrategy: 'changed' | 'all'`
+Cache update strategy. [More details about `updateStrategy`](update-strategies.md)  
+**Please, do not change this option unless you're sure you know what you're doing.**
+> Default: `'changed'`.
+

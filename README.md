@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
   <a href="https://offline-plugin.now.sh/"><img src="https://rawgit.com/NekR/offline-plugin/master/logo/logo.svg" width="120" alt="offline-plugin logo"></a>
 
   <h1><code>offline-plugin</code> for webpack</h1>
@@ -11,11 +11,6 @@
 <br>
 
 This plugin is intended to provide an offline experience for **webpack** projects. It uses **ServiceWorker**, and **AppCache** as a fallback under the hood. Simply include this plugin in your ``webpack.config``, and the accompanying runtime in your client script, and your project will become offline ready by caching all (or some) of the webpack output assets.
-
-<div align="center">
-  <strong>Demo:<br><a href="https://offline-plugin.now.sh/"> Progressive Web App built with <code>offline-plugin</code></a></strong><br>
-  <div>(<a href="https://github.com/NekR/offline-plugin-pwa"><i>source code</i></a>)</div>
-</div>
 
 <div align="center">
   <h1>Sponsors</h1>
@@ -61,7 +56,7 @@ This plugin is intended to provide an offline experience for **webpack** project
 
 ## Setup
 
-First, instantiate the plugin with [options](docs/options.md) in your `webpack.config`:
+First, instantiate the plugin in your `webpack.config`:
 
 ```js
 // webpack.config.js example
@@ -78,8 +73,8 @@ module.exports = {
   ]
   // ...
 }
-
 ```
+_(and optionally configure with [options](docs/options.md))_  
 
 Then, add the [runtime](docs/runtime.md) into your entry file (typically main entry):
 
@@ -95,15 +90,17 @@ OfflinePluginRuntime.install();
 
 > For more details of usage with `TypeScript` see [here](docs/typescript.md)
 
+### `offline-plugin` isn't working?
+
+:information_source: **[Troubleshooting](docs/troubleshooting.md)** | **[FAQ](docs/FAQ.md)**
+
 ## Docs
 
+* [Options](docs/options.md)
 * [Caches](docs/caches.md)
 * [Update process](docs/updates.md)
 * [Cache Maps](docs/cache-maps.md)
 * [Runtime API](docs/runtime.md)
-* [Configuration options](docs/options.md)
-* [FAQ](docs/FAQ.md)
-* [Troubleshooting](docs/troubleshooting.md)
 
 ## Examples
 
@@ -122,6 +119,11 @@ All options are optional and `offline-plugin` can be used without specifying the
 
 ## Who is using `offline-plugin`
 
+<div align="center">
+  <strong>Demo:<br><a href="https://offline-plugin.now.sh/"> Progressive Web App built with <code>offline-plugin</code></a></strong><br>
+  <div>(<a href="https://github.com/NekR/offline-plugin-pwa"><i>source code</i></a>)</div>
+</div>
+
 ### Projects
 
 * [React Boilerplate](https://github.com/mxstbr/react-boilerplate)
@@ -131,18 +133,18 @@ All options are optional and `offline-plugin` can be used without specifying the
 ### PWAs
 
 * [`offline-plugin` PWA](https://offline-plugin.now.sh/)
-* [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
+* [Omroep West](https://m.omroepwest.nl/)
 * [Preact](https://preactjs.com/) ([source](https://github.com/developit/preact-www))
-* [Omroep West (_Proof of Concept_)](https://omroep-west.now.sh/)
-* [Online Board](https://onlineboard.sonnywebdesign.com/) ([source](https://github.com/andreasonny83/online-board))
 * [CodePan](https://codepan.net) ([source](https://github.com/egoist/codepan))
-
+* [Offline Kanban](https://offline-kanban.herokuapp.com) ([source](https://github.com/sarmadsangi/offline-kanban))
+* [Online Board](https://onlineboard.sonnywebdesign.com/) ([source](https://github.com/andreasonny83/online-board))
+* [Fluid Outliner](https://fluid-notion.github.io/fluid-outliner/) ([source](https://github.com/fluid-notion/fluid-outliner))
 
 _If you are using `offline-plugin`, feel free to submit a PR to add your project to this list._
 
 ## Like `offline-plugin`?
 
-Support it by giving [feedback](https://github.com/NekR/offline-plugin/issues), [contributing](CONTIBUTING.md), becoming a [backer/sponsor](https://opencollective.com/offline-plugin) or just by 🌟 starring the project!
+Support it by giving [feedback](https://github.com/NekR/offline-plugin/issues), [contributing](CONTRIBUTING.md), becoming a [backer/sponsor](https://opencollective.com/offline-plugin) or just by 🌟 starring the project!
 
 
 ## Backers
@@ -182,7 +184,7 @@ Support us with a monthly donation and help us continue our activities. [[Become
 
 ## Contribution
 
-See [CONTRIBUTING](CONTIBUTING.md)
+See [CONTRIBUTING](CONTRIBUTING.md)
 
 ## License
 

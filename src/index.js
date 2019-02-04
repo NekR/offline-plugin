@@ -1,6 +1,10 @@
 import AppCache from './app-cache';
 import ServiceWorker from './service-worker';
-import defaultOptions from './default-options';
+import defaultOptions,
+  {
+    AppCacheOptions as defaultAppCacheOptions,
+    DEFAULT_AUTO_UPDATE_INTERVAL
+  } from './default-options';
 
 import {
   hasMagic, interpolateString,
@@ -16,14 +20,18 @@ import loaderUtils from 'loader-utils';
 import slash from 'slash';
 
 const { version: pluginVersion } = require('../package.json');
-const AUTO_UPDATE_INTERVAL = 3600000;
 
 const hasOwn = {}.hasOwnProperty;
 const updateStrategies = ['all', 'hash', 'changed'];
 
 export default class OfflinePlugin {
   constructor(options) {
-    this.options = deepExtend({}, defaultOptions, options);
+    const AppCacheOptions = options ? options.AppCache : void 0;
+
+    this.options = deepExtend({}, defaultOptions, options, {
+      AppCache: false
+    });
+
     this.hash = null;
     this.assets = null;
     this.hashesMap = null;
@@ -33,12 +41,17 @@ export default class OfflinePlugin {
     this.responseStrategy = this.options.responseStrategy;
     this.relativePaths = this.options.relativePaths;
     this.pluginVersion = pluginVersion;
-    this.loaders = {};
     this.warnings = [];
     this.errors = [];
 
     this.__tests = this.options.__tests;
     this.flags = {};
+
+    const appCacheEnabled = !!(AppCacheOptions || this.__tests.appCacheEnabled);
+
+    if (appCacheEnabled) {
+      this.options.AppCache = deepExtend({}, defaultAppCacheOptions, AppCacheOptions);
+    }
 
     if (this.__tests.pluginVersion) {
       this.pluginVersion = this.__tests.pluginVersion;
@@ -47,7 +60,7 @@ export default class OfflinePlugin {
     const autoUpdate = this.options.autoUpdate;
 
     if (autoUpdate === true) {
-      this.autoUpdate = AUTO_UPDATE_INTERVAL;
+      this.autoUpdate = DEFAULT_AUTO_UPDATE_INTERVAL;
     } else if (typeof autoUpdate === 'number' && autoUpdate) {
       this.autoUpdate = autoUpdate;
     }
@@ -116,8 +129,13 @@ export default class OfflinePlugin {
     if (this.appShell) {
       // Make appShell the latest in the chain so it could be overridden
       cacheMaps = (cacheMaps || []).concat({
-        match: new Function('return new URL(' +
-          JSON.stringify(this.appShell) + ', location);'),
+        match: `function(url) {
+          if (url.pathname === location.pathname) {
+            return;
+          }
+
+          return new URL(${JSON.stringify(this.appShell)}, location);
+        }`,
         requestTypes: ['navigate']
       });
     }
@@ -156,8 +174,6 @@ export default class OfflinePlugin {
     const runtimePath = path.resolve(__dirname, '../runtime.js');
     const compilerOptions = compiler.options;
 
-    this.options.externals = this.extractLoaders(this.options.externals);
-
     if (this.relativePaths === true) {
       this.publicPath = null;
     }
@@ -194,32 +210,31 @@ export default class OfflinePlugin {
       this.resolveToolPaths(tool, key, compiler);
     });
 
-    compiler.plugin('normal-module-factory', (nmf) => {
-      nmf.plugin('after-resolve', (result, callback) => {
-        const resource = path.resolve(compiler.context, result.resource);
+    const afterResolveFn = (result, callback) => {
+      const resource = path.resolve(compiler.context, result.resource);
 
-        if (resource !== runtimePath) {
-          return callback(null, result);
-        }
-
-        const data = {
-          autoUpdate: this.autoUpdate
-        };
-
-        this.useTools((tool, key) => {
-          data[key] = tool.getConfig(this);
-        });
-
-        result.loaders.push(
-          path.join(__dirname, 'misc/runtime-loader.js') +
-            '?' + JSON.stringify(data)
-        );
-
+      if (resource !== runtimePath) {
         callback(null, result);
-      });
-    });
+        return;
+      }
 
-    compiler.plugin('make', (compilation, callback) => {
+      const data = {
+        autoUpdate: this.autoUpdate
+      };
+
+      this.useTools((tool, key) => {
+        data[key] = tool.getConfig(this);
+      });
+
+      result.loaders.push({
+        loader: path.join(__dirname, 'misc/runtime-loader.js'),
+        options: JSON.stringify(data)
+      });
+
+      callback(null, result);
+    };
+
+    const makeFn = (compilation, callback) => {
       if (this.warnings.length) {
         [].push.apply(compilation.warnings, this.warnings);
       }
@@ -232,12 +247,12 @@ export default class OfflinePlugin {
         return tool.addEntry(this, compilation, compiler);
       }).then(() => {
         callback();
-      }, () => {
-        throw new Error('Something went wrong');
+      }).catch((e) => {
+        throw (e || new Error('Something went wrong'));
       });
-    });
+    };
 
-    compiler.plugin('emit', (compilation, callback) => {
+    const emitFn = (compilation, callback) => {
       const runtimeTemplatePath = path.resolve(__dirname, '../tpls/runtime-template.js');
       let hasRuntime = true;
 
@@ -282,7 +297,25 @@ export default class OfflinePlugin {
       }, () => {
         callback(new Error('Something went wrong'));
       });
-    });
+    };
+
+    if (compiler.hooks) {
+      const plugin = { name: 'OfflinePlugin' };
+
+      compiler.hooks.normalModuleFactory.tap(plugin, (nmf) => {
+        nmf.hooks.afterResolve.tapAsync(plugin, afterResolveFn);
+      });
+
+      compiler.hooks.make.tapAsync(plugin, makeFn);
+      compiler.hooks.emit.tapAsync(plugin, emitFn);
+    } else {
+      compiler.plugin('normal-module-factory', (nmf) => {
+        nmf.plugin('after-resolve', afterResolveFn);
+      });
+
+      compiler.plugin('make', makeFn);
+      compiler.plugin('emit', emitFn);
+    }
   }
 
   setAssets(compilation) {
@@ -442,10 +475,6 @@ export default class OfflinePlugin {
       this.caches = handledCaches;
       this.assets = [].concat(this.caches.main, this.caches.additional, this.caches.optional);
     }
-
-    Object.keys(this.loaders).forEach((loader) => {
-      this.loaders[loader] = this.validatePaths(this.loaders[loader]);
-    });
   }
 
   setHashesMap(compilation) {
@@ -530,29 +559,6 @@ export default class OfflinePlugin {
         this.preferOnline = preferOnline;
       }
     }
-  }
-
-  extractLoaders(assets) {
-    const R_LOADER = /^([^\s]+?):(\/\/)?/;
-
-    return assets.map((asset) => {
-      const loaderMatch = asset.match(R_LOADER);
-
-      if (loaderMatch && !loaderMatch[2]) {
-        asset = asset.slice(loaderMatch[0].length);
-
-        const loaderName = loaderMatch[1];
-        let loader = this.loaders[loaderName];
-
-        if (!loader) {
-          loader = this.loaders[loaderName] = [];
-        }
-
-        loader.push(asset);
-      }
-
-      return asset;
-    });
   }
 
   stringifyCacheMaps(cacheMaps) {

@@ -74,7 +74,7 @@ function runSeparately() {
 
 function runAll() {
   const mocha = new Mocha({
-    timeout: 10000,
+    timeout: 30000,
   });
 
   glob.sync(path.join(testsFolder, '**/test.js')).forEach((file) => {
@@ -82,6 +82,6 @@ function runAll() {
   });
 
   const r = mocha.run((failures) => {
-    process.exit(failures);
+    // process.exit(failures);
   });
 }

@@ -1,5 +1,7 @@
 # FAQ
 
+___________________________________
+
 **Is it possible to minify `ServiceWorker` script output?**  
 Yes, `offline-plugin` perfectly works with official `webpack.optimize.UglifyJsPlugin`, so if it's used you will get minified `ServiceWorker` script as well (no additional options required).
 

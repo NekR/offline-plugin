@@ -19,7 +19,8 @@ describe('testing basic `network-first` sw install', async () => {
     await webpack;
 
     browser = await puppeteer.launch({
-      headless: true
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     page = await browser.newPage();
   });
@@ -32,6 +33,20 @@ describe('testing basic `network-first` sw install', async () => {
     await page.goto(`${__SERVER__}/`);
     await page.evaluate(function() {
       return navigator.serviceWorker.ready;
+    });
+  });
+
+  it('should go to generated sw file location and get its contents', async () => {
+    const swScriptPage = await browser.newPage();
+
+    await swScriptPage.goto(`${__SERVER__}/sw.js`);
+
+    await swScriptPage.evaluate(function() {
+      const contents = document.body.textContent.trim();
+
+      if (contents.indexOf('var __wpo = {') !== 0) {
+        throw new Error('Incorrect page contents');
+      }
     });
   });
 
