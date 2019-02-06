@@ -1,4 +1,4 @@
-var config = __CONFIG__({
+module.exports = __CONFIG__({
   caches: {
     main: ['external.js', ':rest:']
   },
@@ -10,8 +10,6 @@ var config = __CONFIG__({
   ServiceWorker: {
     entry: 'sw-entry.js'
   }
+}, {
+  swMetadataOnly: false
 });
-
-
-config.plugins[0].__tests.swMetadataOnly = false;
-module.exports = config;

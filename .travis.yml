@@ -2,5 +2,19 @@ sudo: false
 language: node_js
 node_js:
   - "6"
-  - "5"
-  - "4"
+  - "8"
+  - "10"
+env:
+  - TEST_METHOD=ci_fixtures WEBPACK_VERSION=2
+  - TEST_METHOD=ci_fixtures WEBPACK_VERSION=3
+  - TEST_METHOD=ci_fixtures WEBPACK_VERSION=4
+matrix:
+  include:
+    - node_js: "8"
+      env: TEST_METHOD=ci_browser
+before_script:
+  - if [ "$WEBPACK_VERSION" ]; then npm i webpack@$WEBPACK_VERSION; fi
+script: npm run test:"$TEST_METHOD"
+cache:
+  directories:
+    - "node_modules"

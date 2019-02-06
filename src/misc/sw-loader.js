@@ -53,10 +53,13 @@ module.exports.pitch = function pitch(remainingRequest, precedingRequest, data) 
     ]`;
   }
 
+  const navigationPreloadCode = params.navigationPreload;
+
   const helpersCode = [
     ', {',
       `loaders: ${loadersCode},`,
       `cacheMaps: ${cacheMapsCode},`,
+      `navigationPreload: ${navigationPreloadCode},`,
     '}',
   ];
 

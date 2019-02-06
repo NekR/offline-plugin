@@ -1,8 +1,11 @@
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
+import UglifyJsPlugin from './misc/get-uglify-plugin';
 import path from 'path';
-import webpack from 'webpack';
 import deepExtend from 'deep-extend';
-import { getSource, pathToBase, isAbsoluteURL, isAbsolutePath } from './misc/utils';
+import {
+  getSource, pathToBase, isAbsoluteURL,
+  isAbsolutePath, functionToString
+} from './misc/utils';
 
 const REGEX_MINIFY_FUNC = /(\r\n|\n|\r|\s+)/gm;
 
@@ -27,9 +30,10 @@ export default class ServiceWorker {
     this.entry = options.entry;
     this.scope = options.scope ? options.scope + '' : void 0;
     this.events = !!options.events;
-    this.navigateFallbackURL = options.navigateFallbackURL;
-    this.navigateFallbackForRedirects = options.navigateFallbackForRedirects;
     this.prefetchRequest = this.validatePrefetch(options.prefetchRequest);
+    this.updateViaCache = (options.updateViaCache || '') + '';
+    this.navigationPreload = options.navigationPreload;
+    this.forceInstall = !!options.forceInstall;
 
     let cacheNameQualifier = '';
 
@@ -53,8 +57,8 @@ export default class ServiceWorker {
 
     const data = JSON.stringify({
       data_var_name: this.SW_DATA_VAR,
-      loaders: Object.keys(plugin.loaders),
       cacheMaps: plugin.cacheMaps,
+      navigationPreload: this.stringifyNavigationPreload(this.navigationPreload, plugin)
     });
 
     const swLoaderPath = path.join(__dirname, 'misc/sw-loader.js');
@@ -62,40 +66,64 @@ export default class ServiceWorker {
     const entry = loader + '!' + this.entry;
 
     childCompiler.context = compiler.context;
-    childCompiler.apply(new SingleEntryPlugin(compiler.context, entry, name));
+    new SingleEntryPlugin(compiler.context, entry, name).apply(childCompiler);
+
+    const optimization = compiler.options.optimization || {};
+
+    const uglifyOptions = {
+      compress: {
+        warnings: false,
+        dead_code: true,
+        drop_console: true,
+        unused: true
+      },
+
+      output: {
+        comments: false
+      }
+    };
 
     if (this.minify === true) {
+      if (!UglifyJsPlugin) {
+        throw new Error('OfflinePlugin: uglifyjs-webpack-plugin is required to preform a minification')
+      }
+
       const options = {
         test: new RegExp(name),
-        compress: {
-          warnings: false,
-          dead_code: true,
-          drop_console: true,
-          unused: true
-        },
-
-        output: {
-          comments: false
-        }
+        uglifyOptions: uglifyOptions
       };
 
-      childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
-    } else if (this.minify !== false) {
-      (compiler.options.plugins || []).some((plugin) => {
-        if (plugin instanceof webpack.optimize.UglifyJsPlugin) {
+      new UglifyJsPlugin(options).apply(childCompiler);
+    } else if (
+      (this.minify !== false || optimization.minimize) && UglifyJsPlugin
+    ) {
+      // Do not perform auto-minification if UglifyJsPlugin isn't installed
+
+      const added = ((optimization.minimize && optimization.minimizer) || [])
+      .concat(compiler.options.plugins || []).some((plugin) => {
+        if (plugin instanceof UglifyJsPlugin) {
           const options = deepExtend({}, plugin.options);
 
           options.test = new RegExp(name);
-          childCompiler.apply(new webpack.optimize.UglifyJsPlugin(options));
+          new UglifyJsPlugin(options).apply(childCompiler);
 
           return true;
         }
       });
+
+      if (!added && optimization.minimize) {
+        const options = {
+          test: new RegExp(name),
+          uglifyOptions: uglifyOptions
+        };
+
+        new UglifyJsPlugin(options).apply(childCompiler);
+      }
     }
 
     // Needed for HMR. offline-plugin doesn't support it,
     // but added just in case to prevent other errors
-    childCompiler.plugin('compilation', function (compilation) {
+    const compilationFn = (compilation) => {
       if (compilation.cache) {
         if (!compilation.cache[name]) {
           compilation.cache[name] = {};
@@ -103,7 +131,14 @@ export default class ServiceWorker {
 
         compilation.cache = compilation.cache[name];
       }
-    });
+    };
+
+    if (childCompiler.hooks) {
+      const plugin = { name: 'OfflinePlugin' };
+      childCompiler.hooks.compilation.tap(plugin, compilationFn);
+    } else {
+      childCompiler.plugin('compilation', compilationFn);
+    }
 
     return new Promise((resolve, reject) => {
       childCompiler.runAsChild((err, entries, childCompilation) => {
@@ -123,9 +158,16 @@ export default class ServiceWorker {
     if (typeof this.minify === 'boolean') {
       minify = this.minify;
     } else {
-      minify = !!(compiler.options.plugins || []).some((plugin) => {
-        return plugin instanceof webpack.optimize.UglifyJsPlugin;
-      });
+      minify = !!UglifyJsPlugin && (
+        !!(
+          compiler.options.optimization &&
+          compiler.options.optimization.minimize
+        ) || !!(
+          (compiler.options.plugins || []).some((plugin) => {
+            return plugin instanceof UglifyJsPlugin;
+          })
+        )
+      );
     }
 
     let source = this.getDataTemplate(plugin.caches, plugin, minify);
@@ -194,9 +236,6 @@ export default class ServiceWorker {
         externals: externals,
         shouldServeFromNetwork: shouldServeFromNetworkPlaceholder,
         hashesMap: hashesMap,
-        navigateFallbackURL: this.navigateFallbackURL,
-        navigateFallbackForRedirects: this.navigateFallbackURL ?
-          this.navigateFallbackForRedirects : void 0,
 
         strategy: plugin.strategy,
         responseStrategy: plugin.responseStrategy,
@@ -206,7 +245,6 @@ export default class ServiceWorker {
         relativePaths: plugin.relativePaths,
 
         prefetchRequest: this.prefetchRequest,
-        loaders: loaders,
 
         // These aren't added
         alwaysRevalidate: plugin.alwaysRevalidate,
@@ -226,7 +264,9 @@ export default class ServiceWorker {
     return {
       location: this.location,
       scope: this.scope,
-      events: this.events
+      updateViaCache: this.updateViaCache,
+      events: this.events,
+      force: this.forceInstall
     };
   }
 
@@ -236,7 +276,7 @@ export default class ServiceWorker {
     }
 
     if (
-      request.credentials === 'omit' &&
+      request.credentials === 'same-origin' &&
       request.headers === void 0 &&
       request.mode === 'cors' &&
       request.cache === void 0
@@ -250,5 +290,28 @@ export default class ServiceWorker {
       mode: request.mode,
       cache: request.cache
     };
+  }
+
+  stringifyNavigationPreload(navigationPreload, plugin) {
+    let result;
+
+    if (typeof navigationPreload === 'object') {
+      result = navigationPreload = `{
+        map: ${functionToString(navigationPreload.map)},
+        test: ${functionToString(navigationPreload.test)}
+      }`;
+    } else {
+      if (typeof navigationPreload !== 'boolean') {
+        if (plugin.responseStrategy === 'network-first') {
+          navigationPreload = true;
+        } else {
+          navigationPreload = false;
+        }
+      }
+
+      result = JSON.stringify(navigationPreload);
+    }
+
+    return result;
   }
 }

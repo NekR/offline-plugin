@@ -1,4 +1,4 @@
-var config = __CONFIG__({
+module.exports = __CONFIG__({
   excludes: ['main.js'],
   version: '[hash]',
 
@@ -26,7 +26,6 @@ var config = __CONFIG__({
       }
     }
   ]
+}, {
+  swMetadataOnly: false
 });
-
-config.plugins[0].__tests.swMetadataOnly = false;
-module.exports = config;
