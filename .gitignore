@@ -5,3 +5,4 @@ __output/
 .idea
 npm-debug.log
 /tests/browser/**/www
+package-lock.json

@@ -85,7 +85,8 @@
     "webpack": "4.x.x"
   },
   "buildDependencies": {
-    "babel": "^5.8.23"
+    "babel": "^5.8.23",
+    "uglifyjs-webpack-plugin": "^2.1.1"
   },
   "testsBrowserDependencies": {
     "puppeteer": "^1.1.1"
