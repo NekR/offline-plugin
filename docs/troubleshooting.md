@@ -59,19 +59,19 @@ There are multiple ways to fix this depending on your setup. One way is to set [
 
 Some errors, like being unable to fetch the ServiceWorker file, originates from the browser, network or server and are out of control of `offline-plugin`. Here is a list of common errors and their causes.
 
-> "TypeError: Failed to update a ServiceWorker: A bad HTTP response code (500) was received when fetching the script."
+> TypeError: Failed to update a ServiceWorker: A bad HTTP response code (500) was received when fetching the script.
 
 This is a server error. Whatever happens there - it shouldn't. Could be that the server is temporarily down (e.g. changing a deployment on Zeit).
 
-> "TypeError: Failed to fetch"
+> TypeError: Failed to fetch
 
 This is the most generic error you will receive. It typically happens when there's no network connection - it simply can't fetch the file.
 
-> "AbortError: Failed to update a ServiceWorker: The request to fetch the script was interrupted."
+> AbortError: Failed to update a ServiceWorker: The request to fetch the script was interrupted.
 
 This is a network error - something interrupted the connection. It might be due to the network connection being changed or temporarily lost (it happens all the time in the wild).
 
-> "TypeError: Script URL https://my-page.com/sw.js fetch resulted in error: An SSL error has occurred and a secure connection to the server cannot be made."
+> TypeError: Script URL https://my-page.com/sw.js fetch resulted in error: An SSL error has occurred and a secure connection to the server cannot be made.
 
 This is a proxy issue. Ie. someone sitting at an airport or on a train and that network injects fake HTTPS certificates (man in the middle).
 
