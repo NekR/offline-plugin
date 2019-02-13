@@ -7,6 +7,8 @@ node_js:
 env:
   - TEST_METHOD=ci_fixtures WEBPACK_VERSION=2
   - TEST_METHOD=ci_fixtures WEBPACK_VERSION=3
+  # webpack 4.26 switched to terser-webpack-plugin
+  - TEST_METHOD=ci_fixtures WEBPACK_VERSION=4.25
   - TEST_METHOD=ci_fixtures WEBPACK_VERSION=4
 matrix:
   include:
