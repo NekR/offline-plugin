@@ -735,8 +735,13 @@ function WebpackServiceWorker(params, helpers) {
       }
 
       if (!failAll) {
-        responses = responses.filter(function (data) {
-          return !data.error;
+        responses = responses.filter(function (data, i) {
+          if (!data.error) {
+            return true;
+          }
+
+          requests.splice(i, 1);
+          return false;
         });
       }
 
