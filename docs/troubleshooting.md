@@ -57,3 +57,27 @@ There are multiple ways to fix this depending on your setup. One way is to set [
 #### DOMException: Failed to register a ServiceWorker: The script has an unsupported MIME type ('text/html') Error
 
 Make sure your webserver is serving your assets (including `sw.js`) with the correct mime type. Also, make sure you are using relative / absolute paths correctly (see the [`FAQ`](FAQ.md) regarding this). Also make sure that ServiceWorker and/or AppCache files are generated into the correct folder. You may use `ServiceWorker.output` and `AppCache.output` to change the output path. See [options](options.md) for details.
+
+#### Fetching the ServiceWorker results in an error
+
+Some errors, like being unable to fetch the ServiceWorker file, originates from the browser, network or server and are out of control of `offline-plugin`. Here is a list of common errors and their causes.
+
+> TypeError: Failed to update a ServiceWorker: A bad HTTP response code (500) was received when fetching the script.
+
+This is a server error. Whatever happens there - it shouldn't. Could be that the server is temporarily down (e.g. changing a deployment on Zeit).
+
+> TypeError: Failed to fetch
+
+This is the most generic error you will receive. It typically happens when there's no network connection - it simply can't fetch the file.
+
+> AbortError: Failed to update a ServiceWorker: The request to fetch the script was interrupted.
+
+This is a network error - something interrupted the connection. It might be due to the network connection being changed or temporarily lost (it happens all the time in the wild).
+
+> TypeError: Script URL https://my-page.com/sw.js fetch resulted in error: An SSL error has occurred and a secure connection to the server cannot be made.
+
+This is a proxy issue. Ie. someone sitting at an airport or on a train and that network injects fake HTTPS certificates (man in the middle).
+
+#### How to handle out-of-control errors
+
+As the above errors are out of the control of `offline-plugin`, there is nothing we can do to prevent them. What you may do if you receive any of them is to catch them in your code and try to reschedule the update. Also make sure that your server works correctly and remove any potential bugs / error situation causing HTTP 500 Internal Server Error.
