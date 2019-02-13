@@ -1,4 +1,4 @@
-var makeUglifyJsPlugin = require(__ROOT__ + '/lib/misc/get-uglify-plugin').makeUglifyJsPlugin;
+var makeMinificationPlugin = require(__ROOT__ + '/lib/misc/get-minification-plugin').makeMinificationPlugin;
 
 var config = __CONFIG__({
   caches: {
@@ -14,7 +14,7 @@ var config = __CONFIG__({
   swMetadataOnly: false
 });
 
-config.plugins.push(makeUglifyJsPlugin({
+config.plugins.push(makeMinificationPlugin({
   uglifyOptions: {
     compress: {
       warnings: false,

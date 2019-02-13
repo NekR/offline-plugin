@@ -1,5 +1,5 @@
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
-import { makeUglifyJsPlugin, isInstanceOfUglifyJsPlugin } from './misc/get-uglify-plugin';
+import { makeMinificationPlugin, isMinificationPlugin } from './misc/get-minification-plugin';
 import path from 'path';
 import deepExtend from 'deep-extend';
 import {
@@ -82,7 +82,7 @@ export default class ServiceWorker {
     };
 
     if (this.minify === true) {
-      if (makeUglifyJsPlugin == null) {
+      if (makeMinificationPlugin == null) {
         throw new Error('OfflinePlugin: uglifyjs-webpack-plugin or terser-webpack-plugin is required to preform a minification')
       }
 
@@ -91,19 +91,19 @@ export default class ServiceWorker {
         uglifyOptions,
       };
 
-      makeUglifyJsPlugin(options).apply(childCompiler);
+      makeMinificationPlugin(options).apply(childCompiler);
     } else if (
-      (this.minify !== false || optimization.minimize) && makeUglifyJsPlugin
+      (this.minify !== false || optimization.minimize) && makeMinificationPlugin
     ) {
-      // Do not perform auto-minification if UglifyJsPlugin isn't installed
+      // Do not perform auto-minification if MinificationPlugin isn't installed
 
       const added = ((optimization.minimize && optimization.minimizer) || [])
       .concat(compiler.options.plugins || []).some((plugin) => {
-        if (isInstanceOfUglifyJsPlugin(plugin)) {
+        if (isMinificationPlugin(plugin)) {
           const options = deepExtend({}, plugin.options);
 
           options.test = new RegExp(name);
-          makeUglifyJsPlugin(options).apply(childCompiler);
+          makeMinificationPlugin(options).apply(childCompiler);
 
           return true;
         }
@@ -115,7 +115,7 @@ export default class ServiceWorker {
           uglifyOptions,
         };
 
-        makeUglifyJsPlugin(options).apply(childCompiler);
+        makeMinificationPlugin(options).apply(childCompiler);
       }
     }
 
@@ -156,14 +156,12 @@ export default class ServiceWorker {
     if (typeof this.minify === 'boolean') {
       minify = this.minify;
     } else {
-      minify = makeUglifyJsPlugin && (
+      minify = makeMinificationPlugin && (
         !!(
           compiler.options.optimization &&
           compiler.options.optimization.minimize
         ) || !!(
-          (compiler.options.plugins || []).some((plugin) => {
-            return isInstanceOfUglifyJsPlugin(plugin);
-          })
+          (compiler.options.plugins || []).some(isMinificationPlugin)
         )
       );
     }
