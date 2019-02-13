@@ -34,3 +34,12 @@ onUpdateReady: function() {
   OfflinePlugin.applyUpdate();
 }
  ```
+
+**How can I use absolute paths?**  
+By default `offline-plugin` uses `relativePaths: true`. You can override this by setting an (absolute) `publicPath`. This makes `offline-plugin` ignore `relativePaths`:
+
+```js
+new OfflinePlugin({
+  publicPath: '/'
+})
+```
