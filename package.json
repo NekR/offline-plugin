@@ -1,6 +1,6 @@
 {
   "name": "offline-plugin",
-  "version": "5.0.5",
+  "version": "5.0.6",
   "description": "offline-plugin for webpack",
   "main": "lib/index.js",
   "files": [
