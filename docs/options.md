@@ -95,7 +95,7 @@ _Default:_ `':auto:'`
 _Default:_ `{ credentials: 'omit', mode: 'cors' }`  
 _Example:_ `{ credentials: 'include' }`  
 
-* **`minify`**: `boolean`. If set to `true` or `false`, the `ServiceWorker`'s output will be minified or not accordingly. If set to something else, the `ServiceWorker` output will be minified **if** you are using `webpack.optimize.UglifyJsPlugin` in your configuration.  
+* **`minify`**: `boolean`. If set to `true` or `false`, the `ServiceWorker`'s output will be minified or not accordingly. If set to something else, the `ServiceWorker` output will be minified **if** you are using `webpack.optimize.UglifyJsPlugin` or `terser-webpack-plugin` in your configuration.
 _Default:_ `null`
 
 #### `publicPath: string`

@@ -1,5 +1,5 @@
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
-import UglifyJsPlugin from './misc/get-uglify-plugin';
+import { makeMinificationPlugin, isMinificationPlugin } from './misc/get-minification-plugin';
 import path from 'path';
 import deepExtend from 'deep-extend';
 import {
@@ -84,28 +84,28 @@ export default class ServiceWorker {
     };
 
     if (this.minify === true) {
-      if (!UglifyJsPlugin) {
-        throw new Error('OfflinePlugin: uglifyjs-webpack-plugin is required to preform a minification')
+      if (makeMinificationPlugin == null) {
+        throw new Error('OfflinePlugin: uglifyjs-webpack-plugin or terser-webpack-plugin is required to preform a minification')
       }
 
       const options = {
         test: new RegExp(name),
-        uglifyOptions: uglifyOptions
+        uglifyOptions,
       };
 
-      new UglifyJsPlugin(options).apply(childCompiler);
+      makeMinificationPlugin(options).apply(childCompiler);
     } else if (
-      (this.minify !== false || optimization.minimize) && UglifyJsPlugin
+      (this.minify !== false || optimization.minimize) && makeMinificationPlugin
     ) {
-      // Do not perform auto-minification if UglifyJsPlugin isn't installed
+      // Do not perform auto-minification if MinificationPlugin isn't installed
 
       const added = ((optimization.minimize && optimization.minimizer) || [])
       .concat(compiler.options.plugins || []).some((plugin) => {
-        if (plugin instanceof UglifyJsPlugin) {
+        if (isMinificationPlugin(plugin)) {
           const options = deepExtend({}, plugin.options);
 
           options.test = new RegExp(name);
-          new UglifyJsPlugin(options).apply(childCompiler);
+          makeMinificationPlugin(options).apply(childCompiler);
 
           return true;
         }
@@ -114,10 +114,10 @@ export default class ServiceWorker {
       if (!added && optimization.minimize) {
         const options = {
           test: new RegExp(name),
-          uglifyOptions: uglifyOptions
+          uglifyOptions,
         };
 
-        new UglifyJsPlugin(options).apply(childCompiler);
+        makeMinificationPlugin(options).apply(childCompiler);
       }
     }
 
@@ -158,14 +158,12 @@ export default class ServiceWorker {
     if (typeof this.minify === 'boolean') {
       minify = this.minify;
     } else {
-      minify = !!UglifyJsPlugin && (
+      minify = makeMinificationPlugin && (
         !!(
           compiler.options.optimization &&
           compiler.options.optimization.minimize
         ) || !!(
-          (compiler.options.plugins || []).some((plugin) => {
-            return plugin instanceof UglifyJsPlugin;
-          })
+          (compiler.options.plugins || []).some(isMinificationPlugin)
         )
       );
     }
