@@ -129,6 +129,7 @@ All options are optional and `offline-plugin` can be used without specifying the
 * [React Boilerplate](https://github.com/mxstbr/react-boilerplate)
 * [Phenomic](https://phenomic.io)
 * [React, Universally](https://github.com/ctrlplusb/react-universally)
+* [styled-react-boilerplate](https://github.com/xxczaki/styled-react-boilerplate)
 
 ### PWAs
 
