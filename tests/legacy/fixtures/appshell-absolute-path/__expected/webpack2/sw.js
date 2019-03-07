@@ -522,9 +522,16 @@ function WebpackServiceWorker(params, helpers) {
     });
   }
 
+  function shouldServeFromNetwork(response, urlString, cacheUrl) {
+    if (params.shouldServeFromNetwork) {
+      return params.shouldServeFromNetwork(response, urlString, cacheUrl);
+    }
+    return response.ok;
+  }
+
   function networkFirstResponse(event, urlString, cacheUrl) {
     return fetchWithPreload(event).then(function (response) {
-      if (response.ok) {
+      if (shouldServeFromNetwork(response, urlString, cacheUrl)) {
         if (DEBUG) {
           console.log('[SW]:', 'URL [' + urlString + '] from network');
         }
@@ -869,6 +876,7 @@ function logGroup(title, assets) {
 
   console.groupEnd();
 }
+
         WebpackServiceWorker(__wpo, {
 loaders: {},
 cacheMaps: [
