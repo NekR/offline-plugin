@@ -129,6 +129,10 @@ Allows you to adjust what and how to cache the assets.
 > Default: `'all'`.
 
 
+* `shouldServeFromNetwork`: `(response: Response, urlString: string, cacheUrl: string) => boolean`. 
+Allows to customize the behaviour when to fallback to a cached version of a resource if `responseStrategy: 'network-first'`. 
+Defaults to `(response) => response.ok`, meaning a response is only valid when the server returns a 2xx status code (see https://developer.mozilla.org/de/docs/Web/API/Response).
+
 #### `AppCache: Object | null | false`
 
 Settings for the `AppCache` cache. Use `null` or `false` to disable `AppCache` generation.

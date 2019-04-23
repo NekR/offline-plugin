@@ -57,6 +57,7 @@ module.exports.pitch = function pitch(remainingRequest, precedingRequest, data) 
 
   const helpersCode = [
     ', {',
+      `shouldServeFromNetwork: ${params.shouldServeFromNetwork},`,
       `loaders: ${loadersCode},`,
       `cacheMaps: ${cacheMapsCode},`,
       `navigationPreload: ${navigationPreloadCode},`,

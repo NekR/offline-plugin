@@ -7,6 +7,8 @@ import {
   isAbsolutePath, functionToString
 } from './misc/utils';
 
+const REGEX_MINIFY_FUNC = /(\r\n|\n|\r|\s+)/gm;
+
 export default class ServiceWorker {
   constructor(options) {
     if (isAbsolutePath(options.output)) {
@@ -19,7 +21,7 @@ export default class ServiceWorker {
     this.minify = options.minify;
     this.output = options.output.replace(/^\.\/+/, '');
     this.publicPath = options.publicPath;
-
+    this.shouldServeFromNetwork = options.shouldServeFromNetwork;
     this.basePath = null;
     this.location = null;
     this.pathRewrite = null;
@@ -56,6 +58,7 @@ export default class ServiceWorker {
     const data = JSON.stringify({
       data_var_name: this.SW_DATA_VAR,
       cacheMaps: plugin.cacheMaps,
+      shouldServeFromNetwork: functionToString(this.shouldServeFromNetwork),
       navigationPreload: this.stringifyNavigationPreload(this.navigationPreload, plugin)
     });
 
@@ -213,7 +216,10 @@ export default class ServiceWorker {
       pluginVersion = plugin.pluginVersion;
     }
 
-    return `
+    const loaders = Object.keys(plugin.loaders || {}).length ?
+      plugin.loaders : void 0;
+
+    const result = `
       var ${ this.SW_DATA_VAR } = ${ JSON.stringify({
         assets: {
           main: cache('main'),
@@ -222,7 +228,6 @@ export default class ServiceWorker {
         },
 
         externals: externals,
-
         hashesMap: hashesMap,
 
         strategy: plugin.strategy,
@@ -233,13 +238,15 @@ export default class ServiceWorker {
         relativePaths: plugin.relativePaths,
 
         prefetchRequest: this.prefetchRequest,
-
+        loaders: loaders,
         // These aren't added
         alwaysRevalidate: plugin.alwaysRevalidate,
         preferOnline: plugin.preferOnline,
         ignoreSearch: plugin.ignoreSearch,
       }, null, minify ? void 0 : '  ') };
     `.trim();
+
+    return result;
   }
 
   getConfig(plugin) {
