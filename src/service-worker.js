@@ -58,6 +58,7 @@ export default class ServiceWorker {
     const data = JSON.stringify({
       data_var_name: this.SW_DATA_VAR,
       cacheMaps: plugin.cacheMaps,
+      shouldServeFromNetwork: functionToString(this.shouldServeFromNetwork),
       navigationPreload: this.stringifyNavigationPreload(this.navigationPreload, plugin)
     });
 
@@ -215,14 +216,9 @@ export default class ServiceWorker {
       pluginVersion = plugin.pluginVersion;
     }
 
-    const loaders = Object.keys(plugin.loaders).length ?
+    const loaders = Object.keys(plugin.loaders || {}).length ?
       plugin.loaders : void 0;
 
-    const shouldServeFromNetworkPlaceholder =
-      this.shouldServeFromNetwork ? '__func_should_serve_from_network__' : undefined;
-    const functionResult = this.shouldServeFromNetwork &&
-      (minify ? this.shouldServeFromNetwork.toString().replace(REGEX_MINIFY_FUNC, '') :
-      this.shouldServeFromNetwork.toString());
     const result = `
       var ${ this.SW_DATA_VAR } = ${ JSON.stringify({
         assets: {
@@ -232,7 +228,6 @@ export default class ServiceWorker {
         },
 
         externals: externals,
-        shouldServeFromNetwork: shouldServeFromNetworkPlaceholder,
         hashesMap: hashesMap,
 
         strategy: plugin.strategy,
@@ -243,17 +238,13 @@ export default class ServiceWorker {
         relativePaths: plugin.relativePaths,
 
         prefetchRequest: this.prefetchRequest,
-
+        loaders: loaders,
         // These aren't added
         alwaysRevalidate: plugin.alwaysRevalidate,
         preferOnline: plugin.preferOnline,
         ignoreSearch: plugin.ignoreSearch,
       }, null, minify ? void 0 : '  ') };
     `.trim();
-
-    if (functionResult) {
-      return result.replace( `"${shouldServeFromNetworkPlaceholder}"`, functionResult.trim());
-    }
 
     return result;
   }

@@ -510,8 +510,8 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   function shouldServeFromNetwork(response, urlString, cacheUrl) {
-    if (params.shouldServeFromNetwork) {
-      return params.shouldServeFromNetwork(response, urlString, cacheUrl);
+    if (helpers.shouldServeFromNetwork) {
+      return helpers.shouldServeFromNetwork(response, urlString, cacheUrl);
     }
     return response.ok;
   }
@@ -863,8 +863,8 @@ function logGroup(title, assets) {
 
   console.groupEnd();
 }
-
         WebpackServiceWorker(__wpo, {
+shouldServeFromNetwork: (void 0),
 loaders: {},
 cacheMaps: [
       {
