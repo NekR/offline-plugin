@@ -125,7 +125,7 @@ function WebpackServiceWorker(params, helpers) {
       const lastMap = lastData.hashmap;
       const lastVersion = lastData.version;
 
-      if (!lastData.hashmap || lastVersion === params.version) {
+      if (!lastData.hashmap || lastVersion !== params.version) {
         return cacheAssets(section);
       }
 
