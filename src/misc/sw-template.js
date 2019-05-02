@@ -584,6 +584,8 @@ function WebpackServiceWorker(params, helpers) {
   }
 
   function addAllNormalized(cache, requests, options) {
+    requests = requests.slice();
+
     const bustValue = options.bust;
     const failAll = options.failAll !== false;
     const deleteFirst = options.deleteFirst === true;
