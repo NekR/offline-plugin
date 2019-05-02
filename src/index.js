@@ -339,7 +339,7 @@ export default class OfflinePlugin {
 
     const excludes = this.options.excludes;
     let assets = Object.keys(compilation.assets);
-    let externals = this.options.externals;
+    let externals = this.options.externals.slice();
 
     if (Array.isArray(excludes) && excludes.length) {
       assets = assets.filter((asset) => {
