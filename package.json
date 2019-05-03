@@ -83,7 +83,7 @@
     "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
     "mocha": "^4.0.1",
-    "webpack": "4.x.x"
+    "webpack": "4.26.x"
   },
   "buildDependencies": {
     "babel": "^5.8.38"
