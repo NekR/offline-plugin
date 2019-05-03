@@ -1,6 +1,6 @@
-## Options
+# Options
 
-All options are optional, see the defaults [here](../src/default-options.js).
+All options are optional, see the defaults [here](https://github.com/NekR/offline-plugin/blob/master/src/default-options.js).
 
 #### `appShell: string`
 
@@ -95,12 +95,12 @@ _Default:_ `':auto:'`
 _Default:_ `{ credentials: 'omit', mode: 'cors' }`  
 _Example:_ `{ credentials: 'include' }`  
 
-* **`minify`**: `boolean`. If set to `true` or `false`, the `ServiceWorker`'s output will be minified or not accordingly. If set to something else, the `ServiceWorker` output will be minified **if** you are using `webpack.optimize.UglifyJsPlugin` in your configuration.  
+* **`minify`**: `boolean`. If set to `true` or `false`, the `ServiceWorker`'s output will be minified or not accordingly. If set to something else, the `ServiceWorker` output will be minified **if** you are using `webpack.optimize.UglifyJsPlugin` or `terser-webpack-plugin` in your configuration.
 _Default:_ `null`
 
 #### `publicPath: string`
 
-Similar to `webpack`'s `output.publicPath` option. Useful to specify or override `publicPath` specifically for `offline-plugin`. When not specified, `webpack`'s `output.publicPath` value is used. When `publicPath` value isn't spsecified at all (either by this option or by `webpack`'s `output.publicPath` option), relative paths are used (see `relativePaths` option).
+Similar to `webpack`'s `output.publicPath` option. Useful to specify or override `publicPath` specifically for `offline-plugin`. When not specified, `webpack`'s `output.publicPath` value is used. When `publicPath` value isn't specified at all (either by this option or by `webpack`'s `output.publicPath` option), relative paths are used (see `relativePaths` option).
 
 > __Examples:__  
 `publicPath: '/project/'`  

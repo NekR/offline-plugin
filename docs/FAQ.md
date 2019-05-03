@@ -1,7 +1,9 @@
 # FAQ
 
+___________________________________
+
 **Is it possible to minify `ServiceWorker` script output?**  
-Yes, `offline-plugin` perfectly works with official `webpack.optimize.UglifyJsPlugin`, so if it's used you will get minified `ServiceWorker` script as well (no additional options required).
+Yes, `offline-plugin` perfectly works with official `webpack.optimize.UglifyJsPlugin` and `terser-webpack-plugin`. If used, the `ServiceWorker` script will be minified as well (no additional options required).
 
 **Is there a way to match assets with dynamic file names, like compilation hash or version?**  
 Yes, it's possible with `pattern matching`, which is performed by [minimatch](https://www.npmjs.com/package/minimatch) library.  
@@ -32,3 +34,12 @@ onUpdateReady: function() {
   OfflinePlugin.applyUpdate();
 }
  ```
+
+**How can I use absolute paths?**  
+By default `offline-plugin` uses `relativePaths: true`. You can override this by setting an (absolute) `publicPath`. This makes `offline-plugin` ignore `relativePaths`:
+
+```js
+new OfflinePlugin({
+  publicPath: '/'
+})
+```

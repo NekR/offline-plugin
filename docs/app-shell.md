@@ -1,5 +1,7 @@
 # `appShell: string`
 
+___________________________________
+
 > Default: `null`.  
 > **Example:** `'/'`
 

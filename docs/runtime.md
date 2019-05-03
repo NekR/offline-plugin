@@ -1,5 +1,7 @@
 # Runtime
 
+___________________________________
+
 Besides plugin configuration, you also need to initialize it at runtime in your entry file. This is how you can do it:
 
 ```js
@@ -7,6 +9,7 @@ require('offline-plugin/runtime').install();
 ```
 
 ES6/Babel/TypeScript
+
 ```js
 import * as OfflinePluginRuntime from 'offline-plugin/runtime';
 OfflinePluginRuntime.install();

@@ -1,4 +1,7 @@
-## `navigationPreload: boolean | Object | ':auto:'`
+# `navigationPreload: boolean | Object | ':auto:'`
+
+___________________________________
+
 > _Default:_ `':auto:'`
 
 [Navigation preload](https://developers.google.com/web/updates/2017/02/navigation-preload) is a ServiceWorker's feature which provides a way to make a request to the website even before ServiceWorker or a page is initialized. This can be useful for data fetching to speedup loading of the application.

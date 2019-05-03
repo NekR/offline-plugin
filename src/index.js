@@ -339,20 +339,10 @@ export default class OfflinePlugin {
 
     const excludes = this.options.excludes;
     let assets = Object.keys(compilation.assets);
-    let externals = this.options.externals;
+    let externals = this.options.externals.slice();
 
     if (Array.isArray(excludes) && excludes.length) {
-      assets = assets.filter((asset) => {
-        if (excludes.some((glob) => {
-          if (minimatch(asset, glob)) {
-            return true;
-          }
-        })) {
-          return false;
-        }
-
-        return true;
-      });
+      assets = assets.filter((asset) => !excludes.some((glob) => minimatch(asset, glob)));
     }
 
     this.externals = this.validatePaths(externals);

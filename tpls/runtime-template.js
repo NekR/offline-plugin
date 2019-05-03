@@ -188,7 +188,7 @@ function install(options) {
 function applyUpdate(callback, errback) {
   <% if (typeof ServiceWorker !== 'undefined' && ServiceWorker.events) { %>
     if (hasSW()) {
-      navigator.serviceWorker.getRegistration().then(function(registration) {
+      navigator.serviceWorker.getRegistration(<%- JSON.stringify(ServiceWorker.scope) %>).then(function(registration) {
         if (!registration || !registration.waiting) {
           errback && errback();
           return;
@@ -220,7 +220,7 @@ function applyUpdate(callback, errback) {
 function update() {
   <% if (typeof ServiceWorker !== 'undefined') { %>
     if (hasSW()) {
-      navigator.serviceWorker.getRegistration().then(function(registration) {
+      navigator.serviceWorker.getRegistration(<%- JSON.stringify(ServiceWorker.scope) %>).then(function(registration) {
         if (!registration) return;
         return registration.update();
       });
