@@ -8,6 +8,14 @@ var compare = require('./compare');
 var webpackMajorVersion = require('webpack/package.json').version.split('.')[0];
 
 module.exports = function(OfflinePluginOptions, testFlags) {
+  testFlags = testFlags || {};
+
+  if (testFlags.minimumWebpackMajorVersion &&
+      parseInt(webpackMajorVersion, 10) < testFlags.minimumWebpackMajorVersion) {
+    throw new Error('unsupported webpack version');
+  }
+  delete testFlags.minimumWebpackMajorVersion;
+
   var testDir = process.cwd();
   var outputPath = path.join(testDir, '__output');
 
@@ -17,7 +25,7 @@ module.exports = function(OfflinePluginOptions, testFlags) {
     noVersionDump: true,
     appCacheEnabled: true,
     pluginVersion: '999.999.999'
-  }, testFlags || {});
+  }, testFlags);
 
   var config = {
     bail: true,
@@ -48,6 +56,7 @@ module.exports = function(OfflinePluginOptions, testFlags) {
 
   if (webpackMajorVersion === '4') {
     config.mode = 'none';
+    config.resolve.extensions.push('.wasm');
   }
 
   return config;

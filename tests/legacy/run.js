@@ -45,23 +45,38 @@ tests.reduce(function(last, testName) {
       webpack(config, function(err, stats) {
         compare(testDir).then(function() {
           if (err) {
-            reject();
+            reject(err);
             return;
           }
 
           if (stats.compilation.warnings.length) {
-            reject();
+            console.warn('Warnings:');
+            stats.compilation.warnings.forEach(function (warning) {
+              console.warn(warning);
+            });
+            reject(new Error('encountered at least one warning'));
             return;
           }
 
           if (stats.compilation.errors.length) {
-            reject();
+            console.error('Errors:');
+            stats.compilation.errors.forEach(function (error) {
+              console.error(error);
+            });
+            reject(new Error('encountered at least one error'));
             return;
           }
 
           resolve();
         }).catch(reject);
       });
+    }).catch(function (err) {
+      if (err instanceof Error && err.message === 'unsupported webpack version') {
+        var testName = path.basename(testDir);
+        console.log('Skipping: ' + testName + '\n  because of unsupported webpack version');
+        return;
+      }
+      throw err;
     });
 
     allTests.push(test);
