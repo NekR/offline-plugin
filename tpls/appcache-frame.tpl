@@ -90,9 +90,6 @@
         clearInterval(downloadingInterval);
         downloadingInterval = null;
       }
-
-      applicationCache.removeEventListener('downloading', onDownloadingEvent);
-      applicationCache.removeEventListener('progress', onDownloadingEvent);
     }
 
     function cleanUp() {
@@ -102,10 +99,6 @@
       }
 
       downloadingCleanUp();
-
-      applicationCache.removeEventListener('updateready', onUpdateReadyEvent);
-      applicationCache.removeEventListener('cached', onInstalledEvent);
-      applicationCache.removeEventListener('obsolete', onObsoleteEvent);
 
       if (updateReadyInterval) {
         clearInterval(updateReadyInterval);
