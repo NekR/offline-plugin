@@ -643,7 +643,7 @@ export default class OfflinePlugin {
         relativeBase = relativeBase + '/';
       }
 
-      tool.basePath = relativeBase[0] === '.' ? relativeBase : './' + relativeBase;
+      tool.basePath = relativeBase[0] === '.' ? relativeBase : path.join('./', relativeBase);
     } else if (this.publicPath) {
       tool.basePath = this.publicPath.replace(/\/$/, '') + '/';
     }
@@ -672,7 +672,7 @@ export default class OfflinePlugin {
           return _path;
         }
 
-        return tool.basePath + _path;
+        return path.join(tool.basePath, _path);
       });
     } else {
       tool.pathRewrite = (path => {
@@ -700,7 +700,7 @@ export default class OfflinePlugin {
           return key;
         }
 
-        return this.publicPath + key.replace(/^\.?\//, '');
+        return path.join(this.publicPath, key.replace(/^\.?\//, ''));
       });
   }
 
