@@ -54,6 +54,10 @@ There are multiple ways to fix this depending on your setup. One way is to set [
 
 `offline-plugin` can cache resources served from a CDN, given the correct configuration. Make sure the resources are served with the correct headers.
 
+#### Updates are not being applied after upgrading from webpack 3 to 4
+
+Since `offline-plugin` updates files based on their hashed chunk names, make sure they are exactly the same before and after upgrading webpack versions. (see original question and answer on [SO](https://stackoverflow.com/questions/57339054/clear-cache-on-current-users-device-in-migrating-from-webpack-3-to-4))
+
 #### DOMException: Failed to register a ServiceWorker: The script has an unsupported MIME type ('text/html') Error
 
 Make sure your webserver is serving your assets (including `sw.js`) with the correct mime type. Also, make sure you are using relative / absolute paths correctly (see the [`FAQ`](FAQ.md) regarding this). Also make sure that ServiceWorker and/or AppCache files are generated into the correct folder. You may use `ServiceWorker.output` and `AppCache.output` to change the output path. See [options](options.md) for details.
