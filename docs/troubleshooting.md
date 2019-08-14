@@ -46,6 +46,10 @@ Make sure you are using the correct [prefetchRequest.credentials](options.md#ser
 
 There are multiple ways to fix this depending on your setup. One way is to set [cacheMaps.requestTypes](cache-maps.md) to `['navigate']`, caching only those requests.
 
+#### I am using `html-webpack-plugin` and `manifest="manifest.appcache"` is being appended to my `<html>` tag
+
+Webpack executes plugins in the order they're listed in the webpack configuration. `offline-plugin` must be listed (and executed) after `html-webpack-plugin` for it to work properly.
+
 #### AppCache events are not working properly
 
 `AppCache.events` are known to be a bit buggy (see [updates](updates.md)). Try to avoid using them if possible.
