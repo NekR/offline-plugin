@@ -54,6 +54,10 @@ There are multiple ways to fix this depending on your setup. One way is to set [
 
 `offline-plugin` can cache resources served from a CDN, given the correct configuration. Make sure the resources are served with the correct headers.
 
+#### Mobile "Home Screen" app not updating
+
+For `offline-plugin` to properly work on a PWA installed on the home screen, you should use ServiceWorker rather than appCache. _If you have had appCache enabled and want to change to ServiceWorker, you might have to add `<html manifest="disabled.appcache">` to clear the cache on android devices._
+
 #### DOMException: Failed to register a ServiceWorker: The script has an unsupported MIME type ('text/html') Error
 
 Make sure your webserver is serving your assets (including `sw.js`) with the correct mime type. Also, make sure you are using relative / absolute paths correctly (see the [`FAQ`](FAQ.md) regarding this). Also make sure that ServiceWorker and/or AppCache files are generated into the correct folder. You may use `ServiceWorker.output` and `AppCache.output` to change the output path. See [options](options.md) for details.
