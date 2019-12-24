@@ -649,9 +649,9 @@ export default class OfflinePlugin {
     }
 
     if (this.relativePaths) {
-      tool.location = tool.output;
+      tool.location = `__webpack_public_path__ + ${JSON.stringify(tool.output)}`;
     } else if (this.publicPath && tool.publicPath) {
-      tool.location = tool.publicPath;
+      tool.location = JSON.stringify(tool.publicPath);
     } else if (this.publicPath) {
       const publicUrl = url.parse(this.publicPath);
       const publicPath = publicUrl.pathname;
@@ -663,7 +663,7 @@ export default class OfflinePlugin {
         new Error(`OfflinePlugin: Wrong ${ key }.output value. Final ${ key }.location URL path bounds are outside of publicPath`);
       }
 
-      tool.location = url.format(publicUrl);
+      tool.location = JSON.stringify(url.format(publicUrl));
     }
 
     if (this.relativePaths) {

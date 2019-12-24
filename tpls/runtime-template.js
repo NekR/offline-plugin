@@ -20,7 +20,7 @@ function install(options) {
     if (hasSW()) {
       var registration = navigator.serviceWorker
         .register(
-          <%- JSON.stringify(ServiceWorker.location) %>, {
+          <%- ServiceWorker.location %>, {
             <% if (ServiceWorker.scope) { %>
               scope: <%- JSON.stringify(ServiceWorker.scope) %>,
             <% } %>
