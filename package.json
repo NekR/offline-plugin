@@ -46,7 +46,7 @@
   "dependencies": {
     "deep-extend": "^0.5.1",
     "ejs": "^2.3.4",
-    "loader-utils": "0.2.x",
+    "loader-utils": "2.0.0",
     "minimatch": "^3.0.3",
     "slash": "^1.0.0"
   },
