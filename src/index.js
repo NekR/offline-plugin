@@ -211,27 +211,32 @@ export default class OfflinePlugin {
     });
 
     const afterResolveFn = (result, callback) => {
-      const resource = path.resolve(compiler.context, result.resource);
+      // Webpack 5.1.0 adds the `compiler.webpack` property.
+      const isWebpack5 = !!compiler.webpack
+      const createData = isWebpack5 ? result.createData : result;
 
-      if (resource !== runtimePath) {
-        callback(null, result);
-        return;
+      const resource = path.resolve(compiler.context, createData.resource);
+
+      if (resource === runtimePath) {
+        const data = {
+          autoUpdate: this.autoUpdate
+        };
+
+        this.useTools((tool, key) => {
+          data[key] = tool.getConfig(this);
+        });
+
+        createData.loaders.push({
+          loader: path.join(__dirname, 'misc/runtime-loader.js'),
+          options: JSON.stringify(data)
+        });
       }
 
-      const data = {
-        autoUpdate: this.autoUpdate
-      };
-
-      this.useTools((tool, key) => {
-        data[key] = tool.getConfig(this);
-      });
-
-      result.loaders.push({
-        loader: path.join(__dirname, 'misc/runtime-loader.js'),
-        options: JSON.stringify(data)
-      });
-
-      callback(null, result);
+      if (isWebpack5) {
+        callback();
+      } else {
+        callback(null, result);
+      }
     };
 
     const makeFn = (compilation, callback) => {
@@ -242,6 +247,7 @@ export default class OfflinePlugin {
       if (this.errors.length) {
         [].push.apply(compilation.errors, this.errors);
       }
+
 
       this.useTools((tool) => {
         return tool.addEntry(this, compilation, compiler);
