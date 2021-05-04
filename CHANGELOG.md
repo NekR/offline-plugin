@@ -1,6 +1,10 @@
 # CHANGELOG
 
-:information_source: For all later changes, please see https://github.com/NekR/offline-plugin/releases
+:information_source: For all later changes, please see https://https://github.com/LeComptoirDesPharmacies/offline-plugin/releases
+
+### 5.1.0
+
+* Add `webpack@5.x.x` compatibility
 
 ### 4.8.1
 
