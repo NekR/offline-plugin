@@ -32,16 +32,12 @@
     "release:next:major": "npm --no-git-tag-version version premajor && npm run publish:next",
     "release:next:update": "npm --no-git-tag-version version prerelease && npm run publish:next"
   },
-  "collective": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/offline-plugin",
-    "logo": "https://opencollective.com/offline-plugin/logo.txt?variant=binary&reverse=true"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/LeComptoirDesPharmacies/offline-plugin.git"
   },
   "author": "Le Comptoir Des Pharmacies <webmaster@lecomptoirdespharmacies.fr>",
+  "contributors": ["Arthur Stolyar <nekr.fabula@gmail.com>"],
   "license": "MIT",
   "dependencies": {
     "deep-extend": "^0.5.1",
