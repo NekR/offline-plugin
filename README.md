@@ -12,7 +12,7 @@ If you are looking for the original `v5` from <a href="https://github.com/NekR/o
 
 ## Install
 
-`npm install offline-plugin [--save-dev]`
+`npm install @lcdp/offline-plugin [--save-dev]`
 
 ## Setup
 
@@ -21,7 +21,7 @@ First, instantiate the plugin in your `webpack.config`:
 ```js
 // webpack.config.js example
 
-var OfflinePlugin = require('offline-plugin');
+var OfflinePlugin = require('@lcdp/offline-plugin');
 
 module.exports = {
   // ...
@@ -39,12 +39,12 @@ _(and optionally configure with [options](docs/options.md))_
 Then, add the [runtime](docs/runtime.md) into your entry file (typically main entry):
 
 ```js
-require('offline-plugin/runtime').install();
+require('@lcdp/offline-plugin/runtime').install();
 ```
 
 ES6/Babel/TypeScript
 ```js
-import * as OfflinePluginRuntime from 'offline-plugin/runtime';
+import * as OfflinePluginRuntime from '@lcdp/offline-plugin/runtime';
 OfflinePluginRuntime.install();
 ```
 
